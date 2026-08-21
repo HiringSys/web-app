@@ -1,33 +1,24 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ThemeColor } from '../../lib/colors'
 
 const props = withDefaults(
   defineProps<{
-    text: string
-    color?: ThemeColor
+    text:      string
+    rounded?:  boolean
     disabled?: boolean
   }>(),
   {
-    color: ThemeColor.Primary,
     disabled: false,
+    rounded:  false,
   },
 )
 
-const colorClasses: Record<ThemeColor, string> = {
-  [ThemeColor.Primary]: 'bg-primary hover:bg-primary-hover text-primary-foreground focus-visible:outline-primary',
-  [ThemeColor.Danger]: 'bg-danger hover:bg-danger-hover text-danger-foreground focus-visible:outline-danger',
-}
-
-const classes = computed(() => colorClasses[props.color])
 </script>
 
 <template>
-  <button type="button"
-    :disabled="disabled"
-    :class="classes"
-    class="inline-flex items-center justify-center rounded-medium px-4 py-2 text-sm font-medium"
-  >
+  <button class="relative inline-flex transition-all font-medium text-white px-4 py-2 bg-blue cursor-pointer shadow-[0_5.5px_0_0_var(--color-blue-co)] hover:shadow-[0_4px_0_0_var(--color-blue-co)] active:shadow-[0_0px_0_0_var(--color-blue-co)] hover:translate-y-1 active:translate-y-2"
+  :class="rounded ? 'rounded-full' : 'rounded-medium'"
+  type="button"
+  :disabled="disabled">
     {{ text }}
   </button>
 </template>
