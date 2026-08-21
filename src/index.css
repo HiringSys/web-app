@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-white:    #FFFFFF;
+  --color-white-co: #F8F8F8;
+  --color-gray:     #ECECEC;
+  --color-black:    #191919;
+
+  --color-blue:     #7C8DFF;
+  --color-blue-co:  #5B67B8;
+  --color-red:      #FF7C7C;
+  --color-red-co:   #E36767;
+
+  --radius-low: 0.3rem;
+  --radius-medium: 0.8rem;
+
+  --text-display:    2rem;
+  --text-heading:    1.5rem;
+  --text-subheading: 1.25rem;
+  --text-body:       1rem;
+  --text-small:      0.875rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+@layer base {
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    font-style: normal;
+
+    @apply text-body font-regular;
+  }
+
+  body { @apply bg-gray }
+
+  h1 { @apply text-display font-bold text-black;                 }
+  h2 { @apply text-heading font-semibold text-black opacity-80;  }
+  h3 { @apply text-subheading font-medium text-black opacity-60; }
+  p  { @apply text-body font-regular text-black;                 }
+}
+
+* {
+  font-family: "DM Sans", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
