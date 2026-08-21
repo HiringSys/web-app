@@ -1,4 +1,4 @@
-import type { TableColumn } from './types'
+import type { TableColumn } from '../types'
 
 const HANDLE_WIDTH = '1.5rem'
 

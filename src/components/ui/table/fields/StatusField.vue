@@ -9,17 +9,17 @@ const props = defineProps<{
 
 const config = computed(() =>
   props.status === 'aprovado'
-    ? { label: 'Aprovado', icon: Check, classes: 'bg-primary text-primary-foreground' }
-    : { label: 'Reprovado', icon: X, classes: 'bg-danger text-danger-foreground' },
+    ? { label: 'Aprovado',  icon: Check, classes: 'bg-blue' }
+    : { label: 'Reprovado', icon: X,     classes: 'bg-red'  },
 )
 </script>
 
 <template>
   <span
-    class="inline-flex w-fit items-center gap-1 rounded-medium px-3 py-1 text-xs font-semibold"
+    class="inline-flex w-fit items-center gap-1 px-3 py-1 rounded-low text-small text-white font-semibold"
     :class="config.classes"
   >
     {{ config.label }}
-    <component :is="config.icon" :size="14" />
+    <component :is="config.icon" :size="16" :stroke-width="2.2" />
   </span>
 </template>

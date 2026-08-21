@@ -5,5 +5,5 @@ defineProps<{
 </script>
 
 <template>
-  <span class="text-sm font-medium text-black">{{ seniority }}</span>
+  <span class="text-body font-medium text-black">{{ seniority }}</span>
 </template>

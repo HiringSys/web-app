@@ -1,20 +1,45 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { socialIconPaths, type SocialNetwork } from '../socials'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import {
+  faBehance,
+  faDribbble,
+  faFacebook,
+  faGithub,
+  faGitlab,
+  faInstagram,
+  faLinkedin,
+  faTiktok,
+  faWhatsapp,
+  faXTwitter,
+} from "@fortawesome/free-brands-svg-icons";
+import { SocialNetwork, type SocialNetwork as SocialNetworkValue } from "../types";
+
+const socialIcons = {
+  [SocialNetwork.LinkedIn]: faLinkedin,
+  [SocialNetwork.GitHub]: faGithub,
+  [SocialNetwork.Instagram]: faInstagram,
+  [SocialNetwork.Facebook]: faFacebook,
+  [SocialNetwork.X]: faXTwitter,
+  [SocialNetwork.WhatsApp]: faWhatsapp,
+  [SocialNetwork.GitLab]: faGitlab,
+  [SocialNetwork.Behance]: faBehance,
+  [SocialNetwork.Dribbble]: faDribbble,
+  [SocialNetwork.TikTok]: faTiktok,
+} satisfies Record<SocialNetworkValue, typeof faLinkedin>;
 
 const props = withDefaults(
   defineProps<{
-    network: SocialNetwork
-    size?: number
+    network: SocialNetworkValue;
+    size?: number;
   }>(),
   { size: 16 },
-)
-
-const path = computed(() => socialIconPaths[props.network])
+);
 </script>
 
 <template>
-  <svg :width="size" :height="size" viewBox="0 0 16 16" fill="currentColor" class="text-black">
-    <path :d="path" />
-  </svg>
+  <FontAwesomeIcon
+    :icon="socialIcons[network]"
+    :style="{ width: `${size}px`, height: `${size}px`, stroke: 'currentColor', strokeWidth: 3 }"
+    class="text-black/40 hover:text-black/80 transition-colors duration-200 cursor-pointer"
+  />
 </template>

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+
+import { computed }           from 'vue'
 import { CircleQuestionMark } from '@lucide/vue'
-import Row from './Row.vue'
-import { gridTemplate } from './grid'
+
 import type { Candidate, TableColumn } from './types'
+import      { gridTemplate }           from './style/grid'
+
+import Row from './Row.vue'
 
 const props = defineProps<{
   columns: TableColumn[]
@@ -11,6 +14,7 @@ const props = defineProps<{
 }>()
 
 const headerStyle = computed(() => ({ gridTemplateColumns: gridTemplate(props.columns) }))
+
 </script>
 
 <template>
@@ -23,7 +27,7 @@ const headerStyle = computed(() => ({ gridTemplateColumns: gridTemplate(props.co
         class="flex items-center gap-1.5"
         :class="column.align === 'start' ? 'justify-start' : 'justify-center'"
       >
-        <span class="text-sm font-medium text-gray-500">{{ column.label }}</span>
+        <span class="text-small font-medium text-gray-500">{{ column.label }}</span>
         <CircleQuestionMark :size="14" class="text-gray-300" />
       </div>
     </div>

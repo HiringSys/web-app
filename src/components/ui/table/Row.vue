@@ -1,12 +1,14 @@
 <script setup lang="ts">
+
 import { computed } from 'vue'
-import { Grip } from '@lucide/vue'
-import CandidateField from './fields/CandidateField.vue'
-import StatusField from './fields/StatusField.vue'
-import PhoneField from './fields/PhoneField.vue'
-import NetworkField from './fields/NetworkField.vue'
-import SeniorityField from './fields/SeniorityField.vue'
-import { gridTemplate } from './grid'
+import { Grip }     from '@lucide/vue'
+
+import CandidateField   from '@@/ui/table/fields/CandidateField.vue'
+import StatusField      from '@@/ui/table/fields/StatusField.vue'
+import PhoneField       from '@@/ui/table/fields/PhoneField.vue'
+import NetworkField     from '@@/ui/table/fields/NetworkField.vue'
+import SeniorityField   from '@@/ui/table/fields/SeniorityField.vue'
+import { gridTemplate } from './style/grid'
 import type { Candidate, TableColumn } from './types'
 
 const props = defineProps<{
@@ -15,6 +17,7 @@ const props = defineProps<{
 }>()
 
 const style = computed(() => ({ gridTemplateColumns: gridTemplate(props.columns) }))
+
 </script>
 
 <template>

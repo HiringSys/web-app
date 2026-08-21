@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import SocialIcon from './SocialIcon.vue'
-import type { SocialNetwork } from '../socials'
+import SocialIcon from "./SocialIcon.vue";
+import type { SocialNetwork } from "../types";
 
 withDefaults(
   defineProps<{
-    networks?: SocialNetwork[]
+    networks?: SocialNetwork[];
   }>(),
   { networks: () => [] },
-)
+);
 </script>
 
 <template>

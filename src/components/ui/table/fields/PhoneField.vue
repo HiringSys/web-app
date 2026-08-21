@@ -1,9 +1,13 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   phone: string
 }>()
+
+async function copyPhone() {
+  await navigator.clipboard.writeText(props.phone)
+}
 </script>
 
 <template>
-  <span class="text-sm text-black">{{ phone }}</span>
+  <span class="cursor-pointer text-body text-black" @click="copyPhone">{{ phone }}</span>
 </template>
