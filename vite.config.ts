@@ -11,6 +11,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@@': fileURLToPath(new URL('./src/components', import.meta.url)),
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
+      '@mocks': fileURLToPath(new URL('./src/service/mocks', import.meta.url)),
     },
   },
 })

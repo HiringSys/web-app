@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
+import ProcessesView from '@/views/core/ProcessesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: ProcessesView,
       meta: { title: 'Peneiras' }
     },
     {
@@ -35,21 +35,15 @@ const router = createRouter({
       meta: { title: 'Testes' }
     },
     {
-      path: '/candidatos',
-      name: 'candidatos',
-      component: () => import('@/views/CandidatesView.vue'),
-      meta: { title: 'Candidatos' }
-    },
-    {
       path: '/peneiras',
       name: 'peneiras',
-      component: () => import('@/views/PeneirasView.vue'),
+      component: () => import('@/views/core/ProcessesView.vue'),
       meta: { title: 'Peneiras' }
     },
     {
       path: '/peneiras/:id',
       name: 'peneira-filtragem',
-      component: () => import('@/views/FiltragemView.vue'),
+      component: () => import('@/views/core/ProcessDetailView.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

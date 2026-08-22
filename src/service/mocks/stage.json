@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "jobTitle": "Desenvolvedor frontend",
+    "department": "Plataforma de Recebíveis",
+    "status": "em_coleta",
+    "availableSlots": 500,
+    "participants": 7,
+    "role": "Desenvolvedores",
+    "approvalLimit": 5
+  },
+  {
+    "id": 2,
+    "jobTitle": "Desenvolvedor backend",
+    "department": "Plataforma de Pagamentos",
+    "status": "em_processo",
+    "availableSlots": 300,
+    "participants": 9,
+    "role": "Desenvolvedores",
+    "approvalLimit": 4
+  },
+  {
+    "id": 3,
+    "jobTitle": "Analista de QA",
+    "department": "Qualidade",
+    "status": "pausado",
+    "availableSlots": 150,
+    "participants": 3,
+    "role": "QA",
+    "approvalLimit": 2
+  },
+  {
+    "id": 4,
+    "jobTitle": "Product Designer",
+    "department": "Design",
+    "status": "encerrado",
+    "availableSlots": 200,
+    "participants": 6,
+    "role": "Design",
+    "approvalLimit": 3
+  },
+  {
+    "id": 5,
+    "jobTitle": "Engenheiro de dados",
+    "department": "Dados",
+    "status": "rascunho",
+    "availableSlots": 100,
+    "participants": 0,
+    "role": "Dados",
+    "approvalLimit": 2
+  }
+]
