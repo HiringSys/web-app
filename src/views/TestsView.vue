@@ -107,10 +107,12 @@ const candidates = ref<Candidate[]>([
   <main class="mx-auto flex max-w-6xl flex-col gap-6 p-8">
     <h1>Componentes UI</h1>
 
-    <section class="flex flex-wrap gap-3">
+    <section class="flex flex-wrap items-center gap-3">
       <Button text="Padrão" />
       <Button text="Perigo" />
       <Button text="Desabilitado" disabled />
+      <Button icon="Home" variant="primary" />
+      <Button icon="Trash2" variant="neutral" />
     </section>
 
     <section class="flex flex-col gap-2">
