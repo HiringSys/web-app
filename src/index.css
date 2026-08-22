@@ -5,9 +5,9 @@
   --color-white:    #FFFFFF;
   --color-white-co: #F8F8F8;
   --color-gray:     #ECECEC;
-  --color-gray-co:  #C4C4C4;
+  --color-gray-co:  #D5D5D5;
   --color-black:    #191919;
-
+  
   --color-blue:     #7C8DFF;
   --color-blue-co:  #5B67B8;
   --color-red:      #FF7C7C;
@@ -19,11 +19,11 @@
 
   --radius-low: 0.3rem;
   --radius-medium: 0.8rem;
-
+  
   --container-slot-sm: 7rem;
   --container-slot-md: 11rem;
   --container-slot-lg: 18rem;
-
+  
   --text-display:    2rem;
   --text-heading:    1.5rem;
   --text-subheading: 1.25rem;
