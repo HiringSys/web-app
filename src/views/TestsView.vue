@@ -7,7 +7,8 @@ import Button      from "../components/ui/Button.vue";
 import Input       from "../components/ui/Input.vue";
 import FilterChips from "../components/ui/FilterChips.vue";
 import Icon      from "../components/ui/Icon.vue";
-import Table     from "../components/ui/table/Table.vue";
+import Table          from "../components/ui/table/Table.vue";
+import SelectionTable from "../components/ui/table/SelectionTable.vue";
 
 import { useDragGhostOpacityFix } from "../lib/dragGhostOpacity";
 import { SocialNetwork, Seniority, type Candidate, type SocialLink } from "../components/ui/table/types";
@@ -39,6 +40,14 @@ const name = ref("");
 const activeFilterDemo = ref<string[]>(["a"]);
 
 const columns = candidateColumns();
+
+const selectionItems = ref<Candidate[]>([
+  { id: 201, name: "Roberta Rocha", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Senior, experienceYears: 8, role: "Desenvolvedora Frontend", salaryExpectation: 12000 },
+  { id: 202, name: "Lucas Almeida", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, experienceYears: 4, role: "Desenvolvedor Frontend", salaryExpectation: 8000 },
+  { id: 203, name: "Marina Souza", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, experienceYears: 1, role: "Desenvolvedora Frontend", salaryExpectation: 4000 },
+  { id: 204, name: "Pedro Lima", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, experienceYears: 3, role: "Desenvolvedor Frontend", salaryExpectation: 6500 },
+  { id: 205, name: "Ana Paula", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, experienceYears: 2, role: "Desenvolvedora Frontend", salaryExpectation: 4200 },
+]);
 
 const candidates = ref<Candidate[]>([
   {
@@ -139,6 +148,11 @@ const candidates = ref<Candidate[]>([
     <section class="flex flex-col gap-3">
       <h2>Tabela</h2>
       <Table :columns="columns" v-model:items="candidates" />
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2>Seleção com aprovação (SelectionTable, limite 2)</h2>
+      <SelectionTable :columns="columns" :items="selectionItems" :approval-limit="2" @update:items="selectionItems = $event" />
     </section>
 
     <section class="flex flex-col gap-3">
