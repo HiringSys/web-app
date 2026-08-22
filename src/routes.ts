@@ -8,6 +8,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { title: 'Peneiras' }
     },
     {
       path: '/access',
@@ -17,11 +18,13 @@ const router = createRouter({
           path: '/login',
           name: 'login',
           component: () => import('@/views/access/LoginFragment.vue'),
+          meta: { title: 'Login' }
         },
         {
           path: '/recuperar-senha',
           name: 'recuperar-senha',
           component: () => import('@/views/access/ForgetPasswordFragment.vue'),
+          meta: { title: 'Recuperar senha' }
         },
       ],
     },
@@ -29,16 +32,19 @@ const router = createRouter({
       path: '/tests',
       name: 'tests',
       component: () => import('@/views/TestsView.vue'),
+      meta: { title: 'Testes' }
     },
     {
       path: '/candidatos',
       name: 'candidatos',
       component: () => import('@/views/CandidatesView.vue'),
+      meta: { title: 'Candidatos' }
     },
     {
       path: '/peneiras',
       name: 'peneiras',
       component: () => import('@/views/PeneirasView.vue'),
+      meta: { title: 'Peneiras' }
     },
     {
       path: '/peneiras/:id',
@@ -49,8 +55,13 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),
+      meta: { title: 'Opss....' }
     },
   ],
+})
+
+router.afterEach((to) => {
+  document.title = to.meta.title as string
 })
 
 export default router
