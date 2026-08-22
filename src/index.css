@@ -11,9 +11,17 @@
   --color-blue-co:  #5B67B8;
   --color-red:      #FF7C7C;
   --color-red-co:   #E36767;
+  --color-green:    #6FCF97;
+  --color-green-co: #3E9C67;
+  --color-yellow:   #F7C948;
+  --color-yellow-co: #C9971A;
 
   --radius-low: 0.3rem;
   --radius-medium: 0.8rem;
+
+  --container-slot-sm: 7rem;
+  --container-slot-md: 11rem;
+  --container-slot-lg: 18rem;
 
   --text-display:    2rem;
   --text-heading:    1.5rem;
@@ -25,6 +33,24 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+}
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility press-shadow {
+  --press-shadow-color: var(--color-blue-co);
+  box-shadow: 0 5.5px 0 0 var(--press-shadow-color);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+
+  &:hover  { box-shadow: 0 4px 0 0 var(--press-shadow-color); transform: translateY(0.25rem); }
+  &:active { box-shadow: 0 0px 0 0 var(--press-shadow-color); transform: translateY(0.5rem);  }
 }
 
 @layer base {
@@ -54,4 +80,13 @@
 
 body {
   overflow-x: hidden;
+}
+
+.sortable-fallback,
+.sortable-drag {
+  opacity: 1 !important;
+}
+
+.sortable-ghost {
+  opacity: 0 !important;
 }

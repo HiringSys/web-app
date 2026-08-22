@@ -1,3 +1,5 @@
+import type { Component } from "vue";
+
 export const SocialNetwork = {
   LinkedIn: "linkedin",
   GitHub: "github",
@@ -15,6 +17,19 @@ export type SocialNetwork = (typeof SocialNetwork)[keyof typeof SocialNetwork];
 
 export type CandidateStatus = "aprovado" | "reprovado";
 
+export const Seniority = {
+  Junior: "junior",
+  Pleno: "pleno",
+  Senior: "senior",
+} as const;
+
+export type Seniority = (typeof Seniority)[keyof typeof Seniority];
+
+export interface SocialLink {
+  network: SocialNetwork;
+  url: string;
+}
+
 export interface Candidate {
   id: string | number;
   name: string;
@@ -22,20 +37,16 @@ export interface Candidate {
   avatarUrl?: string;
   status: CandidateStatus;
   phone: string;
-  networks?: SocialNetwork[];
-  seniority: string;
+  networks?: SocialLink[];
+  seniority: Seniority;
+  experienceYears: number;
 }
 
-export type TableColumnKey =
-  | "name"
-  | "status"
-  | "phone"
-  | "network"
-  | "seniority";
-
-export interface TableColumn {
-  key: TableColumnKey;
+export interface TableColumn<T> {
+  key: string;
   label: string;
-  width?: string;
+  size?: "sm" | "md" | "lg";
   align?: "start" | "center";
+  component: Component;
+  props: (item: T) => Record<string, unknown>;
 }

@@ -1,39 +1,77 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id: string | number }">
 
-import { computed }           from 'vue'
-import { CircleQuestionMark } from '@lucide/vue'
+import VueDraggable            from 'vuedraggable'
+import { computed }            from 'vue'
 
-import type { Candidate, TableColumn } from './types'
+import type { TableColumn }            from './types'
 import      { gridTemplate }           from './style/grid'
+import      { useDragGhostOpacityFix } from '@/lib/dragGhostOpacity'
 
-import Row from './Row.vue'
+import TableHeader from './TableHeader.vue'
+import Row          from './Row.vue'
 
-const props = defineProps<{
-  columns: TableColumn[]
-  items: Candidate[]
+useDragGhostOpacityFix()
+
+const props = withDefaults(
+  defineProps<{
+    columns:    TableColumn<T>[]
+    items:      T[]
+    draggable?: boolean
+  }>(),
+  { draggable: true },
+)
+
+const emit = defineEmits<{
+  'update:items': [items: T[]]
 }>()
 
-const headerStyle = computed(() => ({ gridTemplateColumns: gridTemplate(props.columns) }))
+const gridTemplateColumns = computed(() => gridTemplate(props.columns, props.draggable))
+
+const rows = computed({
+  get: () => props.items,
+  set: (value: T[]) => emit('update:items', value),
+})
 
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="grid items-center gap-4 rounded-medium bg-white px-4 py-3 shadow-sm" :style="headerStyle">
-      <span />
-      <div
-        v-for="column in columns"
-        :key="column.key"
-        class="flex items-center gap-1.5"
-        :class="column.align === 'start' ? 'justify-start' : 'justify-center'"
-      >
-        <span class="text-small font-medium text-gray-500">{{ column.label }}</span>
-        <CircleQuestionMark :size="14" class="text-gray-300" />
-      </div>
-    </div>
+  <div class="overflow-x-auto scrollbar-hide">
+    <div class="flex min-w-fit flex-col gap-3">
+      <TableHeader :columns="columns" :grid-template-columns="gridTemplateColumns" :draggable="props.draggable" />
 
-    <div class="flex flex-col gap-2">
-      <Row v-for="candidate in items" :key="candidate.id" :candidate="candidate" :columns="columns" />
+      <VueDraggable
+        v-if="props.draggable"
+        v-model="rows"
+        tag="div"
+        item-key="id"
+        handle=".drag-handle"
+        :animation="150"
+        :force-fallback="true"
+        class="flex flex-col gap-2"
+      >
+        <template #item="{ element }">
+          <Row :item="element" :columns="columns" :grid-template-columns="gridTemplateColumns">
+            <template v-if="$slots.actions" #actions="slotProps">
+              <slot name="actions" v-bind="slotProps" />
+            </template>
+          </Row>
+        </template>
+      </VueDraggable>
+
+      <div v-else class="flex flex-col gap-2">
+        <Row
+          v-for="item in items"
+          :key="item.id"
+          :item="item"
+          :columns="columns"
+          :grid-template-columns="gridTemplateColumns"
+          :draggable="false"
+        >
+          <template v-if="$slots.actions" #actions="slotProps">
+            <slot name="actions" v-bind="slotProps" />
+          </template>
+        </Row>
+      </div>
     </div>
   </div>
 </template>

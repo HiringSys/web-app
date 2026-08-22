@@ -1,32 +1,44 @@
 <script setup lang="ts">
 
-import { ref } from "vue";
-import Button  from "../components/ui/Button.vue";
-import Input   from "../components/ui/Input.vue";
-import Icon    from "../components/ui/Icon.vue";
-import Table   from "../components/ui/table/Table.vue";
+import { ref }   from "vue";
+import { Grip }  from "@lucide/vue";
+import draggable from "vuedraggable";
+import Button    from "../components/ui/Button.vue";
+import Input     from "../components/ui/Input.vue";
+import Icon      from "../components/ui/Icon.vue";
+import Table     from "../components/ui/table/Table.vue";
 
-import { ThemeColor } from "../lib/colors";
-import { SocialNetwork, type Candidate, type TableColumn } from "../components/ui/table/types";
+import { useDragGhostOpacityFix } from "../lib/dragGhostOpacity";
+import { SocialNetwork, Seniority, type Candidate, type SocialLink } from "../components/ui/table/types";
+import { candidateColumns } from "../components/ui/table/columns/candidateColumns";
 
-const networks = [
-  SocialNetwork.LinkedIn,
-  SocialNetwork.GitHub,
-  SocialNetwork.Instagram,
-  SocialNetwork.Facebook,
+useDragGhostOpacityFix();
+
+interface ListItem {
+  id:    number
+  label: string
+}
+
+const listItems = ref<ListItem[]>([
+  { id: 1, label: "Primeiro item" },
+  { id: 2, label: "Segundo item" },
+  { id: 3, label: "Terceiro item" },
+  { id: 4, label: "Quarto item" },
+  { id: 5, label: "Quinto item" },
+]);
+
+const networks: SocialLink[] = [
+  { network: SocialNetwork.LinkedIn, url: "https://linkedin.com" },
+  { network: SocialNetwork.GitHub, url: "https://github.com" },
+  { network: SocialNetwork.Instagram, url: "https://instagram.com" },
+  { network: SocialNetwork.Facebook, url: "https://facebook.com" },
 ];
 
 const name = ref("");
 
-const columns: TableColumn[] = [
-  { key: "name", label: "Nome", width: "2fr", align: "start" },
-  { key: "status", label: "Estado" },
-  { key: "phone", label: "Telefone" },
-  { key: "network", label: "Network" },
-  { key: "seniority", label: "Senioridade" },
-];
+const columns = candidateColumns();
 
-const candidates: Candidate[] = [
+const candidates = ref<Candidate[]>([
   {
     id: 1,
     name: "Roberta Rocha",
@@ -34,7 +46,8 @@ const candidates: Candidate[] = [
     status: "aprovado",
     phone: "(+55) 11 91022-3479",
     networks,
-    seniority: "Junior",
+    seniority: Seniority.Junior,
+    experienceYears: 1,
   },
   {
     id: 2,
@@ -43,7 +56,8 @@ const candidates: Candidate[] = [
     status: "aprovado",
     phone: "(+55) 11 91022-3479",
     networks,
-    seniority: "Junior",
+    seniority: Seniority.Pleno,
+    experienceYears: 4,
   },
   {
     id: 3,
@@ -52,7 +66,8 @@ const candidates: Candidate[] = [
     status: "aprovado",
     phone: "(+55) 11 91022-3479",
     networks,
-    seniority: "Junior",
+    seniority: Seniority.Senior,
+    experienceYears: 8,
   },
   {
     id: 4,
@@ -61,7 +76,8 @@ const candidates: Candidate[] = [
     status: "reprovado",
     phone: "(+55) 11 91022-3479",
     networks,
-    seniority: "Junior",
+    seniority: Seniority.Pleno,
+    experienceYears: 3,
   },
   {
     id: 5,
@@ -70,14 +86,15 @@ const candidates: Candidate[] = [
     status: "reprovado",
     phone: "(+55) 11 91022-3479",
     networks,
-    seniority: "Junior",
+    seniority: Seniority.Junior,
+    experienceYears: 1,
   },
-];
+]);
 
 </script>
 
 <template>
-  <main class="mx-auto flex max-w-3xl flex-col gap-6 p-8">
+  <main class="mx-auto flex max-w-6xl flex-col gap-6 p-8">
     <h1>Componentes UI</h1>
 
     <section class="flex flex-wrap gap-3">
@@ -94,12 +111,34 @@ const candidates: Candidate[] = [
     <section class="flex flex-wrap items-center gap-4">
       <Icon name="Home" />
       <Icon name="Search" />
-      <Icon name="Trash2" :color="ThemeColor.Danger" :size="28" />
+      <Icon name="Trash2" :size="28" />
     </section>
 
     <section class="flex flex-col gap-3">
       <h2>Tabela</h2>
-      <Table :columns="columns" :items="candidates" />
+      <Table :columns="columns" v-model:items="candidates" />
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2>Lista</h2>
+      <draggable
+        v-model="listItems"
+        tag="div"
+        item-key="id"
+        handle=".drag-handle"
+        :animation="150"
+        :force-fallback="true"
+        class="flex flex-col gap-2"
+      >
+        <template #item="{ element }">
+          <div class="flex items-center gap-3 rounded-medium bg-white px-4 py-3 select-none">
+            <span class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
+              <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
+            </span>
+            <span class="text-small text-black">{{ element.label }}</span>
+          </div>
+        </template>
+      </draggable>
     </section>
   </main>
 </template>
