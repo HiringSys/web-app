@@ -455,7 +455,7 @@ const candidates = ref<Candidate[]>([
 </template>
 ```
 
-(This will not type-check until Task 2 adds `role`/`salaryExpectation` — actually no, it type-checks fine now: `columns` here doesn't reference `role`/`salaryExpectation`, and `Candidate` doesn't require them yet at this point in the plan. This file is self-consistent as of Task 1.)
+This file type-checks as-is: at this point in the plan, `Candidate` has no `role`/`salaryExpectation` fields yet (Task 2 adds them), and none of these 3 mock objects reference them either — the file is self-consistent for Task 1 on its own.
 
 - [ ] **Step 10: Update `TestsView.vue`'s table demo to the new column contract**
 
