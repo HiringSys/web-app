@@ -3,8 +3,9 @@
 import { ref }   from "vue";
 import { Grip }  from "@lucide/vue";
 import draggable from "vuedraggable";
-import Button    from "../components/ui/Button.vue";
-import Input     from "../components/ui/Input.vue";
+import Button      from "../components/ui/Button.vue";
+import Input       from "../components/ui/Input.vue";
+import FilterChips from "../components/ui/FilterChips.vue";
 import Icon      from "../components/ui/Icon.vue";
 import Table     from "../components/ui/table/Table.vue";
 
@@ -35,6 +36,7 @@ const networks: SocialLink[] = [
 ];
 
 const name = ref("");
+const activeFilterDemo = ref<string[]>(["a"]);
 
 const columns = candidateColumns();
 
@@ -124,6 +126,14 @@ const candidates = ref<Candidate[]>([
       <Icon name="Home" />
       <Icon name="Search" />
       <Icon name="Trash2" :size="28" />
+    </section>
+
+    <section class="flex flex-col gap-2">
+      <h2>Filtros</h2>
+      <FilterChips
+        :options="[{ key: 'a', label: 'Opção A' }, { key: 'b', label: 'Opção B' }, { key: 'c', label: 'Opção C' }]"
+        v-model="activeFilterDemo"
+      />
     </section>
 
     <section class="flex flex-col gap-3">
