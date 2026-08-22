@@ -1,45 +1,36 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id: string | number }">
 
-import { computed } from 'vue'
-import { Grip }     from '@lucide/vue'
+import { Grip } from '@lucide/vue'
 
-import CandidateField   from '@@/ui/table/fields/CandidateField.vue'
-import StatusField      from '@@/ui/table/fields/StatusField.vue'
-import PhoneField       from '@@/ui/table/fields/PhoneField.vue'
-import NetworkField     from '@@/ui/table/fields/NetworkField.vue'
-import SeniorityField   from '@@/ui/table/fields/SeniorityField.vue'
-import { gridTemplate } from './style/grid'
-import type { Candidate, TableColumn } from './types'
+import type { TableColumn } from './types'
 
-const props = defineProps<{
-  candidate: Candidate
-  columns: TableColumn[]
-}>()
-
-const style = computed(() => ({ gridTemplateColumns: gridTemplate(props.columns) }))
+withDefaults(
+  defineProps<{
+    item:                 T
+    columns:              TableColumn<T>[]
+    gridTemplateColumns:  string
+    draggable?:           boolean
+  }>(),
+  { draggable: true },
+)
 
 </script>
 
 <template>
-  <div class="grid items-center gap-4 rounded-medium bg-white px-4 py-3 shadow-sm" :style="style">
-    <Grip :size="16" class="text-gray-300" />
+  <div class="grid max-h-[4.5rem] items-center gap-4 overflow-hidden rounded-medium bg-white px-4 py-3 select-none" :style="{ gridTemplateColumns }" draggable="false">
+    <span v-if="draggable" class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
+      <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
+    </span>
 
     <div
       v-for="column in columns"
       :key="column.key"
-      class="flex items-center"
-      :class="column.align === 'start' ? 'justify-start' : 'justify-center'"
+      class="flex min-w-0 items-center justify-start"
+      :class="column.fixed ? '' : 'overflow-x-auto scrollbar-hide whitespace-nowrap'"
     >
-      <CandidateField
-        v-if="column.key === 'name'"
-        :name="candidate.name"
-        :email="candidate.email"
-        :avatar-url="candidate.avatarUrl"
-      />
-      <StatusField v-else-if="column.key === 'status'" :status="candidate.status" />
-      <PhoneField v-else-if="column.key === 'phone'" :phone="candidate.phone" />
-      <NetworkField v-else-if="column.key === 'network'" :networks="candidate.networks" />
-      <SeniorityField v-else-if="column.key === 'seniority'" :seniority="candidate.seniority" />
+      <component :is="column.component" v-bind="column.props(item)" />
     </div>
+
+    <slot name="actions" :item="item" />
   </div>
 </template>

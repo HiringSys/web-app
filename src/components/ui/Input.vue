@@ -20,7 +20,7 @@ const model = defineModel<string>({ default: '' })
 
 <template>
   <input
-    class="w-full bg-white px-4 py-2.5 font-medium text-black placeholder:text-black/20 focus:outline-0"
+    class="w-full bg-white px-4 py-2.5 font-medium text-black placeholder:font-semibold placeholder:text-black/20 focus:outline-0"
     :class="rounded ? 'rounded-full' : 'rounded-medium'"
     :placeholder="placeholder"
     :type="type"

@@ -1,3 +1,5 @@
+import type { Component } from "vue";
+
 export const SocialNetwork = {
   LinkedIn: "linkedin",
   GitHub: "github",
@@ -15,6 +17,19 @@ export type SocialNetwork = (typeof SocialNetwork)[keyof typeof SocialNetwork];
 
 export type CandidateStatus = "aprovado" | "reprovado";
 
+export const Seniority = {
+  Junior: "junior",
+  Pleno: "pleno",
+  Senior: "senior",
+} as const;
+
+export type Seniority = (typeof Seniority)[keyof typeof Seniority];
+
+export interface SocialLink {
+  network: SocialNetwork;
+  url: string;
+}
+
 export interface Candidate {
   id: string | number;
   name: string;
@@ -22,20 +37,23 @@ export interface Candidate {
   avatarUrl?: string;
   status: CandidateStatus;
   phone: string;
-  networks?: SocialNetwork[];
-  seniority: string;
+  networks?: SocialLink[];
+  seniority: Seniority;
+  experienceYears: number;
+  role: string;
+  salaryExpectation: number;
 }
 
-export type TableColumnKey =
-  | "name"
-  | "status"
-  | "phone"
-  | "network"
-  | "seniority";
-
-export interface TableColumn {
-  key: TableColumnKey;
+export interface TableColumn<T> {
+  key: string;
   label: string;
-  width?: string;
-  align?: "start" | "center";
+  size?: "sm" | "md" | "lg";
+  /** Fixed-size content (badges/chips) — skips the per-cell scroll wrapper so effects like press-shadow aren't clipped. */
+  fixed?: boolean;
+  /** Text whose rendered width drives this column's auto-sizing, capped by `size`. Omit for icon-only or badge columns, which stay fixed at `size`. */
+  measure?: (item: T) => string;
+  /** Extra pixel width to reserve alongside the measured text, e.g. for an avatar. */
+  measureOffset?: number;
+  component: Component;
+  props: (item: T) => Record<string, unknown>;
 }
