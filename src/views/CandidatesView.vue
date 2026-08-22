@@ -22,6 +22,8 @@ const candidates = ref<Candidate[]>([
     networks: [SocialNetwork.LinkedIn, SocialNetwork.GitHub].map(toSocialLink),
     seniority: Seniority.Senior,
     experienceYears: 8,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 12000,
   },
   {
     id: 2,
@@ -32,6 +34,8 @@ const candidates = ref<Candidate[]>([
     networks: [SocialNetwork.LinkedIn, SocialNetwork.Instagram].map(toSocialLink),
     seniority: Seniority.Pleno,
     experienceYears: 4,
+    role: "Desenvolvedor Backend",
+    salaryExpectation: 8000,
   },
   {
     id: 3,
@@ -42,6 +46,8 @@ const candidates = ref<Candidate[]>([
     networks: [SocialNetwork.GitHub].map(toSocialLink),
     seniority: Seniority.Junior,
     experienceYears: 1,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 4500,
   },
 ])
 

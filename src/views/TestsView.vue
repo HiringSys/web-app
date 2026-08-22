@@ -48,6 +48,8 @@ const candidates = ref<Candidate[]>([
     networks,
     seniority: Seniority.Junior,
     experienceYears: 1,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 4000,
   },
   {
     id: 2,
@@ -58,6 +60,8 @@ const candidates = ref<Candidate[]>([
     networks,
     seniority: Seniority.Pleno,
     experienceYears: 4,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 7000,
   },
   {
     id: 3,
@@ -68,6 +72,8 @@ const candidates = ref<Candidate[]>([
     networks,
     seniority: Seniority.Senior,
     experienceYears: 8,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 12000,
   },
   {
     id: 4,
@@ -78,6 +84,8 @@ const candidates = ref<Candidate[]>([
     networks,
     seniority: Seniority.Pleno,
     experienceYears: 3,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 6500,
   },
   {
     id: 5,
@@ -88,6 +96,8 @@ const candidates = ref<Candidate[]>([
     networks,
     seniority: Seniority.Junior,
     experienceYears: 1,
+    role: "Desenvolvedora Frontend",
+    salaryExpectation: 3800,
   },
 ]);
 

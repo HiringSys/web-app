@@ -4,6 +4,8 @@ import CandidateField  from '../fields/CandidateField.vue'
 import StatusField     from '../fields/StatusField.vue'
 import PhoneField      from '../fields/PhoneField.vue'
 import NetworkField    from '../fields/NetworkField.vue'
+import TextField       from '../fields/TextField.vue'
+import SalaryField     from '../fields/SalaryField.vue'
 import SeniorityField  from '../fields/SeniorityField.vue'
 import ExperienceField from '../fields/ExperienceField.vue'
 
@@ -37,6 +39,20 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       size: 'sm',
       component: NetworkField,
       props: (item) => ({ networks: item.networks }),
+    },
+    {
+      key: 'role',
+      label: 'Cargo',
+      size: 'md',
+      component: TextField,
+      props: (item) => ({ value: item.role }),
+    },
+    {
+      key: 'salaryExpectation',
+      label: 'Expectativa salarial',
+      size: 'sm',
+      component: SalaryField,
+      props: (item) => ({ amount: item.salaryExpectation }),
     },
     {
       key: 'experience',

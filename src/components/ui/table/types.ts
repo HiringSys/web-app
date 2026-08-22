@@ -40,6 +40,8 @@ export interface Candidate {
   networks?: SocialLink[];
   seniority: Seniority;
   experienceYears: number;
+  role: string;
+  salaryExpectation: number;
 }
 
 export interface TableColumn<T> {
