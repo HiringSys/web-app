@@ -1,4 +1,5 @@
 import type { TableColumn, Candidate } from '../types'
+import { formatSalary } from '@/lib/format'
 
 import CandidateField  from '../fields/CandidateField.vue'
 import StatusField     from '../fields/StatusField.vue'
@@ -15,7 +16,8 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'name',
       label: 'Nome',
       size: 'lg',
-      align: 'start',
+      measure: (item) => item.name,
+      measureOffset: 48, // avatar (2.5rem) + gap (0.5rem)
       component: CandidateField,
       props: (item) => ({ name: item.name, email: item.email, avatarUrl: item.avatarUrl }),
     },
@@ -23,6 +25,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'status',
       label: 'Estado',
       size: 'sm',
+      fixed: true,
       component: StatusField,
       props: (item) => ({ status: item.status }),
     },
@@ -30,6 +33,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'phone',
       label: 'Telefone',
       size: 'md',
+      measure: (item) => item.phone,
       component: PhoneField,
       props: (item) => ({ phone: item.phone }),
     },
@@ -44,6 +48,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'role',
       label: 'Cargo',
       size: 'md',
+      measure: (item) => item.role,
       component: TextField,
       props: (item) => ({ value: item.role }),
     },
@@ -51,6 +56,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'salaryExpectation',
       label: 'Expectativa salarial',
       size: 'sm',
+      measure: (item) => formatSalary(item.salaryExpectation),
       component: SalaryField,
       props: (item) => ({ amount: item.salaryExpectation }),
     },
@@ -58,6 +64,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'experience',
       label: 'Tempo de experiência',
       size: 'sm',
+      measure: (item) => `${item.experienceYears} ${item.experienceYears === 1 ? 'ano' : 'anos'}`,
       component: ExperienceField,
       props: (item) => ({ years: item.experienceYears }),
     },
@@ -65,6 +72,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'seniority',
       label: 'Senioridade',
       size: 'sm',
+      fixed: true,
       component: SeniorityField,
       props: (item) => ({ seniority: item.seniority }),
     },

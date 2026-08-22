@@ -27,11 +27,7 @@ const iconComponent = computed(() => (props.icon ? icons[props.icon] : null))
 <template>
   <button
     class="relative inline-flex press-shadow items-center justify-center gap-2 text-center font-semibold cursor-pointer"
-    :class="[
-      rounded ? 'rounded-full' : 'rounded-medium',
-      icon && !text ? 'aspect-square p-2.5' : 'px-4 py-2',
-      variant === 'neutral' ? 'bg-gray text-black/60' : 'bg-blue text-white',
-    ]"
+    :class="[rounded ? 'rounded-full' : 'rounded-medium', icon && !text ? 'py-2.75 px-5' : 'px-4 py-2', variant === 'neutral' ? 'bg-white text-black/60' : 'bg-blue text-white', ]"
     :style="{ '--press-shadow-color': variant === 'neutral' ? 'var(--color-gray-co)' : 'var(--color-blue-co)' }"
     type="button"
     :disabled="disabled"

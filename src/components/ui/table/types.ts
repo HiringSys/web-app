@@ -48,7 +48,12 @@ export interface TableColumn<T> {
   key: string;
   label: string;
   size?: "sm" | "md" | "lg";
-  align?: "start" | "center";
+  /** Fixed-size content (badges/chips) — skips the per-cell scroll wrapper so effects like press-shadow aren't clipped. */
+  fixed?: boolean;
+  /** Text whose rendered width drives this column's auto-sizing, capped by `size`. Omit for icon-only or badge columns, which stay fixed at `size`. */
+  measure?: (item: T) => string;
+  /** Extra pixel width to reserve alongside the measured text, e.g. for an avatar. */
+  measureOffset?: number;
   component: Component;
   props: (item: T) => Record<string, unknown>;
 }

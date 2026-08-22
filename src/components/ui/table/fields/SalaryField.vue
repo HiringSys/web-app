@@ -1,14 +1,13 @@
 <script setup lang="ts">
 
 import { computed } from 'vue'
+import { formatSalary } from '@/lib/format'
 
 const props = defineProps<{
   amount: number
 }>()
 
-const formatted = computed(() =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(props.amount),
-)
+const formatted = computed(() => formatSalary(props.amount))
 
 </script>
 

@@ -22,11 +22,9 @@ function toggle(key: string) {
       v-for="option in options"
       :key="option.key"
       type="button"
-      class="rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150"
-      :class="active.includes(option.key)
-        ? 'press-shadow bg-blue text-white'
-        : 'bg-gray text-black/40 hover:text-black/60'"
-      :style="active.includes(option.key) ? { '--press-shadow-color': 'var(--color-blue-co)' } : {}"
+      class="rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150 press-shadow"
+      :class="active.includes(option.key) ? 'bg-blue text-white' : 'bg-white text-black/60'"
+      :style="{ '--press-shadow-color': active.includes(option.key) ? 'var(--color-blue-co)' : 'var(--color-gray-co)' }"
       @click="toggle(option.key)"
     >
       {{ option.label }}

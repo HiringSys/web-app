@@ -29,7 +29,7 @@ const color = computed(() => colorByType[notificationState.type])
     <Transition name="notification">
       <div
         v-if="notificationState.visible"
-        class="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-medium bg-white px-4 py-3 shadow-lg"
+        class="fixed bottom-6 left-1/2 z-50 flex items-center gap-2 rounded-medium bg-white px-4 py-3 shadow-lg"
       >
         <Icon :name="icon" :color="color" :size="20" />
         <span class="text-small font-medium text-black">{{ notificationState.message }}</span>

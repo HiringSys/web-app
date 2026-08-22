@@ -4,13 +4,15 @@ import { ref, computed } from 'vue'
 import VueDraggable       from 'vuedraggable'
 
 import type { TableColumn, Candidate } from './types'
-import      { gridTemplate }           from './style/grid'
+import      { gridTemplate, capColumns } from './style/grid'
 import      { useDragGhostOpacityFix } from '@/lib/dragGhostOpacity'
+import      { useFontsReady }          from '@/lib/fontsReady'
 
 import TableHeader from './TableHeader.vue'
 import Row          from './Row.vue'
 
 useDragGhostOpacityFix()
+const fontsReady = useFontsReady()
 
 const props = defineProps<{
   columns:       TableColumn<Candidate>[]
@@ -31,7 +33,11 @@ function syncStatuses() {
   emit('update:items', [...approved.value, ...rejected.value])
 }
 
-const gridTemplateColumns = computed(() => gridTemplate(props.columns))
+const visibleColumns = computed(() => capColumns(props.columns))
+const gridTemplateColumns = computed(() => {
+  fontsReady.value
+  return gridTemplate(visibleColumns.value, props.items)
+})
 
 const approvedGroup = { name: 'selection', put: () => approved.value.length < props.approvalLimit }
 const rejectedGroup = { name: 'selection', put: true }
@@ -41,7 +47,7 @@ const rejectedGroup = { name: 'selection', put: true }
 <template>
   <div class="overflow-x-auto scrollbar-hide">
     <div class="flex min-w-fit flex-col gap-3">
-      <TableHeader :columns="columns" :grid-template-columns="gridTemplateColumns" />
+      <TableHeader :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
 
       <div class="rounded-medium bg-blue/10 p-3">
         <VueDraggable
@@ -56,7 +62,7 @@ const rejectedGroup = { name: 'selection', put: true }
           @change="syncStatuses"
         >
           <template #item="{ element }">
-            <Row :item="element" :columns="columns" :grid-template-columns="gridTemplateColumns" />
+            <Row :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
           </template>
         </VueDraggable>
       </div>
@@ -73,7 +79,7 @@ const rejectedGroup = { name: 'selection', put: true }
         @change="syncStatuses"
       >
         <template #item="{ element }">
-          <Row :item="element" :columns="columns" :grid-template-columns="gridTemplateColumns" />
+          <Row :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
         </template>
       </VueDraggable>
     </div>
