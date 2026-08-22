@@ -56,4 +56,7 @@ const visibleColumns = computed(() =>
       @update:items="candidates = $event"
     />
   </main>
+  <main v-else class="flex flex-col gap-6 p-8">
+    <p>Peneira não encontrada.</p>
+  </main>
 </template>

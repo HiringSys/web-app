@@ -69,7 +69,7 @@ const rejectedGroup = { name: 'selection', put: true }
         :group="rejectedGroup"
         :animation="150"
         :force-fallback="true"
-        class="flex flex-col gap-2"
+        class="flex min-h-16 flex-col gap-2"
         @change="syncStatuses"
       >
         <template #item="{ element }">

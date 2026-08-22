@@ -75,7 +75,7 @@ const CANDIDATES_BY_PROCESS: Record<string | number, Candidate[]> = {
 }
 
 export function listProcesses(): SelectiveProcess[] {
-  return PROCESSES
+  return [...PROCESSES]
 }
 
 export function getProcess(id: string | number): SelectiveProcess | undefined {
@@ -83,5 +83,5 @@ export function getProcess(id: string | number): SelectiveProcess | undefined {
 }
 
 export function getCandidatesForProcess(id: string | number): Candidate[] {
-  return CANDIDATES_BY_PROCESS[id] ?? []
+  return (CANDIDATES_BY_PROCESS[id] ?? []).map((candidate) => ({ ...candidate }))
 }
