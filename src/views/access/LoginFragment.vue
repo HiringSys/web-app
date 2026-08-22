@@ -17,14 +17,14 @@ const buttonText = computed(() =>
   step.value === "email" ? "Continuar" : "Entrar",
 );
 
-function submit() {
+async function submit() {
   if (step.value === "email") {
     if (!email.value) return;
     step.value = "password";
     return;
   }
 
-  handleLogin(email.value, password.value);
+  await handleLogin(email.value, password.value);
 }
 </script>
 

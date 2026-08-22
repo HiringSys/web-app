@@ -20,7 +20,7 @@ const buttonText = computed(() =>
   step.value === "email" ? "Continuar" : "Salvar",
 );
 
-function submit() {
+async function submit() {
   if (step.value === "email") {
     if (!email.value) return;
     step.value = "password";
@@ -32,7 +32,7 @@ function submit() {
     return;
   }
 
-  handleChangePassword(email.value, newPassword.value);
+  await handleChangePassword(email.value, newPassword.value);
   notify("Senha alterada com sucesso.", "success");
   router.push({ name: "login" });
 }
