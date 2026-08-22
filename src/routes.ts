@@ -41,6 +41,11 @@ const router = createRouter({
       component: () => import('@/views/PeneirasView.vue'),
     },
     {
+      path: '/peneiras/:id',
+      name: 'peneira-filtragem',
+      component: () => import('@/views/FiltragemView.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),
