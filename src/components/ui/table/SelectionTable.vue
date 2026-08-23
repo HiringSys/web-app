@@ -16,11 +16,16 @@ import Row from './Row.vue'
 useDragGhostOpacityFix()
 const fontsReady = useFontsReady()
 
-const props = defineProps<{
-  columns:       TableColumn<Candidate>[]
-  items:         Candidate[]
-  approvalLimit: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    columns:            TableColumn<Candidate>[]
+    items:              Candidate[]
+    approvalLimit:      number
+    showManageActions?: boolean
+    showDocument?:      boolean
+  }>(),
+  { showManageActions: true, showDocument: true },
+)
 
 const emit = defineEmits<{
   'update:items': [items: Candidate[]]
@@ -29,27 +34,41 @@ const emit = defineEmits<{
   'edit-item':    [item: Candidate]
 }>()
 
-const groups = reactive<Record<CandidateStatus, Candidate[]>>({
+// Suprimido is a display-only override (see `blocked`) — candidates never actually hold it as their real status.
+type BoardStatus = Exclude<CandidateStatus, typeof CandidateStatus.Suprimido>
+
+const groups = reactive<Record<BoardStatus, Candidate[]>>({
   [CandidateStatus.EmAnalise]:  props.items.filter((item) => item.status === CandidateStatus.EmAnalise),
   [CandidateStatus.Aprovado]:   props.items.filter((item) => item.status === CandidateStatus.Aprovado),
   [CandidateStatus.Reprovado]:  props.items.filter((item) => item.status === CandidateStatus.Reprovado),
   [CandidateStatus.Contratado]: props.items.filter((item) => item.status === CandidateStatus.Contratado),
 })
 
-const SECTIONS: { status: CandidateStatus; label: string; tint: string }[] = [
+const SECTIONS: { status: BoardStatus; label: string; tint: string }[] = [
   { status: CandidateStatus.EmAnalise,  label: 'Em análise', tint: 'bg-yellow/10' },
   { status: CandidateStatus.Aprovado,   label: 'Aprovado',   tint: 'bg-blue/10'   },
   { status: CandidateStatus.Reprovado,  label: 'Reprovado',  tint: 'bg-red/10'    },
   { status: CandidateStatus.Contratado, label: 'Contratado', tint: 'bg-green/10'  },
 ]
 
-function groupOf(status: CandidateStatus) {
+/** Blocked candidates keep their section but stop counting towards that section's headcount/capacity. */
+function activeCount(status: BoardStatus) {
+  return groups[status].filter((candidate) => !candidate.blocked).length
+}
+
+function groupOf(status: BoardStatus) {
   return {
     name: 'selection',
     put: status === CandidateStatus.Aprovado
-      ? () => groups[CandidateStatus.Aprovado].length < props.approvalLimit
+      ? () => activeCount(CandidateStatus.Aprovado) < props.approvalLimit
       : true,
   }
+}
+
+/** Toggles the Suprimido display/headcount override in place — never moves or persists, no backend field exists for it. */
+function toggleBlock(candidate: Candidate) {
+  candidate.blocked = !candidate.blocked
+  emitAll()
 }
 
 function emitAll() {
@@ -62,12 +81,12 @@ function emitAll() {
 }
 
 /** Persists whichever candidate now sits in `status`'s bucket but still carries a different status. Reverts the move if the API rejects the transition. */
-async function handleChange(status: CandidateStatus) {
+async function handleChange(status: BoardStatus) {
   const list = groups[status]
   const moved = list.find((item) => item.status !== status)
 
   if (moved) {
-    const previousStatus = moved.status
+    const previousStatus = moved.status as BoardStatus
     moved.status = status
     try {
       await updateCandidateStatus(moved.id, status)
@@ -83,8 +102,8 @@ async function handleChange(status: CandidateStatus) {
   emitAll()
 }
 
-async function moveToStatus(candidate: Candidate, status: CandidateStatus) {
-  const previousStatus = candidate.status
+async function moveToStatus(candidate: Candidate, status: BoardStatus) {
+  const previousStatus = candidate.status as BoardStatus
   if (previousStatus === status) return
 
   const sourceList = groups[previousStatus]
@@ -122,8 +141,8 @@ defineExpose({ groups, moveToStatus })
       <div v-for="section in SECTIONS" :key="section.status" class="rounded-medium p-3" :class="section.tint">
         <h3 class="mb-2 px-1 text-black/50">
           {{ section.label }}
-          <template v-if="section.status === CandidateStatus.Aprovado"> ({{ groups[section.status].length }}/{{ approvalLimit }})</template>
-          <template v-else> ({{ groups[section.status].length }})</template>
+          <template v-if="section.status === CandidateStatus.Aprovado"> ({{ activeCount(section.status) }}/{{ approvalLimit }})</template>
+          <template v-else> ({{ activeCount(section.status) }})</template>
         </h3>
 
         <VueDraggable class="flex min-h-16 flex-col gap-2"
@@ -139,9 +158,14 @@ defineExpose({ groups, moveToStatus })
           <template #item="{ element }">
             <Row
               :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns"
+              variant="detail"
+              :show-manage-actions="showManageActions"
+              :show-document="showDocument"
+              :blocked="element.blocked"
               @view-resume="emit('view-resume', $event)"
               @delete-item="emit('delete-item', $event)"
               @edit-item="emit('edit-item', $event)"
+              @toggle-block="toggleBlock"
             />
           </template>
         </VueDraggable>

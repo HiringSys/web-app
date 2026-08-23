@@ -12,11 +12,14 @@ const props = withDefaults(
     options: { key: string; label: string }[]
     /** Keys that are always active, always shown first, and can't be toggled or dragged. */
     pinned?: string[]
+    /** Keys shown right after `pinned`, fixed in place (can't be dragged) but can be toggled on/off. Excluded from `max`. */
+    lockedToggleable?: string[]
     /** Maximum number of active chips. */
     max?:    number
   }>(),
   {
-    pinned: () => [],
+    pinned:           () => [],
+    lockedToggleable: () => [],
   },
 )
 
@@ -28,21 +31,38 @@ defineEmits<{
 
 useDragGhostOpacityFix()
 
-const selectionOrder = ref<string[]>(active.value.filter((key) => !props.pinned.includes(key)))
+const selectionOrder = ref<string[]>(
+  active.value.filter((key) => !props.pinned.includes(key) && !props.lockedToggleable.includes(key)),
+)
 
-watch(selectionOrder, () => {
-  active.value = [...props.pinned, ...selectionOrder.value]
+const lockedActive = ref<Set<string>>(
+  new Set(props.lockedToggleable.filter((key) => active.value.includes(key))),
+)
+
+watch([selectionOrder, lockedActive], () => {
+  active.value = [
+    ...props.pinned,
+    ...props.lockedToggleable.filter((key) => lockedActive.value.has(key)),
+    ...selectionOrder.value,
+  ]
 }, { deep: true })
 
 const labelOf = computed(() => new Map(props.options.map((option) => [option.key, option.label])))
 
 const unselectedOptions = computed(() => {
   const selected = new Set(active.value)
-  return props.options.filter((option) => !selected.has(option.key))
+  return props.options.filter((option) => !selected.has(option.key) && !props.lockedToggleable.includes(option.key))
 })
 
 function toggle(key: string) {
   if (props.pinned.includes(key)) return
+
+  if (props.lockedToggleable.includes(key)) {
+    const next = new Set(lockedActive.value)
+    next.has(key) ? next.delete(key) : next.add(key)
+    lockedActive.value = next
+    return
+  }
 
   if (selectionOrder.value.includes(key)) {
     selectionOrder.value = selectionOrder.value.filter((activeKey) => activeKey !== key)
@@ -77,6 +97,18 @@ function keyOf(key: string) {
             :key="key"
             type="button"
             class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
+          >
+            {{ labelOf.get(key) }}
+          </button>
+
+          <button
+            v-for="key in lockedToggleable"
+            :key="key"
+            type="button"
+            class="select-none rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+            :class="lockedActive.has(key) ? 'bg-blue text-white' : 'bg-white text-black/60'"
+            :style="{ '--press-shadow-color': lockedActive.has(key) ? 'var(--color-blue-co)' : 'var(--color-gray-co)' }"
+            @click="toggle(key)"
           >
             {{ labelOf.get(key) }}
           </button>

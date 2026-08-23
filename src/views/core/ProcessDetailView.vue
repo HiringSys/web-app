@@ -40,12 +40,23 @@ onMounted(async () => {
 });
 
 const allColumns = candidateColumns();
-const COLUMN_OPTIONS = allColumns.map((column) => ({
-  key:   column.key,
-  label: column.label,
-}));
 
-const activeColumns = ref<string[]>(["name", "status", "phone", "network"]);
+// Pseudo-columns for the actions panel — not real data columns (kept out of
+// `allColumns`/`visibleColumns`), only used to toggle Row's action groups.
+const ACTION_OPTIONS = [
+  { key: "editGroup", label: "Ações" },
+  { key: "document",  label: "Currículo" },
+];
+
+const COLUMN_OPTIONS = [
+  ...allColumns.map((column) => ({ key: column.key, label: column.label })),
+  ...ACTION_OPTIONS,
+];
+
+const activeColumns = ref<string[]>(["name", "status", "phone", "network", "editGroup", "document"]);
+
+const showManageActions = computed(() => activeColumns.value.includes("editGroup"));
+const showDocument      = computed(() => activeColumns.value.includes("document"));
 
 const visibleColumns = computed(() =>
   activeColumns.value
@@ -254,7 +265,7 @@ async function submitEditProcess(values: Record<string, string>) {
         </div>
   
         <OrderableFilterChips
-          :options="COLUMN_OPTIONS" v-model="activeColumns" :pinned="['name']" :max="MAX_VISIBLE_COLUMNS"
+          :options="COLUMN_OPTIONS" v-model="activeColumns" :pinned="['name']" :locked-toggleable="['editGroup', 'document']" :max="MAX_VISIBLE_COLUMNS"
           @open-filters="filtersOpen = true"
         />
       </div>
@@ -264,6 +275,8 @@ async function submitEditProcess(values: Record<string, string>) {
         :columns="visibleColumns"
         :items="candidates"
         :approval-limit="process.approvalLimit"
+        :show-manage-actions="showManageActions"
+        :show-document="showDocument"
         @update:items="candidates = $event"
         @view-resume="openResume"
         @delete-item="deleteTarget = $event"
