@@ -2,6 +2,7 @@
 
 import Popup  from './Popup.vue'
 import Button from '@/components/ui/Button.vue'
+import { Color } from '@/components/ui/lib'
 
 withDefaults(
   defineProps<{
@@ -43,7 +44,7 @@ function cancel() {
 
     <template #actions>
       <Button :text="cancelText" variant="neutral" @click="cancel" />
-      <Button :text="confirmText" :variant="danger ? 'danger' : 'primary'" @click="confirm" />
+      <Button :text="confirmText" :color="danger ? Color.Red : Color.Blue" @click="confirm" />
     </template>
   </Popup>
 </template>
