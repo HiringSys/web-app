@@ -7,8 +7,7 @@ import FilterChips from "@/components/ui/FilterChips.vue";
 
 import JobTitleField from "@/components/ui/table/fields/JobTitleField.vue";
 import ProcessStatusField from "@/components/ui/table/fields/ProcessStatusField.vue";
-import CountField from "@/components/ui/table/fields/CountField.vue";
-import TextField from "@/components/ui/table/fields/TextField.vue";
+import ValueField from "@/components/ui/table/fields/ValueField.vue";
 
 import type { TableColumn } from "@/components/ui/table/types";
 import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
@@ -46,23 +45,23 @@ const columns: TableColumn<SelectiveProcess>[] = [
     label: "Disponíveis",
     size: "sm",
     measure: (item) => String(item.availableSlots),
-    component: CountField,
-    props: (item) => ({ count: item.availableSlots }),
+    component: ValueField,
+    props: (item) => ({ value: item.availableSlots }),
   },
   {
     key: "participants",
     label: "Participantes",
     size: "sm",
     measure: (item) => String(item.participants),
-    component: CountField,
-    props: (item) => ({ count: item.participants }),
+    component: ValueField,
+    props: (item) => ({ value: item.participants }),
   },
   {
     key: "role",
     label: "Cargo",
     size: "md",
     measure: (item) => item.role,
-    component: TextField,
+    component: ValueField,
     props: (item) => ({ value: item.role }),
   },
 ];
