@@ -71,62 +71,61 @@ function keyOf(key: string) {
 </script>
 
 <template>
-  <div v-if="orderable" class="overflow-visible">
-    <VueDraggable
-      v-model="selectionOrder"
-      tag="div"
-      class="flex flex-nowrap h-max shrink-0 items-center gap-3 overflow-x-auto -my-2 py-2 scrollbar-hide"
-      :item-key="keyOf"
-      handle=".drag-handle"
-      direction="horizontal"
-      :animation="150"
-      :force-fallback="true"
-    >
-      <template #header>
-        <button
-          v-for="key in pinned"
-          :key="key"
-          type="button"
-          class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
-        >
-          {{ labelOf.get(key) }}
-        </button>
-      </template>
+  <VueDraggable
+    v-if="orderable"
+    v-model="selectionOrder"
+    tag="div"
+    class="flex flex-nowrap h-max shrink-0 overflow-x-auto overflow-y-visible items-center gap-3 scrollbar-hide"
+    :item-key="keyOf"
+    handle=".drag-handle"
+    direction="horizontal"
+    :animation="150"
+    :force-fallback="true"
+  >
+    <template #header>
+      <button
+        v-for="key in pinned"
+        :key="key"
+        type="button"
+        class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
+      >
+        {{ labelOf.get(key) }}
+      </button>
+    </template>
 
-      <template #item="{ element: key }">
-        <button
-          type="button"
-          class="inline-flex select-none items-center gap-2 rounded-full bg-blue px-4 py-2 text-center font-semibold text-white cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-          style="--press-shadow-color: var(--color-blue-co)"
-          @click="toggle(key)"
+    <template #item="{ element: key }">
+      <button
+        type="button"
+        class="inline-flex select-none items-center gap-2 rounded-full bg-blue px-4 py-2 text-center font-semibold text-white cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+        style="--press-shadow-color: var(--color-blue-co)"
+        @click="toggle(key)"
+      >
+        <span
+          class="drag-handle inline-flex cursor-grab items-center justify-center [-webkit-user-drag:none]"
+          draggable="false"
+          @click.stop
         >
-          <span
-            class="drag-handle inline-flex cursor-grab items-center justify-center [-webkit-user-drag:none]"
-            draggable="false"
-            @click.stop
-          >
-            <Grip :size="14" class="pointer-events-none text-white/70" />
-          </span>
-          {{ labelOf.get(key) }}
-        </button>
-      </template>
+          <Grip :size="14" class="pointer-events-none text-white/70" />
+        </span>
+        {{ labelOf.get(key) }}
+      </button>
+    </template>
 
-      <template #footer>
-        <button
-          v-for="option in unselectedOptions"
-          :key="option.key"
-          type="button"
-          class="rounded-full bg-white px-4 py-2 text-center font-semibold text-black/60 cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-          style="--press-shadow-color: var(--color-gray-co)"
-          @click="toggle(option.key)"
-        >
-          {{ option.label }}
-        </button>
+    <template #footer>
+      <button
+        v-for="option in unselectedOptions"
+        :key="option.key"
+        type="button"
+        class="rounded-full bg-white px-4 py-2 text-center font-semibold text-black/60 cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+        style="--press-shadow-color: var(--color-gray-co)"
+        @click="toggle(option.key)"
+      >
+        {{ option.label }}
+      </button>
 
-        <Button icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
-      </template>
-    </VueDraggable>
-  </div>
+      <Button icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
+    </template>
+  </VueDraggable>
 
   <div v-else class="flex flex-wrap items-center gap-3">
     <button

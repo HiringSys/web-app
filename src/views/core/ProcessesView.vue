@@ -4,6 +4,9 @@ import { ref, computed, onMounted } from "vue";
 import Table from "@/components/ui/table/Table.vue";
 import Button from "@/components/ui/Button.vue";
 import FilterChips from "@/components/ui/FilterChips.vue";
+import ConfirmPopup from "@/components/popup/ConfirmPopup.vue";
+import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
+import FiltersPopup from "@/components/popup/FiltersPopup.vue";
 
 import JobTitleField from "@/components/ui/table/fields/JobTitleField.vue";
 import ProcessStatusField from "@/components/ui/table/fields/ProcessStatusField.vue";
@@ -81,6 +84,58 @@ const activeStatuses = ref<string[]>(
 const filteredProcesses = computed(() =>
   processes.value.filter((process) => activeStatuses.value.includes(process.status)),
 );
+
+const filtersOpen = ref(false);
+
+const deleteTarget = ref<SelectiveProcess | null>(null);
+const deleteConfirmOpen = computed({
+  get: () => !!deleteTarget.value,
+  set: (value: boolean) => { if (!value) deleteTarget.value = null; },
+});
+
+function confirmDeleteProcess() {
+  if (!deleteTarget.value) return;
+  processes.value = processes.value.filter((process) => process.id !== deleteTarget.value!.id);
+  deleteTarget.value = null;
+}
+
+const PROCESS_FIELDS: FormField[] = [
+  { key: "jobTitle", label: "Finalidade da vaga" },
+  { key: "department", label: "Departamento" },
+  { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
+  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
+  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
+];
+
+const editTarget = ref<SelectiveProcess | null>(null);
+const editOpen = computed({
+  get: () => !!editTarget.value,
+  set: (value: boolean) => { if (!value) editTarget.value = null; },
+});
+
+const editValues = computed<Record<string, string>>(() => {
+  if (!editTarget.value) return {} as Record<string, string>;
+  const process = editTarget.value;
+  return {
+    jobTitle: process.jobTitle,
+    department: process.department,
+    availableSlots: String(process.availableSlots),
+    approvalLimit: String(process.approvalLimit),
+    teamEmail: process.teamEmail,
+  };
+});
+
+function submitEditProcess(values: Record<string, string>) {
+  if (!editTarget.value) return;
+  Object.assign(editTarget.value, {
+    jobTitle: values.jobTitle,
+    department: values.department,
+    availableSlots: Number(values.availableSlots),
+    approvalLimit: Number(values.approvalLimit),
+    teamEmail: values.teamEmail,
+  });
+  editTarget.value = null;
+}
 </script>
 
 <template>
@@ -90,9 +145,13 @@ const filteredProcesses = computed(() =>
       <Button icon="LayoutGrid" variant="primary" />
     </div>
 
-    <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" />
+    <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" @open-filters="filtersOpen = true" />
 
-    <Table :columns="columns" :items="filteredProcesses" :draggable="false">
+    <Table
+      :columns="columns" :items="filteredProcesses" :draggable="false"
+      @delete-item="deleteTarget = $event"
+      @edit-item="editTarget = $event"
+    >
       <template #actions>
         <div class="flex items-center gap-3 pl-2">
           <Button icon="Trash2" variant="neutral" />
@@ -100,5 +159,24 @@ const filteredProcesses = computed(() =>
         </div>
       </template>
     </Table>
+
+    <ConfirmPopup
+      v-model="deleteConfirmOpen"
+      title="Excluir processo"
+      :message="`Tem certeza que deseja excluir ${deleteTarget?.jobTitle}? Essa ação não pode ser desfeita.`"
+      confirm-text="Excluir"
+      danger
+      @confirm="confirmDeleteProcess"
+    />
+
+    <FormPopup
+      v-model="editOpen"
+      title="Editar processo"
+      :fields="PROCESS_FIELDS"
+      :initial-values="editValues"
+      @submit="submitEditProcess"
+    />
+
+    <FiltersPopup v-model="filtersOpen" title="Status" :options="STATUS_OPTIONS" v-model:active="activeStatuses" />
   </main>
 </template>

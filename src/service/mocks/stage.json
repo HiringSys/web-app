@@ -7,7 +7,8 @@
     "availableSlots": 500,
     "participants": 7,
     "role": "Desenvolvedores",
-    "approvalLimit": 5
+    "approvalLimit": 5,
+    "teamEmail": "recebiveis@germinare.com"
   },
   {
     "id": 2,
@@ -17,7 +18,8 @@
     "availableSlots": 300,
     "participants": 9,
     "role": "Desenvolvedores",
-    "approvalLimit": 4
+    "approvalLimit": 4,
+    "teamEmail": "pagamentos@germinare.com"
   },
   {
     "id": 3,
@@ -27,7 +29,8 @@
     "availableSlots": 150,
     "participants": 3,
     "role": "QA",
-    "approvalLimit": 2
+    "approvalLimit": 2,
+    "teamEmail": "qualidade@germinare.com"
   },
   {
     "id": 4,
@@ -37,7 +40,8 @@
     "availableSlots": 200,
     "participants": 6,
     "role": "Design",
-    "approvalLimit": 3
+    "approvalLimit": 3,
+    "teamEmail": "design@germinare.com"
   },
   {
     "id": 5,
@@ -47,6 +51,7 @@
     "availableSlots": 100,
     "participants": 0,
     "role": "Dados",
-    "approvalLimit": 2
+    "approvalLimit": 2,
+    "teamEmail": "dados@germinare.com"
   }
 ]
