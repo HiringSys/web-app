@@ -60,58 +60,63 @@ function keyOf(key: string) {
 </script>
 
 <template>
-  <VueDraggable
-    v-model="selectionOrder"
-    tag="div"
-    class="flex flex-nowrap h-max shrink-0 overflow-x-auto overflow-y-visible items-center gap-3 scrollbar-hide"
-    :item-key="keyOf"
-    handle=".drag-handle"
-    direction="horizontal"
-    :animation="150"
-    :force-fallback="true"
-  >
-    <template #header>
-      <button
-        v-for="key in pinned"
-        :key="key"
-        type="button"
-        class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
+  <div class="relative w-full min-w-0">
+    <div class="w-full overflow-x-auto scrollbar-hide pb-2 translate-y-2">
+      <VueDraggable class="flex w-max min-h-0 items-center gap-3 flex-nowrap"
+        :item-key="keyOf"
+        :animation="150"
+        :force-fallback="true"
+        v-model="selectionOrder"
+        tag="div"
+        handle=".drag-handle"
+        direction="horizontal"
       >
-        {{ labelOf.get(key) }}
-      </button>
-    </template>
-
-    <template #item="{ element: key }">
-      <button
-        type="button"
-        class="inline-flex select-none items-center gap-2 rounded-full bg-blue px-4 py-2 text-center font-semibold text-white cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-        style="--press-shadow-color: var(--color-blue-co)"
-        @click="toggle(key)"
-      >
-        <span
-          class="drag-handle inline-flex cursor-grab items-center justify-center [-webkit-user-drag:none]"
-          draggable="false"
-          @click.stop
-        >
-          <Grip :size="14" class="pointer-events-none text-white/70" />
-        </span>
-        {{ labelOf.get(key) }}
-      </button>
-    </template>
-
-    <template #footer>
-      <button
-        v-for="option in unselectedOptions"
-        :key="option.key"
-        type="button"
-        class="rounded-full bg-white px-4 py-2 text-center font-semibold text-black/60 cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-        style="--press-shadow-color: var(--color-gray-co)"
-        @click="toggle(option.key)"
-      >
-        {{ option.label }}
-      </button>
-
-      <Button icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
-    </template>
-  </VueDraggable>
+        <template #header>
+          <button
+            v-for="key in pinned"
+            :key="key"
+            type="button"
+            class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
+          >
+            {{ labelOf.get(key) }}
+          </button>
+        </template>
+    
+        <template #item="{ element: key }">
+          <button
+            type="button"
+            class="inline-flex select-none items-center gap-2 rounded-full bg-blue px-4 py-2 text-center font-semibold text-white cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+            style="--press-shadow-color: var(--color-blue-co)"
+            @click="toggle(key)"
+          >
+            <span
+              class="drag-handle inline-flex cursor-grab items-center justify-center [-webkit-user-drag:none]"
+              draggable="false"
+              @click.stop
+            >
+              <Grip :size="14" class="pointer-events-none text-white/70" />
+            </span>
+            {{ labelOf.get(key) }}
+          </button>
+        </template>
+    
+        <template #footer>
+          <button
+            v-for="option in unselectedOptions"
+            :key="option.key"
+            type="button"
+            class="rounded-full bg-white px-4 py-2 text-center font-semibold text-black/60 cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+            style="--press-shadow-color: var(--color-gray-co)"
+            @click="toggle(option.key)"
+          >
+            {{ option.label }}
+          </button>
+    
+        </template>
+      </VueDraggable>
+    </div>
+    <div class="absolute h-full box-content bg-gray right-0 top-1/2 -translate-y-1/2 z-10 px-4 pb-4">
+      <Button class="translate-y-4" icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
+    </div>
+  </div>
 </template>
