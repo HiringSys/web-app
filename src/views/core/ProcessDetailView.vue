@@ -12,6 +12,7 @@ import ApprovedListSidebar     from "@/components/layout/sidebar/content/Approve
 import ConfirmPopup            from "@/components/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
+import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
@@ -183,6 +184,12 @@ async function submitEditCandidate(values: Record<string, string>) {
 }
 
 const newCandidateOpen = ref(false);
+const importOpen = ref(false);
+
+async function refreshCandidates() {
+  candidates.value = await getCandidatesForProcess(processId);
+  if (process.value) process.value.participants = candidates.value.length;
+}
 
 async function submitNewCandidate(values: Record<string, string>) {
   try {
@@ -225,7 +232,6 @@ const editProcessValues = computed<Record<string, string>>(() => {
 async function submitEditProcess(values: Record<string, string>) {
   if (!process.value) return;
 
-  // approvalLimit/teamEmail have no backend field yet (see .sdd/swagger/gaps.md) — applied locally only.
   Object.assign(process.value, {
     jobTitle: values.jobTitle,
     department: values.department,
@@ -258,6 +264,7 @@ async function submitEditProcess(values: Record<string, string>) {
           <Button icon="EllipsisVertical" variant="neutral" @click="editProcessOpen = true" />
           <div class="ml-auto flex items-center gap-3">
             <Button icon="UserPlus" variant="primary" @click="newCandidateOpen = true" />
+            <Button icon="FileSpreadsheet" variant="primary" @click="importOpen = true" />
             <Button icon="Download" variant="primary" />
             <Button icon="Share2"   variant="primary" />
             <Button icon="ListTodo" variant="primary" @click="openApproved" />
@@ -332,6 +339,12 @@ async function submitEditProcess(values: Record<string, string>) {
       :fields="PROCESS_FIELDS"
       :initial-values="editProcessValues"
       @submit="submitEditProcess"
+    />
+
+    <ImportCandidatesPopup
+      v-model="importOpen"
+      :grupo-id="processId"
+      @imported="refreshCandidates"
     />
 
     <FiltersPopup v-model="filtersOpen" title="Colunas visíveis" :options="COLUMN_OPTIONS" v-model:active="activeColumns" />

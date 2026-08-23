@@ -7,6 +7,7 @@ import type {
   VinculoGrupoFuncionarioRequest,
   AtualizarStatusRequest,
   ArquivoFuncionarioResponse, ArquivoCategoria,
+  FuncionarioImportacaoRequest, ImportacaoFuncionariosRequest, ImportacaoFuncionariosResponse,
 } from "./api/models";
 
 import { CandidateStatus, Seniority, type Candidate, type SocialLink, type SocialNetwork } from "@/components/ui/table/types";
@@ -16,7 +17,7 @@ import { getStageMocks, getPersonMocksForStage } from "@mocks/handler";
 // --- Rede (social link) <-> SocialNetwork -----------------------------------
 // The API only knows 4 network types; the frontend supports more (for
 // display of hand-entered links). Only the overlapping ones round-trip.
-// See .sdd/swagger/gaps.md.
+// See .sdd/swagger/api.md.
 
 const NETWORK_TO_REDE_TIPO: Partial<Record<SocialNetwork, RedeTipo>> = {
   linkedin: "LINKEDIN",
@@ -73,24 +74,24 @@ function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
     department:     grupo.area,
     status:         grupo.estado.toLowerCase() as ProcessStatus,
     availableSlots: grupo.disponiveis,
-    // The API doesn't expose a headcount on Grupo; see .sdd/swagger/gaps.md.
+    // The API doesn't expose a headcount on Grupo; see .sdd/swagger/api.md.
     participants:   0,
     role:           grupo.cargo ?? "",
-    // No backend field yet (see .sdd/swagger/gaps.md) — seeded from
-    // disponiveis so the edit form starts with a sane value.
-    approvalLimit:  grupo.disponiveis,
-    // No backend field yet; see .sdd/swagger/gaps.md.
-    teamEmail:      "",
+    // Seeded from disponiveis when the group predates limiteAprovados.
+    approvalLimit:  grupo.limiteAprovados ?? grupo.disponiveis,
+    teamEmail:      grupo.emailEquipe ?? "",
   };
 }
 
-function mapProcessToGrupoRequest(process: Pick<SelectiveProcess, "jobTitle" | "department" | "status" | "availableSlots" | "role">): GrupoRequest {
+function mapProcessToGrupoRequest(process: Pick<SelectiveProcess, "jobTitle" | "department" | "status" | "availableSlots" | "role" | "approvalLimit" | "teamEmail">): GrupoRequest {
   return {
-    nome:        process.jobTitle,
-    area:        process.department,
-    estado:      process.status.toUpperCase() as GrupoEstado,
-    disponiveis: process.availableSlots,
-    cargo:       process.role || undefined,
+    nome:            process.jobTitle,
+    area:            process.department,
+    estado:          process.status.toUpperCase() as GrupoEstado,
+    disponiveis:     process.availableSlots,
+    cargo:           process.role || undefined,
+    limiteAprovados: process.approvalLimit,
+    emailEquipe:     process.teamEmail || undefined,
   };
 }
 
@@ -112,7 +113,14 @@ export async function getProcess(id: string | number): Promise<SelectiveProcess 
   }
 }
 
-/** Sends jobTitle/department/status/availableSlots/role. approvalLimit and teamEmail stay client-only (see .sdd/swagger/gaps.md). */
+export async function createProcess(process: Pick<SelectiveProcess, "jobTitle" | "department" | "status" | "availableSlots" | "role" | "approvalLimit" | "teamEmail">): Promise<SelectiveProcess> {
+  const grupo = await apiFetch<GrupoResponse>("/grupos", {
+    method: "POST",
+    body: JSON.stringify(mapProcessToGrupoRequest(process)),
+  });
+  return mapGrupoToProcess(grupo);
+}
+
 export async function updateProcess(id: string | number, process: SelectiveProcess): Promise<SelectiveProcess> {
   const grupo = await apiFetch<GrupoResponse>(`/grupos/${id}`, {
     method: "PUT",
@@ -193,6 +201,14 @@ export async function createCandidate(grupoId: string | number, values: NewCandi
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
+/** Bulk-imports pre-parsed rows (see `parseFuncionariosSheet`) into the group in a single request. */
+export async function importFuncionariosFromExcel(grupoId: string | number, funcionarios: FuncionarioImportacaoRequest[]): Promise<ImportacaoFuncionariosResponse> {
+  return apiFetch<ImportacaoFuncionariosResponse>(`/grupos/${grupoId}/funcionarios/importacao`, {
+    method: "POST",
+    body: JSON.stringify({ funcionarios } satisfies ImportacaoFuncionariosRequest),
+  });
+}
+
 /** Full update (PUT) — the API requires status/experiencia/cargoIds/redes on every call, so the whole candidate is round-tripped. */
 export async function updateCandidate(grupoId: string | number, candidate: Candidate): Promise<Candidate> {
   const cargoId = await findOrCreateCargoId(candidate.role);
@@ -235,7 +251,7 @@ export async function deleteCandidate(id: string | number): Promise<void> {
 
 // --- Arquivos (candidate files) -------------------------------------------
 // Implemented for completeness; only résumé preview/download is wired into
-// the UI today (no upload UI exists yet — see .sdd/swagger/gaps.md).
+// the UI today (no upload UI exists yet — see .sdd/swagger/api.md).
 
 export async function listCandidateFiles(candidateId: string | number): Promise<ArquivoFuncionarioResponse[]> {
   return apiFetch<ArquivoFuncionarioResponse[]>(`/funcionarios/${candidateId}/arquivos`);
