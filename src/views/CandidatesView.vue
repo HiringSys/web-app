@@ -24,6 +24,7 @@ const candidates = ref<Candidate[]>([
     experienceYears: 8,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 12000,
+    jobAffinity: 88,
   },
   {
     id: 2,
@@ -36,6 +37,7 @@ const candidates = ref<Candidate[]>([
     experienceYears: 4,
     role: "Desenvolvedor Backend",
     salaryExpectation: 8000,
+    jobAffinity: 55,
   },
   {
     id: 3,
@@ -48,6 +50,7 @@ const candidates = ref<Candidate[]>([
     experienceYears: 1,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 4500,
+    jobAffinity: 32,
   },
 ])
 

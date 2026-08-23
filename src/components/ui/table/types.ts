@@ -43,6 +43,7 @@ export interface Candidate {
   role: string;
   salaryExpectation: number;
   curriculumUrl?: string;
+  jobAffinity: number;
 }
 
 export interface TableColumn<T> {
