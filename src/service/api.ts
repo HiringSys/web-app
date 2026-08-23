@@ -1,8 +1,10 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TOKEN_STORAGE_KEY = "hiringsys.accessToken";
+const EMAIL_STORAGE_KEY = "hiringsys.accountEmail";
 
 let authToken: string | null = localStorage.getItem(TOKEN_STORAGE_KEY);
+let accountEmail: string | null = localStorage.getItem(EMAIL_STORAGE_KEY);
 
 export function setAuthToken(token: string | null) {
   authToken = token;
@@ -15,6 +17,20 @@ export function setAuthToken(token: string | null) {
 
 export function getAuthToken(): string | null {
   return authToken;
+}
+
+/** E-mail of the currently logged-in account, kept only for display/reuse in the UI (e.g. account settings). */
+export function setAccountEmail(email: string | null) {
+  accountEmail = email;
+  if (email) {
+    localStorage.setItem(EMAIL_STORAGE_KEY, email);
+  } else {
+    localStorage.removeItem(EMAIL_STORAGE_KEY);
+  }
+}
+
+export function getAccountEmail(): string | null {
+  return accountEmail;
 }
 
 function authHeaders(): HeadersInit {

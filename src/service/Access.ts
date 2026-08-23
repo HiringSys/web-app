@@ -1,17 +1,14 @@
-import { apiFetch, setAuthToken } from "./api";
-import type { LoginRequest, LoginResponse } from "./api/models";
+import { apiFetch, setAuthToken, setAccountEmail } from "./api";
+import type { LoginRequest, LoginResponse, RecuperacaoSenhaRequest, RecuperacaoSenhaResponse } from "./api/models";
 
-/**
- * The API models identity as `username`, but the login UI only ever collects
- * an e-mail — passed through as-is here.
- */
 export async function handleLogin(email: string, password: string): Promise<LoginResponse | null> {
   try {
     const response = await apiFetch<LoginResponse>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ username: email, password } satisfies LoginRequest),
+      body: JSON.stringify({ email, password } satisfies LoginRequest),
     });
     setAuthToken(response.accessToken);
+    setAccountEmail(email);
     return response;
   } catch {
     return null;
@@ -20,9 +17,21 @@ export async function handleLogin(email: string, password: string): Promise<Logi
 
 export function handleLogout() {
   setAuthToken(null);
+  setAccountEmail(null);
 }
 
-// The API has no password-recovery endpoint yet (see .sdd/swagger/gaps.md).
-export async function handleChangePassword(_email: string, _newPassword: string) {
-  return 0;
+/**
+ * The API has no "set your own password" endpoint — it generates a new
+ * password server-side and e-mails it to the account (see .sdd/swagger/api.md).
+ */
+export async function handleRecoverPassword(email: string): Promise<boolean> {
+  try {
+    await apiFetch<RecuperacaoSenhaResponse>("/auth/password-recovery", {
+      method: "POST",
+      body: JSON.stringify({ email } satisfies RecuperacaoSenhaRequest),
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
