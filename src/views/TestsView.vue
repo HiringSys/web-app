@@ -42,11 +42,11 @@ const activeFilterDemo = ref<string[]>(["a"]);
 const columns = candidateColumns();
 
 const selectionItems = ref<Candidate[]>([
-  { id: 201, name: "Roberta Rocha", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Senior, experienceYears: 8, role: "Desenvolvedora Frontend", salaryExpectation: 12000, jobAffinity: 91 },
-  { id: 202, name: "Lucas Almeida", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, experienceYears: 4, role: "Desenvolvedor Frontend", salaryExpectation: 8000, jobAffinity: 74 },
-  { id: 203, name: "Marina Souza", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, experienceYears: 1, role: "Desenvolvedora Frontend", salaryExpectation: 4000, jobAffinity: 38 },
-  { id: 204, name: "Pedro Lima", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, experienceYears: 3, role: "Desenvolvedor Frontend", salaryExpectation: 6500, jobAffinity: 58 },
-  { id: 205, name: "Ana Paula", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, experienceYears: 2, role: "Desenvolvedora Frontend", salaryExpectation: 4200, jobAffinity: 45 },
+  { id: 201, name: "Roberta Rocha", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Senior, role: "Desenvolvedora Frontend", salaryExpectation: 12000, jobAffinity: 91 },
+  { id: 202, name: "Lucas Almeida", email: "email@email.com", status: "aprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, role: "Desenvolvedor Frontend", salaryExpectation: 8000, jobAffinity: 74 },
+  { id: 203, name: "Marina Souza", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, role: "Desenvolvedora Frontend", salaryExpectation: 4000, jobAffinity: 38 },
+  { id: 204, name: "Pedro Lima", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Pleno, role: "Desenvolvedor Frontend", salaryExpectation: 6500, jobAffinity: 58 },
+  { id: 205, name: "Ana Paula", email: "email@email.com", status: "reprovado", phone: "(+55) 11 91022-3479", networks, seniority: Seniority.Junior, role: "Desenvolvedora Frontend", salaryExpectation: 4200, jobAffinity: 45 },
 ]);
 
 const candidates = ref<Candidate[]>([
@@ -58,7 +58,6 @@ const candidates = ref<Candidate[]>([
     phone: "(+55) 11 91022-3479",
     networks,
     seniority: Seniority.Junior,
-    experienceYears: 1,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 4000,
     jobAffinity: 42,
@@ -71,7 +70,6 @@ const candidates = ref<Candidate[]>([
     phone: "(+55) 11 91022-3479",
     networks,
     seniority: Seniority.Pleno,
-    experienceYears: 4,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 7000,
     jobAffinity: 67,
@@ -84,7 +82,6 @@ const candidates = ref<Candidate[]>([
     phone: "(+55) 11 91022-3479",
     networks,
     seniority: Seniority.Senior,
-    experienceYears: 8,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 12000,
     jobAffinity: 93,
@@ -97,7 +94,6 @@ const candidates = ref<Candidate[]>([
     phone: "(+55) 11 91022-3479",
     networks,
     seniority: Seniority.Pleno,
-    experienceYears: 3,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 6500,
     jobAffinity: 51,
@@ -110,7 +106,6 @@ const candidates = ref<Candidate[]>([
     phone: "(+55) 11 91022-3479",
     networks,
     seniority: Seniority.Junior,
-    experienceYears: 1,
     role: "Desenvolvedora Frontend",
     salaryExpectation: 3800,
     jobAffinity: 29,

@@ -8,9 +8,11 @@ const props = defineProps<{
 }>()
 
 const CONFIG: Record<Seniority, { label: string; bg: string; shadowColor: string }> = {
-  [Seniority.Junior]: { label: 'Junior', bg: 'bg-green',  shadowColor: 'var(--color-green-co)'  },
-  [Seniority.Pleno]:  { label: 'Pleno',  bg: 'bg-blue',   shadowColor: 'var(--color-blue-co)'   },
-  [Seniority.Senior]: { label: 'Senior', bg: 'bg-yellow', shadowColor: 'var(--color-yellow-co)' },
+  [Seniority.SemExperiencia]: { label: 'Sem experiência', bg: 'bg-pink',   shadowColor: 'var(--color-pink-co)'   },
+  [Seniority.Estagiario]:     { label: 'Estagiário',      bg: 'bg-purple', shadowColor: 'var(--color-purple-co)' },
+  [Seniority.Junior]:         { label: 'Junior',          bg: 'bg-green',  shadowColor: 'var(--color-green-co)'  },
+  [Seniority.Pleno]:          { label: 'Pleno',           bg: 'bg-blue',   shadowColor: 'var(--color-blue-co)'   },
+  [Seniority.Senior]:         { label: 'Senior',          bg: 'bg-yellow', shadowColor: 'var(--color-yellow-co)' },
 }
 
 const config = computed(() => CONFIG[props.seniority])

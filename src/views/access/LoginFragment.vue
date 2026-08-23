@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import Input from "@/components/ui/Input.vue";
 import Button from "@/components/ui/Button.vue";
 import HintPopup from "@/components/ui/HintPopup.vue";
 
 import { handleLogin } from "@/service/Access";
 
+const router = useRouter();
+
 type Step = "email" | "password";
 
 const step = ref<Step>("email");
 const email = ref("");
 const password = ref("");
+const error = ref(false);
 
 const buttonText = computed(() =>
   step.value === "email" ? "Continuar" : "Entrar",
@@ -24,7 +27,14 @@ async function submit() {
     return;
   }
 
-  await handleLogin(email.value, password.value);
+  error.value = false;
+  const session = await handleLogin(email.value, password.value);
+  if (!session) {
+    error.value = true;
+    return;
+  }
+
+  router.push({ name: "peneiras" });
 }
 </script>
 
@@ -52,6 +62,7 @@ async function submit() {
             placeholder="Senha"
           />
         </Transition>
+        <p v-if="error" class="text-small font-medium text-red">E-mail ou senha inválidos.</p>
         <Button :text="buttonText" @click="submit" />
       </form>
     </div>

@@ -14,7 +14,8 @@ import ValueField from "@/components/ui/table/fields/ValueField.vue";
 
 import type { TableColumn } from "@/components/ui/table/types";
 import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
-import { listProcesses } from "@/service/Peneiras";
+import { listProcesses, updateProcess, deleteProcess } from "@/service/Peneiras";
+import { notify } from "@/components/feedback/notify";
 
 const processes = ref<SelectiveProcess[]>([]);
 
@@ -93,10 +94,17 @@ const deleteConfirmOpen = computed({
   set: (value: boolean) => { if (!value) deleteTarget.value = null; },
 });
 
-function confirmDeleteProcess() {
+async function confirmDeleteProcess() {
   if (!deleteTarget.value) return;
-  processes.value = processes.value.filter((process) => process.id !== deleteTarget.value!.id);
+  const target = deleteTarget.value;
   deleteTarget.value = null;
+
+  try {
+    await deleteProcess(target.id);
+    processes.value = processes.value.filter((process) => process.id !== target.id);
+  } catch {
+    notify("Não foi possível excluir o processo.", "error");
+  }
 }
 
 const PROCESS_FIELDS: FormField[] = [
@@ -125,16 +133,25 @@ const editValues = computed<Record<string, string>>(() => {
   };
 });
 
-function submitEditProcess(values: Record<string, string>) {
+async function submitEditProcess(values: Record<string, string>) {
   if (!editTarget.value) return;
-  Object.assign(editTarget.value, {
+  const target = editTarget.value;
+  editTarget.value = null;
+
+  // approvalLimit/teamEmail have no backend field yet (see .sdd/swagger/gaps.md) — applied locally only.
+  Object.assign(target, {
     jobTitle: values.jobTitle,
     department: values.department,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
   });
-  editTarget.value = null;
+
+  try {
+    await updateProcess(target.id, target);
+  } catch {
+    notify("Não foi possível salvar as alterações do processo.", "error");
+  }
 }
 </script>
 
@@ -152,12 +169,6 @@ function submitEditProcess(values: Record<string, string>) {
       @delete-item="deleteTarget = $event"
       @edit-item="editTarget = $event"
     >
-      <template #actions>
-        <div class="flex items-center gap-3 pl-2">
-          <Button icon="Trash2" variant="neutral" />
-          <Button icon="EllipsisVertical" variant="neutral" />
-        </div>
-      </template>
     </Table>
 
     <ConfirmPopup

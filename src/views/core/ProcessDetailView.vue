@@ -14,10 +14,15 @@ import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
-import { Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
+import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
 import type { SelectiveProcess } from "@/types/peneira";
 import { MAX_VISIBLE_COLUMNS } from "@/components/ui/table/style/grid";
-import { getProcess, getCandidatesForProcess } from "@/service/Peneiras";
+import {
+  getProcess, getCandidatesForProcess, updateProcess,
+  createCandidate, updateCandidate, removeCandidateFromProcess,
+  resolveCandidateResumeUrl,
+} from "@/service/Peneiras";
+import { notify } from "@/components/feedback/notify";
 
 const route     = useRoute();
 const processId = route.params.id as string;
@@ -30,6 +35,8 @@ onMounted(async () => {
     getProcess(processId),
     getCandidatesForProcess(processId),
   ]);
+  // The API doesn't expose a headcount on Grupo; derive it from the roster we already fetched.
+  if (process.value) process.value.participants = candidates.value.length;
 });
 
 const allColumns = candidateColumns();
@@ -52,10 +59,18 @@ const sidebarOpen        = ref(false);
 const sidebarMode        = ref<"resume" | "approved" | null>(null);
 const activeCandidateId  = ref<string | number>();
 
-function openResume(candidate: Candidate) {
+async function openResume(candidate: Candidate) {
   activeCandidateId.value = candidate.id;
   sidebarMode.value       = "resume";
   sidebarOpen.value       = true;
+
+  if (!candidate.curriculumUrl) {
+    try {
+      candidate.curriculumUrl = await resolveCandidateResumeUrl(candidate.id);
+    } catch {
+      notify("Não foi possível carregar o currículo.", "error");
+    }
+  }
 }
 
 function openApproved() {
@@ -65,19 +80,11 @@ function openApproved() {
 
 function reorderApproved(items: Candidate[]) {
   if (!tableRef.value) return;
-  tableRef.value.approved = items;
-  tableRef.value.syncStatuses();
+  tableRef.value.groups[CandidateStatus.Aprovado] = items;
 }
 
 function removeFromApproved(candidate: Candidate) {
-  if (!tableRef.value) return;
-  const index = tableRef.value.approved.findIndex((item) => item.id === candidate.id);
-  if (index === -1) return;
-
-  const [removed] = tableRef.value.approved.splice(index, 1);
-  removed.status = "reprovado";
-  tableRef.value.rejected.push(removed);
-  tableRef.value.syncStatuses();
+  tableRef.value?.moveToStatus(candidate, CandidateStatus.Reprovado);
 }
 
 const filtersOpen = ref(false);
@@ -92,12 +99,13 @@ const CANDIDATE_FIELDS: FormField[] = [
     label: "Senioridade",
     type: "select",
     options: [
+      { value: Seniority.SemExperiencia, label: "Sem experiência" },
+      { value: Seniority.Estagiario, label: "Estagiário" },
       { value: Seniority.Junior, label: "Júnior" },
       { value: Seniority.Pleno, label: "Pleno" },
       { value: Seniority.Senior, label: "Sênior" },
     ],
   },
-  { key: "experienceYears", label: "Anos de experiência", type: "number" },
   { key: "salaryExpectation", label: "Expectativa salarial", type: "number" },
 ];
 
@@ -107,10 +115,18 @@ const deleteConfirmOpen = computed({
   set: (value: boolean) => { if (!value) deleteTarget.value = null; },
 });
 
-function confirmDeleteCandidate() {
+async function confirmDeleteCandidate() {
   if (!deleteTarget.value) return;
-  candidates.value = candidates.value.filter((candidate) => candidate.id !== deleteTarget.value!.id);
+  const target = deleteTarget.value;
   deleteTarget.value = null;
+
+  try {
+    await removeCandidateFromProcess(processId, target.id);
+    candidates.value = candidates.value.filter((candidate) => candidate.id !== target.id);
+    if (process.value) process.value.participants = candidates.value.length;
+  } catch {
+    notify("Não foi possível excluir o candidato.", "error");
+  }
 }
 
 const editTarget = ref<Candidate | null>(null);
@@ -128,40 +144,50 @@ const editValues = computed<Record<string, string>>(() => {
     phone: candidate.phone,
     role: candidate.role,
     seniority: candidate.seniority,
-    experienceYears: String(candidate.experienceYears),
     salaryExpectation: String(candidate.salaryExpectation),
   };
 });
 
-function submitEditCandidate(values: Record<string, string>) {
+async function submitEditCandidate(values: Record<string, string>) {
   if (!editTarget.value) return;
-  Object.assign(editTarget.value, {
-    name: values.name,
-    email: values.email,
-    phone: values.phone,
-    role: values.role,
-    seniority: values.seniority,
-    experienceYears: Number(values.experienceYears),
-    salaryExpectation: Number(values.salaryExpectation),
-  });
+  const target = editTarget.value;
   editTarget.value = null;
-}
 
-const newCandidateOpen = ref(false);
-
-function submitNewCandidate(values: Record<string, string>) {
-  candidates.value.push({
-    id: `${Date.now()}`,
+  const updated: Candidate = {
+    ...target,
     name: values.name,
     email: values.email,
     phone: values.phone,
     role: values.role,
     seniority: values.seniority as Seniority,
-    experienceYears: Number(values.experienceYears),
     salaryExpectation: Number(values.salaryExpectation),
-    status: "reprovado",
-    jobAffinity: 0,
-  });
+  };
+
+  try {
+    const saved = Object.assign(target, await updateCandidate(processId, updated));
+    candidates.value = candidates.value.map((candidate) => (candidate.id === saved.id ? saved : candidate));
+  } catch {
+    notify("Não foi possível salvar as alterações do candidato.", "error");
+  }
+}
+
+const newCandidateOpen = ref(false);
+
+async function submitNewCandidate(values: Record<string, string>) {
+  try {
+    const created = await createCandidate(processId, {
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      role: values.role,
+      seniority: values.seniority as Seniority,
+      salaryExpectation: Number(values.salaryExpectation),
+    });
+    candidates.value.push(created);
+    if (process.value) process.value.participants = candidates.value.length;
+  } catch {
+    notify("Não foi possível adicionar o candidato.", "error");
+  }
 }
 
 const PROCESS_FIELDS: FormField[] = [
@@ -185,8 +211,10 @@ const editProcessValues = computed<Record<string, string>>(() => {
   };
 });
 
-function submitEditProcess(values: Record<string, string>) {
+async function submitEditProcess(values: Record<string, string>) {
   if (!process.value) return;
+
+  // approvalLimit/teamEmail have no backend field yet (see .sdd/swagger/gaps.md) — applied locally only.
   Object.assign(process.value, {
     jobTitle: values.jobTitle,
     department: values.department,
@@ -194,6 +222,12 @@ function submitEditProcess(values: Record<string, string>) {
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
   });
+
+  try {
+    await updateProcess(processId, process.value);
+  } catch {
+    notify("Não foi possível salvar as alterações do processo.", "error");
+  }
 }
 
 </script>
@@ -246,7 +280,7 @@ function submitEditProcess(values: Record<string, string>) {
       />
       <ApprovedListSidebar
         v-else-if="sidebarMode === 'approved' && tableRef"
-        :items="tableRef.approved"
+        :items="tableRef.groups[CandidateStatus.Aprovado]"
         :approval-limit="process.approvalLimit"
         @reorder="reorderApproved"
         @remove="removeFromApproved"
