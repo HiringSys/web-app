@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from "vue";
 
 import Table from "@/components/ui/table/Table.vue";
 import Button from "@/components/ui/Button.vue";
-import FilterChips from "@/components/ui/FilterChips.vue";
+import FilterChips from "@/components/layout/FilterChips.vue";
 import ConfirmPopup from "@/components/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup from "@/components/popup/FiltersPopup.vue";

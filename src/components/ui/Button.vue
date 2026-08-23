@@ -2,6 +2,7 @@
 
 import { computed } from 'vue'
 import * as icons   from '@lucide/vue'
+import { twMerge }  from 'tailwind-merge'
 
 import type { IconName } from './Icon.vue'
 import { Color, colorClasses } from './lib'
@@ -15,6 +16,7 @@ const props = withDefaults(
     rounded?:  boolean
     disabled?: boolean
     small?:    boolean
+    class?:    string
   }>(),
   {
     variant:  'primary',
@@ -31,17 +33,20 @@ const pressShadowColor = computed(() =>
   props.variant === 'neutral' ? 'var(--color-gray-co)' : colorClasses[props.color].shadow,
 )
 
+const buttonClasses = computed(() => twMerge(
+  'relative inline-flex press-shadow items-center justify-center text-center font-semibold cursor-pointer',
+  props.rounded ? 'rounded-full' : 'rounded-medium',
+  props.small ? 'gap-1 px-4 py-2 h-fit text-small' : 'gap-2',
+  !props.small && (props.icon && !props.text ? 'py-2.75 px-5' : 'px-4 py-2'),
+  props.variant === 'neutral' ? 'bg-white text-black/60' : [colorClasses[props.color].bg, 'text-white'],
+  props.class,
+))
+
 </script>
 
 <template>
   <button
-    class="relative inline-flex press-shadow items-center justify-center text-center font-semibold cursor-pointer"
-    :class="[
-      rounded ? 'rounded-full' : 'rounded-medium',
-      small ? 'gap-1 px-4 py-2 h-fit text-small' : 'gap-2',
-      !small && (icon && !text ? 'py-2.75 px-5' : 'px-4 py-2'),
-      variant === 'neutral' ? 'bg-white text-black/60' : [colorClasses[color].bg, 'text-white'],
-    ]"
+    :class="buttonClasses"
     :style="{ '--press-shadow-color': pressShadowColor }"
     type="button"
     :disabled="disabled"
