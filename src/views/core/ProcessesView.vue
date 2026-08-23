@@ -177,16 +177,18 @@ async function submitEditProcess(values: Record<string, string>) {
   const target = editTarget.value;
   editTarget.value = null;
 
-  Object.assign(target, {
+  const updated: SelectiveProcess = {
+    ...target,
     jobTitle: values.jobTitle,
     department: values.department,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
-  });
+  };
 
   try {
-    await updateProcess(target.id, target);
+    const saved = Object.assign(target, await updateProcess(target.id, updated));
+    processes.value = processes.value.map((process) => (process.id === saved.id ? saved : process));
   } catch {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }

@@ -232,16 +232,19 @@ const editProcessValues = computed<Record<string, string>>(() => {
 async function submitEditProcess(values: Record<string, string>) {
   if (!process.value) return;
 
-  Object.assign(process.value, {
+  const updated: SelectiveProcess = {
+    ...process.value,
     jobTitle: values.jobTitle,
     department: values.department,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
-  });
+  };
 
   try {
-    await updateProcess(processId, process.value);
+    const saved = await updateProcess(processId, updated);
+    // The API doesn't expose a headcount on Grupo, so `saved.participants` is always 0 — keep the count derived from the roster.
+    Object.assign(process.value, saved, { participants: process.value.participants });
   } catch {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
