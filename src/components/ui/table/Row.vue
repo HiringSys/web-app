@@ -17,6 +17,8 @@ withDefaults(
 
 defineEmits<{
   'view-resume': [item: T]
+  'delete-item': [item: T]
+  'edit-item':   [item: T]
 }>()
 
 </script>
@@ -42,8 +44,8 @@ defineEmits<{
 
     <div class="absolute px-4 h-full right-0 top-1/2 -translate-y-1/2 flex flex-row items-center-safe gap-2 bg-white">
       <div class="flex flex-row gap-2">
-        <Button icon="Trash2"      variant="primary" color="red"    :small="true" />
-        <Button icon="Pencil"      variant="primary"                :small="true" />
+        <Button icon="Trash2"      variant="primary" color="red"    :small="true" @click="$emit('delete-item', item)" />
+        <Button icon="Pencil"      variant="primary"                :small="true" @click="$emit('edit-item', item)" />
       </div>
 
       <div class="flex flex-row gap-2">
