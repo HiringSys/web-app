@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ProcessesView from '@/views/core/ProcessesView.vue'
+import { getAuthToken } from '@/service/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +53,22 @@ const router = createRouter({
       meta: { title: 'Opss....' }
     },
   ],
+})
+
+// Routes reachable without a session — everything else requires auth.
+const PUBLIC_ROUTES = new Set(['login', 'recuperar-senha'])
+
+router.beforeEach((to) => {
+  const isAuthenticated = !!getAuthToken()
+  const isPublic = PUBLIC_ROUTES.has(to.name as string)
+
+  if (!isAuthenticated && !isPublic) {
+    return { name: 'login' }
+  }
+
+  if (isAuthenticated && isPublic) {
+    return { name: 'peneiras' }
+  }
 })
 
 router.afterEach((to) => {
