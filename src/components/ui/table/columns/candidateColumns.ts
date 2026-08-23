@@ -1,4 +1,5 @@
 import type { TableColumn, Candidate } from '../types'
+import { CandidateStatus } from '../types'
 import { formatSalary } from '@/lib/format'
 
 import CandidateField  from '../fields/CandidateField.vue'
@@ -25,7 +26,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       size: 'sm',
       fixed: true,
       component: StatusField,
-      props: (item) => ({ status: item.status }),
+      props: (item) => ({ status: item.blocked ? CandidateStatus.Suprimido : item.status }),
     },
     {
       key: 'phone',

@@ -127,6 +127,11 @@ export async function deleteProcess(id: string | number): Promise<void> {
 
 // --- Funcionario <-> Candidate --------------------------------------------
 
+/** Suprimido (the `blocked` override) has no backend status — sent as Reprovado whenever the candidate reaches the API. */
+function toFuncionarioStatus(candidate: Pick<Candidate, "status" | "blocked">): FuncionarioStatus {
+  return candidate.blocked ? "REPROVADO" : (candidate.status.toUpperCase() as FuncionarioStatus);
+}
+
 function mapFuncionarioToCandidate(funcionario: FuncionarioResponse, grupoId: string | number): Candidate {
   const grupoMembership = funcionario.grupos?.find((grupo) => String(grupo.id) === String(grupoId));
 
@@ -197,7 +202,7 @@ export async function updateCandidate(grupoId: string | number, candidate: Candi
     email: candidate.email,
     telefone:    candidate.phone || undefined,
     salario:     candidate.salaryExpectation,
-    status:      candidate.status.toUpperCase() as FuncionarioStatus,
+    status:      toFuncionarioStatus(candidate),
     experiencia: candidate.seniority.toUpperCase() as FuncionarioExperiencia,
     cargoIds:    cargoId !== undefined ? [cargoId] : [],
     redes:       toRedeRequests(candidate.networks),
