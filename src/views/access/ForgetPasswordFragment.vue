@@ -1,39 +1,30 @@
 <script setup lang="ts">
-import { computed, ref }         from "vue";
+import { ref }                   from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import Input  from "@/components/ui/Input.vue";
 import Button from "@/components/ui/Button.vue";
 
-import { handleChangePassword } from "@/service/Access";
+import { handleRecoverPassword } from "@/service/Access";
 import { notify } from "@/components/feedback/notify";
-
-type Step = "email" | "password";
 
 const router = useRouter();
 
-const step = ref<Step>("email");
 const email = ref("");
-const newPassword = ref("");
-const confirmPassword = ref("");
-
-const buttonText = computed(() =>
-  step.value === "email" ? "Continuar" : "Salvar",
-);
+const loading = ref(false);
 
 async function submit() {
-  if (step.value === "email") {
-    if (!email.value) return;
-    step.value = "password";
+  if (!email.value || loading.value) return;
+
+  loading.value = true;
+  const success = await handleRecoverPassword(email.value);
+  loading.value = false;
+
+  if (!success) {
+    notify("Não foi possível enviar a nova senha. Verifique o e-mail informado.", "error");
     return;
   }
 
-  if (!newPassword.value || newPassword.value !== confirmPassword.value) {
-    notify("As senhas não coincidem.", "error");
-    return;
-  }
-
-  await handleChangePassword(email.value, newPassword.value);
-  notify("Senha alterada com sucesso.", "success");
+  notify("Uma nova senha foi enviada para o seu e-mail.", "success");
   router.push({ name: "login" });
 }
 </script>
@@ -42,32 +33,19 @@ async function submit() {
   <div class="flex flex-col w-full gap-6">
     <div class="flex flex-col gap-2">
       <h2>Recuperar senha</h2>
+      <p class="font-medium text-black/60">
+        Informe o e-mail da sua conta. Enviaremos uma nova senha para ele.
+      </p>
       <form
         class="w-full max-w-120 flex flex-col gap-4"
         @submit.prevent="submit"
       >
-        <Transition name="field-swap" mode="out-in">
-          <Input
-            v-if="step === 'email'"
-            key="email"
-            v-model="email"
-            type="email"
-            placeholder="E-mail"
-          />
-          <div v-else key="password" class="flex flex-col gap-4">
-            <Input
-              v-model="newPassword"
-              type="password"
-              placeholder="Nova senha"
-            />
-            <Input
-              v-model="confirmPassword"
-              type="password"
-              placeholder="Confirmar senha"
-            />
-          </div>
-        </Transition>
-        <Button :text="buttonText" @click="submit" />
+        <Input
+          v-model="email"
+          type="email"
+          placeholder="E-mail"
+        />
+        <Button text="Enviar" :disabled="loading" @click="submit" />
       </form>
     </div>
 
@@ -79,22 +57,3 @@ async function submit() {
     </p>
   </div>
 </template>
-
-<style scoped>
-.field-swap-enter-active,
-.field-swap-leave-active {
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.field-swap-enter-from {
-  opacity: 0;
-  transform: translateY(0.5rem);
-}
-
-.field-swap-leave-to {
-  opacity: 0;
-  transform: translateY(-0.5rem);
-}
-</style>

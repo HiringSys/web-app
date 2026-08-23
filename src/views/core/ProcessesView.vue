@@ -14,7 +14,7 @@ import ValueField from "@/components/ui/table/fields/ValueField.vue";
 
 import type { TableColumn } from "@/components/ui/table/types";
 import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
-import { listProcesses, updateProcess, deleteProcess } from "@/service/Peneiras";
+import { listProcesses, createProcess, updateProcess, deleteProcess } from "@/service/Peneiras";
 import { notify } from "@/components/feedback/notify";
 
 const processes = ref<SelectiveProcess[]>([]);
@@ -121,6 +121,45 @@ const editOpen = computed({
   set: (value: boolean) => { if (!value) editTarget.value = null; },
 });
 
+const NEW_PROCESS_FIELDS: FormField[] = [
+  { key: "jobTitle", label: "Finalidade da vaga" },
+  { key: "department", label: "Departamento" },
+  {
+    key: "status",
+    label: "Estado",
+    type: "select",
+    options: STATUS_OPTIONS.map((option) => ({ value: option.key, label: option.label })),
+  },
+  { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
+  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
+  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
+];
+
+const NEW_PROCESS_INITIAL_VALUES: Record<string, string> = {
+  status: ProcessStatus.Rascunho,
+  availableSlots: "0",
+  approvalLimit: "0",
+};
+
+const newProcessOpen = ref(false);
+
+async function submitNewProcess(values: Record<string, string>) {
+  try {
+    const created = await createProcess({
+      jobTitle: values.jobTitle,
+      department: values.department,
+      status: values.status as ProcessStatus,
+      availableSlots: Number(values.availableSlots),
+      role: "",
+      approvalLimit: Number(values.approvalLimit),
+      teamEmail: values.teamEmail,
+    });
+    processes.value.push(created);
+  } catch {
+    notify("Não foi possível criar o processo.", "error");
+  }
+}
+
 const editValues = computed<Record<string, string>>(() => {
   if (!editTarget.value) return {} as Record<string, string>;
   const process = editTarget.value;
@@ -138,17 +177,18 @@ async function submitEditProcess(values: Record<string, string>) {
   const target = editTarget.value;
   editTarget.value = null;
 
-  // approvalLimit/teamEmail have no backend field yet (see .sdd/swagger/gaps.md) — applied locally only.
-  Object.assign(target, {
+  const updated: SelectiveProcess = {
+    ...target,
     jobTitle: values.jobTitle,
     department: values.department,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
-  });
+  };
 
   try {
-    await updateProcess(target.id, target);
+    const saved = Object.assign(target, await updateProcess(target.id, updated));
+    processes.value = processes.value.map((process) => (process.id === saved.id ? saved : process));
   } catch {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
@@ -160,6 +200,7 @@ async function submitEditProcess(values: Record<string, string>) {
     <div class="flex items-center gap-3">
       <h1>Processos seletivos</h1>
       <Button icon="LayoutGrid" variant="primary" />
+      <Button icon="Plus" text="Novo processo" variant="primary" class="ml-auto" @click="newProcessOpen = true" />
     </div>
 
     <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" @open-filters="filtersOpen = true" />
@@ -186,6 +227,15 @@ async function submitEditProcess(values: Record<string, string>) {
       :fields="PROCESS_FIELDS"
       :initial-values="editValues"
       @submit="submitEditProcess"
+    />
+
+    <FormPopup
+      v-model="newProcessOpen"
+      title="Novo processo"
+      submit-text="Criar"
+      :fields="NEW_PROCESS_FIELDS"
+      :initial-values="NEW_PROCESS_INITIAL_VALUES"
+      @submit="submitNewProcess"
     />
 
     <FiltersPopup v-model="filtersOpen" title="Status" :options="STATUS_OPTIONS" v-model:active="activeStatuses" />
