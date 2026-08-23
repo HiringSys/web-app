@@ -142,7 +142,7 @@ export interface ArquivoFuncionarioResponse {
 }
 
 export interface LoginRequest {
-  username: string;
+  email:    string;
   password: string;
 }
 
@@ -151,4 +151,12 @@ export interface LoginResponse {
   tokenType?:  string;
   expiresIn?:  number;
   perfil?:     string;
+}
+
+export interface RecuperacaoSenhaRequest {
+  email: string;
+}
+
+export interface RecuperacaoSenhaResponse {
+  mensagem?: string;
 }
