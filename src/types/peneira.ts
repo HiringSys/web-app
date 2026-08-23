@@ -17,4 +17,5 @@ export interface SelectiveProcess {
   participants: number
   role: string
   approvalLimit: number
+  teamEmail: string
 }
