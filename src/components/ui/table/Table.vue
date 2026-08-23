@@ -25,6 +25,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:items': [items: T[]]
+  'delete-item':  [item: T]
+  'edit-item':    [item: T]
 }>()
 
 const visibleColumns = computed(() => capColumns(props.columns))
@@ -56,7 +58,11 @@ const rows = computed({
         class="flex flex-col gap-2"
       >
         <template #item="{ element }">
-          <Row :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns">
+          <Row
+            :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns"
+            @delete-item="emit('delete-item', $event)"
+            @edit-item="emit('edit-item', $event)"
+          >
             <template v-if="$slots.actions" #actions="slotProps">
               <slot name="actions" v-bind="slotProps" />
             </template>
@@ -72,6 +78,8 @@ const rows = computed({
           :columns="visibleColumns"
           :grid-template-columns="gridTemplateColumns"
           :draggable="false"
+          @delete-item="emit('delete-item', $event)"
+          @edit-item="emit('edit-item', $event)"
         >
           <template v-if="$slots.actions" #actions="slotProps">
             <slot name="actions" v-bind="slotProps" />

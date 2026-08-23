@@ -1,15 +1,14 @@
 <script setup lang="ts">
 
 import { ref, computed } from 'vue'
-import VueDraggable       from 'vuedraggable'
+import VueDraggable      from 'vuedraggable'
 
-import type { TableColumn, Candidate } from './types'
+import type { TableColumn, Candidate }   from './types'
 import      { gridTemplate, capColumns } from './style/grid'
-import      { useDragGhostOpacityFix } from '@/lib/dragGhostOpacity'
-import      { useFontsReady }          from '@/lib/fontsReady'
+import      { useDragGhostOpacityFix }   from '@/lib/dragGhostOpacity'
+import      { useFontsReady }            from '@/lib/fontsReady'
 
-import TableHeader from './TableHeader.vue'
-import Row          from './Row.vue'
+import Row from './Row.vue'
 
 useDragGhostOpacityFix()
 const fontsReady = useFontsReady()
@@ -22,6 +21,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:items': [items: Candidate[]]
+  'view-resume':  [item: Candidate]
+  'delete-item':  [item: Candidate]
+  'edit-item':    [item: Candidate]
 }>()
 
 const approved = ref<Candidate[]>(props.items.filter((item) => item.status === 'aprovado'))
@@ -42,15 +44,15 @@ const gridTemplateColumns = computed(() => {
 const approvedGroup = { name: 'selection', put: () => approved.value.length < props.approvalLimit }
 const rejectedGroup = { name: 'selection', put: true }
 
+defineExpose({ approved, rejected, syncStatuses })
+
 </script>
 
 <template>
   <div class="overflow-x-auto scrollbar-hide">
     <div class="flex min-w-fit flex-col gap-3">
-      <TableHeader :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
-
       <div class="rounded-medium bg-blue/10 p-3">
-        <VueDraggable
+        <VueDraggable class="flex min-h-16 flex-col gap-2"
           v-model="approved"
           tag="div"
           item-key="id"
@@ -58,16 +60,20 @@ const rejectedGroup = { name: 'selection', put: true }
           :group="approvedGroup"
           :animation="150"
           :force-fallback="true"
-          class="flex min-h-16 flex-col gap-2"
           @change="syncStatuses"
         >
           <template #item="{ element }">
-            <Row :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
+            <Row
+              :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns"
+              @view-resume="emit('view-resume', $event)"
+              @delete-item="emit('delete-item', $event)"
+              @edit-item="emit('edit-item', $event)"
+            />
           </template>
         </VueDraggable>
       </div>
 
-      <VueDraggable
+      <VueDraggable class="flex min-h-16 flex-col gap-2"
         v-model="rejected"
         tag="div"
         item-key="id"
@@ -75,11 +81,15 @@ const rejectedGroup = { name: 'selection', put: true }
         :group="rejectedGroup"
         :animation="150"
         :force-fallback="true"
-        class="flex min-h-16 flex-col gap-2"
         @change="syncStatuses"
       >
         <template #item="{ element }">
-          <Row :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" />
+          <Row
+            :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns"
+            @view-resume="emit('view-resume', $event)"
+            @delete-item="emit('delete-item', $event)"
+            @edit-item="emit('edit-item', $event)"
+          />
         </template>
       </VueDraggable>
     </div>
