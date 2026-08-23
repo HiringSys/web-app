@@ -48,8 +48,8 @@ const buttonClasses = computed(() => twMerge(
   <button
     :class="buttonClasses"
     :style="{ '--press-shadow-color': pressShadowColor }"
-    type="button"
     :disabled="disabled"
+    type="button"
   >
     <component :is="iconComponent" v-if="iconComponent" :size="small ? 16 : 18" />
     <span v-if="text">{{ text }}</span>
