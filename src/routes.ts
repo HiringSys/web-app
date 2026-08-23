@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import ProcessesView from '@/views/core/ProcessesView.vue'
 import { getAuthToken } from '@/service/api'
 
 const router = createRouter({
@@ -7,9 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: ProcessesView,
-      meta: { title: 'Peneiras' }
+      redirect: { name: 'peneiras' },
     },
     {
       path: '/access',
@@ -28,12 +25,6 @@ const router = createRouter({
           meta: { title: 'Recuperar senha' }
         },
       ],
-    },
-    {
-      path: '/tests',
-      name: 'tests',
-      component: () => import('@/views/TestsView.vue'),
-      meta: { title: 'Testes' }
     },
     {
       path: '/peneiras',
