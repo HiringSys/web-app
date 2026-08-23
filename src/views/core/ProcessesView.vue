@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
 import Table from "@/components/ui/table/Table.vue";
 import Button from "@/components/ui/Button.vue";
@@ -85,6 +85,26 @@ const activeStatuses = ref<string[]>(
 const filteredProcesses = computed(() =>
   processes.value.filter((process) => activeStatuses.value.includes(process.status)),
 );
+
+const PAGE_SIZE = 5;
+const page = ref(1);
+
+watch(filteredProcesses, () => {
+  page.value = 1;
+});
+
+const pageCount = computed(() => Math.max(1, Math.ceil(filteredProcesses.value.length / PAGE_SIZE)));
+
+const paginatedProcesses = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE;
+  return filteredProcesses.value.slice(start, start + PAGE_SIZE);
+});
+
+const hasPrevPage = computed(() => page.value > 1);
+const hasNextPage = computed(() => page.value < pageCount.value);
+
+function prevPage() { if (hasPrevPage.value) page.value -= 1; }
+function nextPage() { if (hasNextPage.value) page.value += 1; }
 
 const filtersOpen = ref(false);
 
@@ -206,11 +226,17 @@ async function submitEditProcess(values: Record<string, string>) {
     <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" @open-filters="filtersOpen = true" />
 
     <Table
-      :columns="columns" :items="filteredProcesses" :draggable="false"
+      :columns="columns" :items="paginatedProcesses" :draggable="false"
       @delete-item="deleteTarget = $event"
       @edit-item="editTarget = $event"
     >
     </Table>
+
+    <div class="flex items-center justify-center gap-3">
+      <Button icon="ArrowLeft" variant="primary" :disabled="!hasPrevPage" @click="prevPage" />
+      <span class="text-black/40">Página {{ page }} de {{ pageCount }}</span>
+      <Button icon="ArrowRight" variant="primary" :disabled="!hasNextPage" @click="nextPage" />
+    </div>
 
     <ConfirmPopup
       v-model="deleteConfirmOpen"
