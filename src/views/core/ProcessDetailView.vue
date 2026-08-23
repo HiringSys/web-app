@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute }                 from "vue-router";
 
 import SelectionTable          from "@/components/ui/table/SelectionTable.vue";
-import FilterChips             from "@/components/ui/FilterChips.vue";
+import OrderableFilterChips    from "@/components/layout/OrderableFilterChips.vue";
 import Button                  from "@/components/ui/Button.vue";
 import Sidebar                 from "@/components/layout/sidebar/Sidebar.vue";
 import CandidateResumeSidebar  from "@/components/layout/sidebar/content/CandidateResumeSidebar.vue";
@@ -217,8 +217,8 @@ function submitEditProcess(values: Record<string, string>) {
         </div>
       </div>
 
-      <FilterChips
-        :options="COLUMN_OPTIONS" v-model="activeColumns" orderable :pinned="['name']" :max="MAX_VISIBLE_COLUMNS"
+      <OrderableFilterChips
+        :options="COLUMN_OPTIONS" v-model="activeColumns" :pinned="['name']" :max="MAX_VISIBLE_COLUMNS"
         @open-filters="filtersOpen = true"
       />
 

@@ -5,7 +5,7 @@ import { Grip }  from "@lucide/vue";
 import draggable from "vuedraggable";
 import Button      from "../components/ui/Button.vue";
 import Input       from "../components/ui/Input.vue";
-import FilterChips from "../components/ui/FilterChips.vue";
+import FilterChips from "../components/layout/FilterChips.vue";
 import Icon      from "../components/ui/Icon.vue";
 import Table          from "../components/ui/table/Table.vue";
 import SelectionTable from "../components/ui/table/SelectionTable.vue";
