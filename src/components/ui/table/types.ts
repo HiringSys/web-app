@@ -15,9 +15,18 @@ export const SocialNetwork = {
 
 export type SocialNetwork = (typeof SocialNetwork)[keyof typeof SocialNetwork];
 
-export type CandidateStatus = "aprovado" | "reprovado";
+export const CandidateStatus = {
+  EmAnalise: "em_analise",
+  Aprovado:  "aprovado",
+  Reprovado: "reprovado",
+  Contratado: "contratado",
+} as const;
+
+export type CandidateStatus = (typeof CandidateStatus)[keyof typeof CandidateStatus];
 
 export const Seniority = {
+  SemExperiencia: "sem_experiencia",
+  Estagiario: "estagiario",
   Junior: "junior",
   Pleno: "pleno",
   Senior: "senior",
@@ -39,7 +48,6 @@ export interface Candidate {
   phone: string;
   networks?: SocialLink[];
   seniority: Seniority;
-  experienceYears: number;
   role: string;
   salaryExpectation: number;
   curriculumUrl?: string;

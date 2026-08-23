@@ -59,14 +59,6 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       props: (item) => ({ value: formatSalary(item.salaryExpectation) }),
     },
     {
-      key: 'experience',
-      label: 'Tempo de experiência',
-      size: 'sm',
-      measure: (item) => `${item.experienceYears} ${item.experienceYears === 1 ? 'ano' : 'anos'}`,
-      component: ValueField,
-      props: (item) => ({ value: `${item.experienceYears} ${item.experienceYears === 1 ? 'ano' : 'anos'}` }),
-    },
-    {
       key: 'seniority',
       label: 'Senioridade',
       size: 'sm',

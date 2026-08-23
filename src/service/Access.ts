@@ -1,23 +1,28 @@
-import { apiFetch } from "./api";
+import { apiFetch, setAuthToken } from "./api";
+import type { LoginRequest, LoginResponse } from "./api/models";
 
-export async function handleLogin(email: string, password: string) {
+/**
+ * The API models identity as `username`, but the login UI only ever collects
+ * an e-mail — passed through as-is here.
+ */
+export async function handleLogin(email: string, password: string): Promise<LoginResponse | null> {
   try {
-    return await apiFetch<number>("/auth/login", {
+    const response = await apiFetch<LoginResponse>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username: email, password } satisfies LoginRequest),
     });
+    setAuthToken(response.accessToken);
+    return response;
   } catch {
-    return 0;
+    return null;
   }
 }
 
-export async function handleChangePassword(email: string, newPassword: string) {
-  try {
-    return await apiFetch<number>("/auth/change-password", {
-      method: "POST",
-      body: JSON.stringify({ email, newPassword }),
-    });
-  } catch {
-    return 0;
-  }
+export function handleLogout() {
+  setAuthToken(null);
+}
+
+// The API has no password-recovery endpoint yet (see .sdd/swagger/gaps.md).
+export async function handleChangePassword(_email: string, _newPassword: string) {
+  return 0;
 }
