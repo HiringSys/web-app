@@ -20,6 +20,8 @@ export const CandidateStatus = {
   Aprovado:  "aprovado",
   Reprovado: "reprovado",
   Contratado: "contratado",
+  /** Client-only status set via the block action — no backend field (see .sdd/swagger/gaps.md); sent as Reprovado whenever it has to reach the API. */
+  Suprimido: "suprimido",
 } as const;
 
 export type CandidateStatus = (typeof CandidateStatus)[keyof typeof CandidateStatus];
@@ -52,6 +54,8 @@ export interface Candidate {
   salaryExpectation: number;
   curriculumUrl?: string;
   jobAffinity: number;
+  /** Overrides the displayed status to Suprimido without moving the candidate out of its actual section/status. Client-only. */
+  blocked?: boolean;
 }
 
 export interface TableColumn<T> {
