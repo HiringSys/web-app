@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import Popup from "./Popup.vue";
 import Input from "@@/ui/Input.vue";
 import Button from "@@/ui/Button.vue";
@@ -10,6 +10,10 @@ export interface FormField {
   type?: "text" | "number" | "email" | "tel" | "select";
   placeholder?: string;
   options?: { value: string; label: string }[];
+  required?: boolean;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
 }
 
 const props = withDefaults(
@@ -19,9 +23,11 @@ const props = withDefaults(
     fields: FormField[];
     initialValues: Record<string, string>;
     submitText?: string;
+    closeOnSubmit?: boolean;
   }>(),
   {
     submitText: "Salvar",
+    closeOnSubmit: true,
   },
 );
 
@@ -31,6 +37,7 @@ const emit = defineEmits<{
 }>();
 
 const values = reactive<Record<string, string>>({});
+const form = ref<HTMLFormElement>();
 
 watch(
   () => props.modelValue,
@@ -54,8 +61,9 @@ watch(
 );
 
 function submit() {
+  if (!form.value?.reportValidity()) return;
   emit("submit", { ...values });
-  emit("update:modelValue", false);
+  if (props.closeOnSubmit) emit("update:modelValue", false);
 }
 </script>
 
@@ -66,9 +74,10 @@ function submit() {
     width="28rem"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div
+    <form
+      ref="form"
       class="flex flex-col gap-4 scrollbar-hide"
-      @keydown.enter.prevent="submit"
+      @submit.prevent="submit"
     >
       <label
         v-for="field in fields"
@@ -82,7 +91,8 @@ function submit() {
         <select
           v-if="field.type === 'select'"
           v-model="values[field.key]"
-          class="w-full rounded-medium bg-white px-4 py-2.5 font-medium text-black focus:outline-0"
+          :required="field.required"
+          class="w-full rounded-medium bg-white px-4 py-2.5 font-medium text-black focus:outline-0 focus-visible:ring-2 focus-visible:ring-blue/70"
         >
           <option
             v-for="option in field.options"
@@ -97,10 +107,15 @@ function submit() {
           v-else
           :type="field.type ?? 'text'"
           :placeholder="field.placeholder ?? field.label"
+          :required="field.required"
+          :min="field.min"
+          :max="field.max"
+          :step="field.step"
           v-model="values[field.key]"
         />
       </label>
-    </div>
+      <button type="submit" class="hidden" aria-hidden="true" />
+    </form>
 
     <template #actions>
       <Button

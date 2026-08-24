@@ -124,9 +124,11 @@ const actions = computed<ActionButton[]>(() => {
 <template>
   <div
     class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden"
+    :class="variant === 'detail' ? 'max-lg:flex-col' : ''"
   >
     <div
-      class="grid max-h-18 w-full min-w-0 items-center gap-4 overflow-x-auto scrollbar-hide py-1.5"
+      class="grid w-full min-w-0 items-center gap-4 overflow-x-auto scrollbar-hide py-1.5"
+      :class="variant === 'detail' ? 'max-lg:max-h-none' : 'max-h-18'"
       :style="{ gridTemplateColumns }"
       draggable="false"
     >
@@ -169,7 +171,10 @@ const actions = computed<ActionButton[]>(() => {
     <TransitionGroup
       name="action-btn"
       tag="div"
-      class="absolute px-4 h-full right-0 top-1/2 -translate-y-1/2 flex flex-row items-center-safe gap-2 bg-white"
+      class="flex flex-row items-center-safe gap-2 bg-white"
+      :class="variant === 'detail'
+        ? 'relative mt-2 h-auto w-full justify-start overflow-x-auto border-t border-black/5 px-0 pb-1 pt-3 scrollbar-hide lg:absolute lg:right-0 lg:top-1/2 lg:mt-0 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:justify-end lg:overflow-visible lg:border-0 lg:px-4 lg:pb-0 lg:pt-0'
+        : 'absolute right-0 top-1/2 h-full -translate-y-1/2 px-4'"
     >
       <Button
         v-for="(action, index) in actions"

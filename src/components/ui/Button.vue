@@ -18,6 +18,8 @@ const props = withDefaults(
     small?:    boolean
     class?:    string
     toggled?:  boolean
+    type?:     'button' | 'submit'
+    ariaLabel?: string
   }>(),
   {
     variant:  'primary',
@@ -26,6 +28,7 @@ const props = withDefaults(
     rounded:  false,
     small:    false,
     toggled:  false,
+    type:     'button',
   },
 )
 
@@ -60,7 +63,8 @@ const buttonStyle = computed(() => ({
     :class="buttonClasses"
     :style="buttonStyle"
     :disabled="disabled"
-    type="button"
+    :type="type"
+    :aria-label="ariaLabel ?? text"
   >
     <component :is="iconComponent" v-if="iconComponent" :size="small ? 16 : 18" />
     <span v-if="text">{{ text }}</span>

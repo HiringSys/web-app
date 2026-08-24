@@ -35,6 +35,9 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
       <div
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         v-if="modelValue"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="title"
         @mousedown.self="close"
       >
         <div
@@ -46,6 +49,7 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
               <h2 v-if="title" class="leading-none pb-px">{{ title }}</h2>
               <Button
                 icon="X"
+                aria-label="Fechar"
                 variant="neutral"
                 small
                 class="ml-auto"

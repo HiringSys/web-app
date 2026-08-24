@@ -40,8 +40,8 @@ async function submit() {
         class="w-full max-w-120 flex flex-col gap-4"
         @submit.prevent="submit"
       >
-        <Input v-model="email" type="email" placeholder="E-mail" />
-        <Button text="Enviar" :disabled="loading" @click="submit" />
+        <Input v-model="email" type="email" class="bg-gray" placeholder="E-mail" required />
+        <Button text="Enviar" type="submit" :disabled="loading" />
       </form>
     </div>
 

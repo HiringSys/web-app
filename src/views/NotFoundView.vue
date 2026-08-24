@@ -15,8 +15,8 @@ function returnToHomePage() {
   <main class="w-full h-full items-center-safe justify-center mx-auto flex max-w-md flex-col gap-6 text-center">
     <div class="flex flex-col gap-2">
       <h1 class="leading-none pb-px">Página não encontrada</h1>
-      <h3 class="leading-none pb-px">Oppss.... Algo de errado não está certo...</h3>
+      <h3 class="leading-none pb-px">Ops! O endereço informado não existe ou foi removido.</h3>
     </div>
-    <Button icon="TrafficCone" color="orange" small class="px-24" @click="returnToHomePage()" />
+    <Button text="Voltar ao início" icon="ArrowLeft" color="orange" small class="px-8" @click="returnToHomePage()" />
   </main>
 </template>

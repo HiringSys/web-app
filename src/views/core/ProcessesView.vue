@@ -33,16 +33,25 @@ import { useNavbar } from "@/components/layout/navbar/useNavbar";
 
 const processes = ref<SelectiveProcess[]>([]);
 const loading = ref(true);
+const loadError = ref("");
 
 const { isNavOpen } = useNavbar();
 
-onMounted(async () => {
+async function loadProcesses() {
+  loading.value = true;
+  loadError.value = "";
   try {
     processes.value = await listProcesses();
+  } catch (error) {
+    loadError.value = error instanceof Error
+      ? error.message
+      : "Não foi possível carregar os processos seletivos.";
   } finally {
     loading.value = false;
   }
-});
+}
+
+onMounted(loadProcesses);
 
 const columns: TableColumn<SelectiveProcess>[] = [
   {
@@ -164,20 +173,21 @@ async function confirmDeleteProcess() {
 }
 
 const PROCESS_FIELDS: FormField[] = [
-  { key: "jobTitle", label: "Finalidade da vaga" },
-  { key: "department", label: "Departamento" },
+  { key: "jobTitle", label: "Finalidade da vaga", required: true },
+  { key: "department", label: "Departamento", required: true },
   {
     key: "status",
     label: "Estado",
     type: "select",
+    required: true,
     options: STATUS_OPTIONS.map((option) => ({
       value: option.key,
       label: option.label,
     })),
   },
-  { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
-  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
-  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
+  { key: "availableSlots", label: "Vagas disponíveis", type: "number", min: 0, required: true },
+  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number", min: 0, required: true },
+  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email", required: true },
 ];
 
 const editTarget = ref<SelectiveProcess | null>(null);
@@ -189,20 +199,21 @@ const editOpen = computed({
 });
 
 const NEW_PROCESS_FIELDS: FormField[] = [
-  { key: "jobTitle", label: "Finalidade da vaga" },
-  { key: "department", label: "Departamento" },
+  { key: "jobTitle", label: "Finalidade da vaga", required: true },
+  { key: "department", label: "Departamento", required: true },
   {
     key: "status",
     label: "Estado",
     type: "select",
+    required: true,
     options: STATUS_OPTIONS.map((option) => ({
       value: option.key,
       label: option.label,
     })),
   },
-  { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
-  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
-  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
+  { key: "availableSlots", label: "Vagas disponíveis", type: "number", min: 0, required: true },
+  { key: "approvalLimit", label: "Quantidade de aprovados", type: "number", min: 0, required: true },
+  { key: "teamEmail", label: "E-mail da equipe responsável", type: "email", required: true },
 ];
 
 const NEW_PROCESS_INITIAL_VALUES: Record<string, string> = {
@@ -274,7 +285,7 @@ async function submitEditProcess(values: Record<string, string>) {
 </script>
 
 <template>
-  <main class="flex flex-col gap-6 p-8">
+  <main class="flex flex-col gap-6 p-4 pb-28 sm:p-8">
     <div class="flex items-center gap-3">
       <div
         class="flex flex-row gap-4"
@@ -285,6 +296,7 @@ async function submitEditProcess(values: Record<string, string>) {
       </div>
       <Button
         icon="ListFilterPlus"
+        aria-label="Criar processo seletivo"
         variant="primary"
         class="ml-auto"
         @click="newProcessOpen = true"
@@ -304,6 +316,19 @@ async function submitEditProcess(values: Record<string, string>) {
       :draggable="false"
     />
 
+    <section v-else-if="loadError" class="flex flex-col items-center gap-4 rounded-medium bg-white px-6 py-12 text-center shadow-soft">
+      <div>
+        <h2>Não foi possível carregar os processos</h2>
+        <p class="mt-1 text-black/55">{{ loadError }}</p>
+      </div>
+      <Button text="Tentar novamente" icon="RefreshCw" @click="loadProcesses" />
+    </section>
+
+    <section v-else-if="!paginatedProcesses.length" class="rounded-medium bg-white px-6 py-12 text-center shadow-soft">
+      <h2>Nenhum processo encontrado</h2>
+      <p class="mt-1 text-black/50">Ajuste os filtros ou crie um novo processo seletivo.</p>
+    </section>
+
     <Table
       v-else
       :columns="columns"
@@ -316,6 +341,7 @@ async function submitEditProcess(values: Record<string, string>) {
     </Table>
 
     <div
+      v-if="!loading && !loadError && filteredProcesses.length"
       class="flex w-full items-center justify-end-safe gap-4 px-3 pb-4 pt-2 rounded-medium"
     >
       <Button

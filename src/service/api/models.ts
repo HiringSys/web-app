@@ -62,7 +62,8 @@ export interface FuncionarioCreateRequest {
   cidade?:       string;
   departamento?: string;
   experiencia?:  FuncionarioExperiencia;
-  cargoIds?:     number[];
+  anosExperiencia?: number;
+  cargoIds:      number[];
   redes?:        RedeRequest[];
 }
 
@@ -75,6 +76,7 @@ export interface FuncionarioUpdateRequest {
   departamento?: string;
   status:        FuncionarioStatus;
   experiencia:   FuncionarioExperiencia;
+  anosExperiencia: number;
   cargoIds:      number[];
   redes:         RedeRequest[];
 }
@@ -88,6 +90,7 @@ export interface FuncionarioPatchRequest {
   departamento?: string;
   status?:       FuncionarioStatus;
   experiencia?:  FuncionarioExperiencia;
+  anosExperiencia?: number;
   cargoIds?:     number[];
   redes?:        RedeRequest[];
 }
@@ -102,12 +105,21 @@ export interface FuncionarioResponse {
   departamento?: string;
   status:        FuncionarioStatus;
   experiencia?:  FuncionarioExperiencia;
+  anosExperiencia?: number;
   cargos?:       CargoResponse[];
   redes?:        RedeResponse[];
   grupos?:       GrupoFuncionarioResponse[];
   arquivos?:     ArquivoFuncionarioResponse[];
   criadoEm?:     string;
   atualizadoEm?: string;
+}
+
+export interface FuncionarioIndicadoresResponse {
+  total:       number;
+  emAnalise:   number;
+  aprovados:   number;
+  reprovados:  number;
+  contratados: number;
 }
 
 export interface AtualizarStatusRequest {

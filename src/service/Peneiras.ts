@@ -1,4 +1,5 @@
-import { apiFetch, apiFetchBlob } from "./api";
+import { apiFetch, apiFetchBlob, isMockMode } from "./api";
+import { findOrCreateCargoId } from "./Cargos";
 
 import type {
   GrupoResponse,
@@ -10,7 +11,6 @@ import type {
   FuncionarioPatchRequest,
   FuncionarioStatus,
   FuncionarioExperiencia,
-  CargoResponse,
   RedeRequest,
   RedeResponse,
   RedeTipo,
@@ -62,27 +62,6 @@ function fromRedeResponses(redes: RedeResponse[] = []): SocialLink[] {
     .filter((link): link is SocialLink => link !== null);
 }
 
-export async function findOrCreateCargoId(
-  nome: string,
-): Promise<number | undefined> {
-  const trimmed = nome.trim();
-  if (!trimmed) return undefined;
-
-  const matches = await apiFetch<CargoResponse[]>(
-    `/cargos/buscar?nome=${encodeURIComponent(trimmed)}`,
-  );
-  const exact = matches.find(
-    (cargo) => cargo.nome.toLowerCase() === trimmed.toLowerCase(),
-  );
-  if (exact) return exact.id;
-
-  const created = await apiFetch<CargoResponse>("/cargos", {
-    method: "POST",
-    body: JSON.stringify({ nome: trimmed }),
-  });
-  return created.id;
-}
-
 function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
   return {
     id: grupo.id,
@@ -125,7 +104,8 @@ export async function listProcesses(): Promise<SelectiveProcess[]> {
     const grupos = await apiFetch<GrupoResponse[]>("/grupos");
     return grupos.map(mapGrupoToProcess);
   } catch {
-    return getStageMocks();
+    if (isMockMode()) return getStageMocks();
+    throw new Error("Não foi possível carregar os processos seletivos.");
   }
 }
 
@@ -136,7 +116,10 @@ export async function getProcess(
     const grupo = await apiFetch<GrupoResponse>(`/grupos/${id}`);
     return mapGrupoToProcess(grupo);
   } catch {
-    return getStageMocks().find((process) => String(process.id) === String(id));
+    if (isMockMode()) {
+      return getStageMocks().find((process) => String(process.id) === String(id));
+    }
+    throw new Error("Não foi possível carregar o processo seletivo.");
   }
 }
 
@@ -175,11 +158,13 @@ export async function deleteProcess(id: string | number): Promise<void> {
 }
 
 function toFuncionarioStatus(
-  candidate: Pick<Candidate, "status" | "blocked">,
+  candidate: Pick<Candidate, "status" | "blocked" | "subStatus">,
 ): FuncionarioStatus {
-  return candidate.blocked
-    ? "REPROVADO"
-    : (candidate.status.toUpperCase() as FuncionarioStatus);
+  if (candidate.blocked) return "REPROVADO";
+  if (candidate.subStatus) {
+    return candidate.subStatus.toUpperCase() as FuncionarioStatus;
+  }
+  return candidate.status.toUpperCase() as FuncionarioStatus;
 }
 
 function mapFuncionarioToCandidate(
@@ -202,6 +187,7 @@ function mapFuncionarioToCandidate(
     seniority: (
       funcionario.experiencia ?? "SEM_EXPERIENCIA"
     ).toLowerCase() as Seniority,
+    experienceYears: funcionario.anosExperiencia ?? 0,
     role: funcionario.cargos?.[0]?.nome ?? "",
     department: funcionario.departamento ?? "",
     salaryExpectation: funcionario.salario ?? 0,
@@ -243,7 +229,8 @@ export async function getCandidatesForProcess(
       ),
     );
   } catch {
-    return getPersonMocksForStage(id);
+    if (isMockMode()) return getPersonMocksForStage(id);
+    throw new Error("Não foi possível carregar os candidatos.");
   }
 }
 
@@ -254,6 +241,7 @@ export interface NewCandidateInput {
   role: string;
   department?: string;
   seniority: Seniority;
+  experienceYears: number;
   salaryExpectation: number;
   networks?: SocialLink[];
 }
@@ -271,7 +259,8 @@ export async function createCandidate(
     salario: values.salaryExpectation,
     departamento: values.department || undefined,
     experiencia: values.seniority.toUpperCase() as FuncionarioExperiencia,
-    cargoIds: cargoId !== undefined ? [cargoId] : undefined,
+    anosExperiencia: values.experienceYears,
+    cargoIds: [cargoId],
     redes: toRedeRequests(values.networks),
   };
 
@@ -319,7 +308,8 @@ export async function updateCandidate(
     departamento: candidate.department || undefined,
     status: toFuncionarioStatus(candidate),
     experiencia: candidate.seniority.toUpperCase() as FuncionarioExperiencia,
-    cargoIds: cargoId !== undefined ? [cargoId] : [],
+    anosExperiencia: candidate.experienceYears ?? 0,
+    cargoIds: [cargoId],
     redes: toRedeRequests(candidate.networks),
   };
 

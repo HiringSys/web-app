@@ -21,23 +21,27 @@ function logout() {
 </script>
 
 <template>
-  <aside v-if="isNavOpen" class="flex h-full py-8 w-16 pl-8 flex-col justify-between gap-6 items-center">
-    <div class="flex flex-col gap-6 justify-between h-full">
-      <div class="flex flex-col gap-6">
-        <Button class="px-4" icon="PanelLeftClose" variant="primary" @click="isNavOpen = false" />
+  <aside v-if="isNavOpen" class="fixed inset-x-0 bottom-0 z-40 flex h-20 w-full shrink-0 items-center justify-center bg-gray/95 px-4 py-3 shadow-[0_-6px_20px_rgb(25_25_25/0.08)] backdrop-blur sm:static sm:h-full sm:w-24 sm:flex-col sm:bg-transparent sm:px-6 sm:py-8 sm:shadow-none">
+    <div class="flex h-auto w-full items-center justify-between gap-3 sm:h-full sm:w-auto sm:flex-col sm:gap-6">
+      <div class="flex flex-row gap-3 sm:flex-col sm:gap-6">
+        <Button class="px-4" icon="PanelLeftClose" variant="primary" aria-label="Recolher navegação" @click="isNavOpen = false" />
 
         <RouterLink :to="{ name: 'peneiras' }" class="text-black/40 hover:text-black/80 transition-colors duration-300" active-class="text-black">
-          <Button class="px-4" icon="Home" variant="primary" />
+          <Button class="px-4" icon="LayoutDashboard" variant="primary" aria-label="Processos seletivos" />
         </RouterLink>
 
-        <Button class="px-4" icon="Settings" variant="primary" @click="showAccountSettings = true" />
+        <RouterLink :to="{ name: 'funcionarios' }" class="text-black/40 hover:text-black/80 transition-colors duration-300" active-class="text-black">
+          <Button class="px-4" icon="Users" variant="primary" aria-label="Funcionários" />
+        </RouterLink>
+
+        <Button class="px-4" icon="Settings" variant="primary" aria-label="Configurações da conta" @click="showAccountSettings = true" />
       </div>
 
-      <Button class="px-4" icon="LogOut" color="red" @click="logout" />
+      <Button class="px-4" icon="LogOut" color="red" aria-label="Sair" @click="logout" />
     </div>
   </aside>
 
-  <Button v-if="!isNavOpen" class="px-4 fixed left-6 top-8 z-40 opacity-40 hover:opacity-100" icon="PanelLeftOpen" variant="neutral" @click="isNavOpen = true" />
+  <Button v-if="!isNavOpen" class="px-4 fixed bottom-4 left-4 z-40 opacity-80 hover:opacity-100 sm:bottom-auto sm:left-6 sm:top-8" icon="PanelLeftOpen" variant="neutral" aria-label="Abrir navegação" @click="isNavOpen = true" />
 
   <AccountSettingsPopup v-model="showAccountSettings" />
 </template>

@@ -37,7 +37,15 @@ const emit = defineEmits<{
 type BoardStatus = typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
 
 props.items.forEach((item) => {
-  if (item.status !== CandidateStatus.Aprovado) item.status = CandidateStatus.Reprovado
+  if (item.status === CandidateStatus.Contratado) {
+    item.status = CandidateStatus.Aprovado
+    item.subStatus = CandidateStatus.Contratado
+  } else if (item.status === CandidateStatus.EmAnalise) {
+    item.status = CandidateStatus.Reprovado
+    item.subStatus = CandidateStatus.EmAnalise
+  } else if (item.status !== CandidateStatus.Aprovado) {
+    item.status = CandidateStatus.Reprovado
+  }
 })
 
 const groups = reactive<Record<BoardStatus, Candidate[]>>({

@@ -66,10 +66,13 @@ const processId = route.params.id as string;
 const process = ref<SelectiveProcess>();
 const candidates = ref<Candidate[]>([]);
 const loading = ref(true);
+const loadError = ref("");
 
 const { isNavOpen } = useNavbar();
 
-onMounted(async () => {
+async function loadProcessDetails() {
+  loading.value = true;
+  loadError.value = "";
   try {
     [process.value, candidates.value] = await Promise.all([
       getProcess(processId),
@@ -77,10 +80,16 @@ onMounted(async () => {
     ]);
 
     if (process.value) process.value.participants = candidates.value.length;
+  } catch (error) {
+    loadError.value = error instanceof Error
+      ? error.message
+      : "Não foi possível carregar o processo seletivo.";
   } finally {
     loading.value = false;
   }
-});
+}
+
+onMounted(loadProcessDetails);
 
 const isEncerrado = computed(
   () => process.value?.status === ProcessStatus.Encerrado,
@@ -161,15 +170,16 @@ function removeFromApproved(candidate: Candidate) {
 const filtersOpen = ref(false);
 
 const CANDIDATE_FIELDS: FormField[] = [
-  { key: "name", label: "Nome" },
-  { key: "email", label: "E-mail", type: "email" },
+  { key: "name", label: "Nome", required: true },
+  { key: "email", label: "E-mail", type: "email", required: true },
   { key: "phone", label: "Telefone", type: "tel" },
-  { key: "role", label: "Cargo" },
+  { key: "role", label: "Cargo", required: true },
   { key: "department", label: "Departamento" },
   {
     key: "seniority",
     label: "Senioridade",
     type: "select",
+    required: true,
     options: [
       { value: Seniority.SemExperiencia, label: "Sem experiência" },
       { value: Seniority.Estagiario, label: "Estagiário" },
@@ -178,7 +188,8 @@ const CANDIDATE_FIELDS: FormField[] = [
       { value: Seniority.Senior, label: "Sênior" },
     ],
   },
-  { key: "salaryExpectation", label: "Expectativa salarial", type: "number" },
+  { key: "experienceYears", label: "Anos de experiência", type: "number", min: 0, step: 1, required: true },
+  { key: "salaryExpectation", label: "Expectativa salarial", type: "number", min: 0, step: "0.01", required: true },
   { key: "linkedinUrl", label: "LinkedIn", placeholder: "URL do perfil" },
   { key: "githubUrl", label: "GitHub", placeholder: "URL do perfil" },
 ];
@@ -236,6 +247,7 @@ const editValues = computed<Record<string, string>>(() => {
     role: candidate.role,
     department: candidate.department ?? "",
     seniority: candidate.seniority,
+    experienceYears: String(candidate.experienceYears ?? 0),
     salaryExpectation: String(candidate.salaryExpectation),
     linkedinUrl:
       candidate.networks?.find((link) => link.network === SocialNetwork.LinkedIn)
@@ -259,6 +271,7 @@ async function submitEditCandidate(values: Record<string, string>) {
     role: values.role,
     department: values.department,
     seniority: values.seniority as Seniority,
+    experienceYears: Number(values.experienceYears ?? 0),
     salaryExpectation: Number(values.salaryExpectation),
     networks: networksFromFormValues(values),
   };
@@ -369,6 +382,7 @@ async function submitNewCandidate(values: Record<string, string>) {
       role: values.role,
       department: values.department,
       seniority: values.seniority as Seniority,
+      experienceYears: Number(values.experienceYears ?? 0),
       salaryExpectation: Number(values.salaryExpectation),
       networks: networksFromFormValues(values),
     });
@@ -492,7 +506,7 @@ async function submitEditProcess(values: Record<string, string>) {
       :key="section"
       class="rounded-medium bg-black/5 p-3"
     >
-      <Skeleton width="6arem" height="1rem" class="mb-2 ml-1" />
+      <Skeleton width="6rem" height="1rem" class="mb-2 ml-1" />
 
       <div class="flex flex-col gap-2">
         <div
@@ -511,11 +525,11 @@ async function submitEditProcess(values: Record<string, string>) {
 
   <div v-else-if="process" class="flex h-full overflow-hidden">
     <main
-      class="flex flex-col gap-6 overflow-y-auto p-8 transition-[width] duration-300 ease-in-out"
-      :style="{ width: sidebarOpen ? '60%' : '100%' }"
+      class="detail-main flex flex-col gap-6 overflow-y-auto p-4 pb-28 transition-[width] duration-300 ease-in-out sm:p-8"
+      :class="{ 'sidebar-active': sidebarOpen }"
     >
       <div class="flex flex-col gap-2">
-        <div class="flex items-start gap-3 transition-transform duration-500">
+        <div class="flex flex-col items-start gap-4 transition-transform duration-500 sm:flex-row sm:gap-3">
           <div
           class="flex flex-row gap-4"
           :class="!isNavOpen ? 'translate-x-16' : ''"
@@ -532,21 +546,24 @@ async function submitEditProcess(values: Record<string, string>) {
               @click="editProcessOpen = true"
             />
           </div>
-          <div class="ml-auto flex items-center gap-3">
+          <div class="flex w-full items-center gap-3 overflow-x-auto pb-2 scrollbar-hide sm:ml-auto sm:w-auto sm:pb-0">
             <Button
               icon="UserPlus"
+              aria-label="Adicionar candidato"
               variant="primary"
               :disabled="isEncerrado"
               @click="addCandidateChoiceOpen = true"
             />
             <Button
               icon="Download"
+              aria-label="Exportar candidatos"
               color="purple"
               variant="primary"
               @click="chooseWayToDownload = true"
             />
             <Button
               icon="CheckCheck"
+              aria-label="Encerrar processo seletivo"
               variant="primary"
               color="green"
               :disabled="isEncerrado"
@@ -554,6 +571,7 @@ async function submitEditProcess(values: Record<string, string>) {
             />
             <Button
               icon="ListTodo"
+              aria-label="Ver candidatos aprovados"
               variant="primary"
               :disabled="isEncerrado"
               @click="openApproved"
@@ -685,9 +703,20 @@ async function submitEditProcess(values: Record<string, string>) {
   </div>
   <main v-else class="w-full h-full items-center-safe justify-center mx-auto flex max-w-md flex-col gap-6 text-center">
     <div class="flex flex-col gap-2">
-      <h1 class="leading-none pb-px">Peneira não encontrada</h1>
-      <h3 class="leading-none pb-px">Oppss.... Esse processo seletivo não existe ou foi removido...</h3>
+      <h1 class="leading-none pb-px">{{ loadError ? "Não foi possível carregar" : "Peneira não encontrada" }}</h1>
+      <h3 class="leading-none pb-px">{{ loadError || "Esse processo seletivo não existe ou foi removido." }}</h3>
     </div>
-    <Button icon="TrafficCone" color="orange" small class="px-24" @click="returnToProcessesList()" />
+    <div class="flex flex-wrap justify-center gap-3">
+      <Button v-if="loadError" text="Tentar novamente" icon="RefreshCw" small @click="loadProcessDetails" />
+      <Button text="Voltar aos processos" icon="ArrowLeft" color="orange" small @click="returnToProcessesList()" />
+    </div>
   </main>
 </template>
+
+<style scoped>
+.detail-main { width: 100%; }
+
+@media (min-width: 768px) {
+  .detail-main.sidebar-active { width: 60%; }
+}
+</style>
