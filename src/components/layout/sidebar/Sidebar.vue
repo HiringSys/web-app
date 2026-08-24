@@ -19,12 +19,12 @@ defineEmits<{
 
 <template>
   <aside
-    class="sidebar-shell fixed inset-y-0 right-0 z-30 h-full shrink-0 overflow-hidden bg-gray shadow-soft transition-[width] duration-300 ease-in-out md:relative md:bg-transparent md:shadow-none"
+    class="sidebar-shell fixed inset-y-0 right-0 z-50 h-full shrink-0 overflow-hidden bg-gray shadow-soft transition-[width] duration-300 ease-in-out xl:relative xl:bg-transparent xl:shadow-none"
     :class="{ open: modelValue }"
     :style="{ '--sidebar-width': width }"
   >
     <div class="flex h-full w-full flex-col">
-      <div class="flex items-center justify-between px-4 pt-8 pb-4">
+      <div class="flex items-center justify-between px-4 pt-4 pb-4 sm:pt-8">
         <Button
           icon="X"
           variant="neutral"
@@ -44,7 +44,11 @@ defineEmits<{
 .sidebar-shell { width: 0; }
 .sidebar-shell.open { width: 100%; }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) and (max-width: 1279px) {
+  .sidebar-shell.open { width: min(90vw, 36rem); }
+}
+
+@media (min-width: 1280px) {
   .sidebar-shell.open { width: var(--sidebar-width); }
 }
 </style>

@@ -471,15 +471,15 @@ async function submitEditProcess(values: Record<string, string>) {
 </script>
 
 <template>
-  <main v-if="loading" class="flex flex-col gap-6 p-8">
+  <main v-if="loading" class="flex min-w-0 flex-col gap-6 p-4 sm:p-8">
     <div class="flex flex-col gap-2">
-      <div class="flex items-start gap-3">
-        <div class="flex flex-col gap-2">
-          <Skeleton width="16rem" height="2rem" />
-          <Skeleton width="10rem" height="1.25rem" />
+      <div class="flex min-w-0 flex-wrap items-start gap-3">
+        <div class="flex min-w-0 flex-1 basis-52 flex-col gap-2">
+          <Skeleton width="min(16rem, 100%)" height="2rem" />
+          <Skeleton class="mt-2" width="min(10rem, 75%)" height="1.25rem" />
         </div>
         <Skeleton width="2.5rem" height="2.5rem" rounded="rounded-medium" />
-        <div class="ml-auto flex items-center gap-3">
+        <div class="grid w-full grid-cols-4 items-center gap-2 sm:ml-auto sm:flex sm:w-auto sm:gap-3">
           <Skeleton
             v-for="n in 4"
             :key="n"
@@ -490,7 +490,7 @@ async function submitEditProcess(values: Record<string, string>) {
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex min-w-0 items-center gap-2 overflow-hidden">
         <Skeleton
           v-for="n in 6"
           :key="n"
@@ -512,7 +512,7 @@ async function submitEditProcess(values: Record<string, string>) {
         <div
           v-for="row in 3"
           :key="row"
-          class="flex items-center gap-4 rounded-medium bg-white px-4 py-3"
+          class="grid grid-cols-2 gap-3 rounded-medium bg-white px-4 py-3 sm:flex sm:items-center sm:gap-4"
         >
           <Skeleton width="9rem" height="2rem" />
           <Skeleton width="5rem" height="2rem" />
@@ -726,7 +726,7 @@ async function submitEditProcess(values: Record<string, string>) {
 <style scoped>
 .detail-main { width: 100%; }
 
-@media (min-width: 768px) {
+@media (min-width: 1280px) {
   .detail-main.sidebar-active { width: 60%; }
 }
 </style>

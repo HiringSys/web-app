@@ -81,13 +81,13 @@ function download() {
 </script>
 
 <template>
-  <div v-if="candidate" class="flex h-full flex-col gap-4">
-    <div class="flex items-start justify-between pt-4 gap-3">
-      <div>
-        <h2 class="leading-none pb-px text-nowrap">{{ candidate.name }}</h2>
-        <h3 class="leading-none pb-px text-nowrap text-black/40">Currículo profissional</h3>
+  <div v-if="candidate" class="flex h-full min-w-0 flex-col gap-4">
+    <div class="flex min-w-0 items-start justify-between gap-3 pt-2 sm:pt-4">
+      <div class="min-w-0 flex-1">
+        <h2 class="truncate pb-px leading-tight">{{ candidate.name }}</h2>
+        <h3 class="truncate pb-px leading-tight text-black/40">Currículo profissional</h3>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex shrink-0 items-center gap-2">
         <Button
           icon="ChevronLeft"
           variant="neutral"
@@ -107,8 +107,8 @@ function download() {
       </div>
     </div>
 
-    <div class="flex w-full h-fit justify-center-safe">
-      <div class="flex-1 w-[80%] overflow-auto rounded-medium bg-white">
+    <div class="flex min-h-0 w-full flex-1 justify-center">
+      <div class="h-full w-full min-w-0 max-w-3xl overflow-auto rounded-medium bg-white">
         <VuePdfEmbed
           v-if="fileKind === 'pdf'"
           ref="pdfEmbedRef"
@@ -121,21 +121,20 @@ function download() {
           v-else-if="fileKind === 'image'"
           :src="candidate.curriculumUrl"
           :alt="`Currículo de ${candidate.name}`"
-          class="w-full"
+          class="h-full w-full object-contain"
         />
-        <div v-else class="flex flex-col items-center justify-center p-8 gap-4" >
+        <div v-else class="flex h-full flex-col items-center justify-center gap-4 p-4 sm:p-8">
           <div class="flex flex-col text-center text-black/40">
             <p class="leading-none pb-1 font-semibold">Pré-visualização indisponível para este formato.</p>
             <p class="text-small font-semibold opacity-40">Use o botão de download para abrir o arquivo.</p>
           </div>
-          <Button icon="TrafficCone" color="orange" small class="px-16" />
+          <Button icon="TrafficCone" color="orange" small class="px-10 sm:px-16" />
         </div>
       </div>
     </div>
 
-    <div class="w-full pb-20 flex items-center justify-between gap-3">
-      <div class="absolute bottom-0 right-0 flex w-full pb-8 px-4">
-        <div class="flex w-full items-center gap-2">
+    <div class="mt-auto flex w-full items-center gap-2 border-t border-black/10 bg-gray pt-3 pb-1">
+        <div class="flex flex-1 items-center gap-2">
           <Button
             icon="ArrowLeft"
             :variant="canPrevPage ? 'primary' : 'neutral'"
@@ -152,8 +151,7 @@ function download() {
             @click="nextPage"
           />
         </div>
-        <Button icon="Download" variant="primary" @click="download" />
-      </div>
+        <Button icon="Download" variant="primary" class="shrink-0" @click="download" />
     </div>
   </div>
   <div v-else class="flex h-full items-center justify-center text-black/40">

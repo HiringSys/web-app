@@ -32,17 +32,17 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleKeydown))
 <template>
   <Teleport to="body">
     <Transition name="popup">
-      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4"
         v-if="modelValue"
         @mousedown.self="close"
       >
-        <div class="popup-box flex w-full flex-col overflow-hidden rounded-medium bg-gray shadow-soft py-6" :style="{ maxWidth: width }">
-          <div class="flex flex-col px-6 overflow-y-auto">
+        <div class="popup-box flex max-h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden rounded-medium bg-gray py-4 shadow-soft sm:max-h-[90dvh] sm:py-6" :style="{ maxWidth: width }">
+          <div class="flex min-h-0 flex-col overflow-y-auto px-4 sm:px-6">
             <div class="flex-1 overflow-y-auto scrollbar-hide">
               <slot />
             </div>
   
-            <div v-if="$slots.actions" class="flex items-center justify-end gap-3 pt-4 pb-8">
+            <div v-if="$slots.actions" class="flex flex-col-reverse items-stretch justify-end gap-3 pb-5 pt-4 [&>*]:w-full sm:flex-row sm:items-center sm:pb-8 sm:[&>*]:w-auto">
               <slot name="actions" />
             </div>
           </div>

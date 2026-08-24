@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+import { ChevronDown } from "@lucide/vue";
 
 import Button from "@@/ui/Button.vue";
 import Input from "@@/ui/Input.vue";
@@ -312,13 +313,13 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
 <template>
   <main class="min-h-full p-4 pb-28 sm:p-6 lg:p-8">
     <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-6">
-      <header class="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <header class="flex min-w-0 flex-wrap items-end justify-between gap-4">
+        <div class="min-w-0 flex-1">
           <p class="mb-1 text-small font-semibold uppercase tracking-[0.16em] text-blue-co">Gestão de pessoas</p>
           <h1>Funcionários</h1>
           <p class="mt-1 text-black/55">Cadastre, consulte e acompanhe candidatos em um só lugar.</p>
         </div>
-        <Button text="Novo funcionário" icon="UserPlus" aria-label="Cadastrar novo funcionário" @click="newOpen = true" />
+        <Button class="w-full sm:w-auto" text="Novo funcionário" icon="UserPlus" aria-label="Cadastrar novo funcionário" @click="newOpen = true" />
       </header>
 
       <section aria-label="Indicadores de funcionários" class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
@@ -333,7 +334,7 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
         </article>
       </section>
 
-      <form class="grid gap-3 rounded-medium bg-white p-4 shadow-soft md:grid-cols-[1fr_1fr_13rem_auto]" @submit.prevent="search">
+      <form class="grid gap-3 rounded-medium bg-white p-4 shadow-soft md:grid-cols-2 xl:grid-cols-[1fr_1fr_13rem_auto]" @submit.prevent="search">
         <label class="flex flex-col gap-1.5">
           <span class="text-small font-semibold text-black/55">Nome</span>
           <Input v-model="filters.nome" class="bg-gray" placeholder="Buscar por nome" />
@@ -344,14 +345,26 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
         </label>
         <label class="flex flex-col gap-1.5">
           <span class="text-small font-semibold text-black/55">Status</span>
-          <select v-model="filters.status" class="h-[2.75rem] rounded-medium bg-gray px-4 font-medium text-black focus:outline-2 focus:outline-blue">
-            <option value="">Todos</option>
-            <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
-          </select>
+          <div class="group relative">
+            <select
+              v-model="filters.status"
+              class="h-[2.75rem] w-full cursor-pointer appearance-none rounded-medium bg-gray pl-4 pr-12 font-medium text-black transition-colors hover:bg-gray-co/45 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/70"
+              aria-label="Filtrar por status"
+            >
+              <option value="">Todos</option>
+              <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
+            </select>
+            <span
+              class="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-medium border-l border-black/[0.06] text-black/45 transition-colors group-hover:text-black/70"
+              aria-hidden="true"
+            >
+              <ChevronDown :size="18" :stroke-width="2.4" />
+            </span>
+          </div>
         </label>
-        <div class="flex items-end gap-2">
-          <Button text="Buscar" icon="Search" type="submit" :disabled="searching" />
-          <Button icon="RotateCcw" variant="neutral" aria-label="Limpar filtros" @click="clearFilters" />
+        <div class="grid grid-cols-[1fr_auto] items-end gap-2 md:col-span-2 xl:col-span-1">
+          <Button class="w-full" text="Buscar" icon="Search" type="submit" :disabled="searching" />
+          <Button class="shrink-0" icon="RotateCcw" variant="neutral" aria-label="Limpar filtros" @click="clearFilters" />
         </div>
       </form>
 
@@ -417,7 +430,7 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
           </table>
         </div>
 
-        <div class="grid gap-3 p-3 sm:grid-cols-2 lg:hidden">
+        <div class="grid gap-3 p-3 md:grid-cols-2 lg:hidden">
           <article v-for="item in funcionarios" :key="item.id" class="rounded-medium border border-black/5 bg-gray/45 p-4">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
@@ -430,11 +443,11 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
               <div><dt class="text-black/40">Cargo</dt><dd class="font-medium">{{ item.cargos?.[0]?.nome ?? "—" }}</dd></div>
               <div><dt class="text-black/40">Departamento</dt><dd class="font-medium">{{ item.departamento || "—" }}</dd></div>
             </dl>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <Button text="Consultar" icon="Eye" small variant="neutral" @click="showDetails(item)" />
-              <Button text="Editar" icon="Pencil" small @click="editTarget = item" />
-              <Button icon="Gauge" small color="orange" aria-label="Atualização parcial" @click="patchTarget = item" />
-              <Button icon="Trash2" small color="red" aria-label="Excluir funcionário" @click="deleteTarget = item" />
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              <Button class="w-full" text="Consultar" icon="Eye" small variant="neutral" @click="showDetails(item)" />
+              <Button class="w-full" text="Editar" icon="Pencil" small @click="editTarget = item" />
+              <Button class="w-full" text="Atualizar" icon="Gauge" small color="orange" aria-label="Atualização parcial" @click="patchTarget = item" />
+              <Button class="w-full" text="Excluir" icon="Trash2" small color="red" aria-label="Excluir funcionário" @click="deleteTarget = item" />
             </div>
           </article>
         </div>

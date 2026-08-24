@@ -34,17 +34,17 @@ function pickExcel() {
     width="20rem"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div class="flex items-start justify-center gap-8 py-2">
+    <div class="flex items-start justify-center gap-3 py-2 sm:gap-8">
       <div class="flex flex-col items-center gap-2">
-        <Button icon="ArrowLeft" variant="neutral" @click="close" />
+        <Button class="px-4" icon="ArrowLeft" variant="neutral" @click="close" />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="UserPlus" :color="Color.Blue" @click="pickManual" />
+        <Button class="px-4" icon="UserPlus" :color="Color.Blue" @click="pickManual" />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="Table2" :color="Color.Green" @click="pickExcel" />
+        <Button class="px-4" icon="Table2" :color="Color.Green" @click="pickExcel" />
       </div>
     </div>
   </PopupIcon>
