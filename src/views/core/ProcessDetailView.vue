@@ -529,9 +529,9 @@ async function submitEditProcess(values: Record<string, string>) {
       :class="{ 'sidebar-active': sidebarOpen }"
     >
       <div class="flex flex-col gap-2">
-        <div class="flex flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:gap-3">
+        <div class="flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:gap-3">
           <div
-          class="flex w-full min-w-0 max-w-full flex-row gap-3 overflow-hidden transition-[padding] duration-300"
+          class="flex w-full min-w-0 max-w-full flex-row gap-3 overflow-hidden transition-[padding] duration-300 sm:w-auto sm:flex-1 sm:basis-60"
           :class="!isNavOpen ? 'sm:pl-16' : ''"
           >
             <div class="min-w-0 flex-1 overflow-hidden">
@@ -548,8 +548,9 @@ async function submitEditProcess(values: Record<string, string>) {
               @click="editProcessOpen = true"
             />
           </div>
-          <div class="grid w-full max-w-full grid-cols-4 items-center gap-3 overflow-hidden rounded-medium bg-white/55 p-2 pb-3 shadow-soft sm:ml-auto sm:flex sm:w-auto" role="toolbar" aria-label="Ações do processo seletivo">
+          <div class="grid w-full max-w-full shrink-0 grid-cols-4 items-center gap-3 rounded-medium bg-white/55 p-2 pb-3 shadow-soft sm:ml-auto sm:max-w-72" role="toolbar" aria-label="Ações do processo seletivo">
             <Button
+              class="w-full min-w-0 px-3"
               icon="UserPlus"
               aria-label="Adicionar candidato"
               title="Adicionar candidato"
@@ -558,6 +559,7 @@ async function submitEditProcess(values: Record<string, string>) {
               @click="addCandidateChoiceOpen = true"
             />
             <Button
+              class="w-full min-w-0 px-3"
               icon="Download"
               aria-label="Exportar candidatos"
               title="Exportar candidatos"
@@ -566,6 +568,7 @@ async function submitEditProcess(values: Record<string, string>) {
               @click="chooseWayToDownload = true"
             />
             <Button
+              class="w-full min-w-0 px-3"
               icon="CheckCheck"
               aria-label="Encerrar processo seletivo"
               title="Encerrar processo seletivo"
@@ -575,6 +578,7 @@ async function submitEditProcess(values: Record<string, string>) {
               @click="shareConfirmOpen = true"
             />
             <Button
+              class="w-full min-w-0 px-3"
               icon="ListTodo"
               aria-label="Ver candidatos aprovados"
               title="Ver candidatos aprovados"
