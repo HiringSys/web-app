@@ -46,10 +46,6 @@ import {
   resolveCandidateResumeUrl,
   submitStageSelection,
 } from "@/service/Peneiras";
-  
-import { notify } from "@/components/feedback/notify";
-import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
-
 import { notify } from "@@/feedback/notify";
 
 import {
@@ -139,16 +135,6 @@ async function openResume(candidate: Candidate) {
 function openApproved() {
   sidebarMode.value = "approved";
   sidebarOpen.value = true;
-}
-
-async function exportCandidates() {
-  if (!process.value) return;
-
-  try {
-    await exportCandidatesToExcel(process.value, candidates.value);
-  } catch {
-    notify("Não foi possível gerar a planilha de exportação.", "error");
-  }
 }
 
 function reorderApproved(items: Candidate[]) {
@@ -554,7 +540,12 @@ async function submitEditProcess(values: Record<string, string>) {
       @confirm="confirmShare"
     />
 
-    <WayToDownloadPopUp v-model="chooseWayToDownload" />
+    <WayToDownloadPopUp
+      v-model="chooseWayToDownload"
+      @txt="downloadTxt"
+      @csv="downloadCsv"
+      @xlsx="downloadXlsx"
+    />
 
     <FormPopup
       v-model="editOpen"
