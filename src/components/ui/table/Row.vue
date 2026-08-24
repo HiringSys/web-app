@@ -199,4 +199,7 @@ const actions = computed<ActionButton[]>(() => {
   opacity: 0;
   transform: translateY(10px);
 }
+.action-btn-move {
+  transition: none !important;
+}
 </style>
