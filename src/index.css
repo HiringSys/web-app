@@ -28,6 +28,8 @@
   --radius-low: 0.3rem;
   --radius-medium: 0.8rem;
 
+  --shadow-soft: 0 4px 16px 0 rgb(25 25 25 / 0.08);
+
   --container-slot-sm: 7rem;
   --container-slot-md: 11rem;
   --container-slot-lg: 18rem;
