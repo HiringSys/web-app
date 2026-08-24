@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from "vue";
 
 import Table from "@/components/ui/table/Table.vue";
+import TableSkeleton from "@/components/ui/table/TableSkeleton.vue";
 import Button from "@/components/ui/Button.vue";
 import FilterChips from "@/components/layout/FilterChips.vue";
 import ConfirmPopup from "@/components/popup/ConfirmPopup.vue";
@@ -18,9 +19,14 @@ import { listProcesses, createProcess, updateProcess, deleteProcess } from "@/se
 import { notify } from "@/components/feedback/notify";
 
 const processes = ref<SelectiveProcess[]>([]);
+const loading = ref(true);
 
 onMounted(async () => {
-  processes.value = await listProcesses();
+  try {
+    processes.value = await listProcesses();
+  } finally {
+    loading.value = false;
+  }
 });
 
 const columns: TableColumn<SelectiveProcess>[] = [
@@ -233,7 +239,10 @@ async function submitEditProcess(values: Record<string, string>) {
 
     <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" @open-filters="filtersOpen = true" />
 
+    <TableSkeleton v-if="loading" :columns="columns" :rows="PAGE_SIZE" :draggable="false" />
+
     <Table
+      v-else
       :columns="columns" :items="paginatedProcesses" :draggable="false"
       :disabled-items="(process) => process.status === ProcessStatus.Encerrado"
       @delete-item="deleteTarget = $event"
