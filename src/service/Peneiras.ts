@@ -69,7 +69,7 @@ function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
     department: grupo.area,
     status: grupo.estado.toLowerCase() as ProcessStatus,
     availableSlots: grupo.disponiveis,
-    participants: 0,
+    participants: grupo.quantidadeParticipantes,
     role: grupo.cargo ?? "",
     approvalLimit: grupo.limiteAprovados ?? grupo.disponiveis,
     teamEmail: grupo.emailEquipe ?? "",
