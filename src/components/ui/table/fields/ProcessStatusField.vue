@@ -1,21 +1,17 @@
 <script setup lang="ts">
 
 import { computed } from 'vue'
-import { ProcessStatus } from '@/types/peneira'
+import { ProcessStatus, PROCESS_STATUS_OPTIONS, PROCESS_STATUS_COLORS } from '@/types/peneira'
 
 const props = defineProps<{
   status: ProcessStatus
 }>()
 
-const CONFIG: Record<ProcessStatus, { label: string; bg: string; text: string; shadowColor: string }> = {
-  [ProcessStatus.Encerrado]:  { label: 'Encerrado',   bg: 'bg-red',    text: 'text-white',    shadowColor: 'var(--color-red-co)'    },
-  [ProcessStatus.EmProcesso]: { label: 'Em processo', bg: 'bg-blue',   text: 'text-white',    shadowColor: 'var(--color-blue-co)'   },
-  [ProcessStatus.Pausado]:    { label: 'Pausado',     bg: 'bg-yellow', text: 'text-white',    shadowColor: 'var(--color-yellow-co)' },
-  [ProcessStatus.EmColeta]:   { label: 'Em coleta',   bg: 'bg-green',  text: 'text-white',    shadowColor: 'var(--color-green-co)'  },
-  [ProcessStatus.Rascunho]:   { label: 'Rascunho',    bg: 'bg-gray',   text: 'text-black/60', shadowColor: 'var(--color-gray-co)'   },
-}
-
-const config = computed(() => CONFIG[props.status])
+const config = computed(() => {
+  const color = PROCESS_STATUS_COLORS[props.status]
+  const label = PROCESS_STATUS_OPTIONS.find((option) => option.value === props.status)?.label ?? props.status
+  return { label, bg: color.bg, text: color.text, shadowColor: color.shadow }
+})
 
 </script>
 

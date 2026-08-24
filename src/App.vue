@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from "vue-router";
 import Notification from "@@/feedback/Notification.vue";
-import Navbar from "@@/layout/Navbar.vue";
+import Navbar from "@@/layout/navbar/Navbar.vue";
 
 const router = useRoute();
 const sidebar = ["/peneiras"];

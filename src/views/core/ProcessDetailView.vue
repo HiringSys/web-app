@@ -20,6 +20,7 @@ import WayToDownloadPopUp from "@@/popup/variants/WayToDownloadPopUp.vue";
 
 import Skeleton from "@@/feedback/Skeleton.vue";
 import { candidateColumns } from "@@/ui/table/columns/candidateColumns";
+import { useNavbar } from "@/components/layout/navbar/useNavbar";
 
 import {
   CandidateStatus,
@@ -54,6 +55,8 @@ const processId = route.params.id as string;
 const process = ref<SelectiveProcess>();
 const candidates = ref<Candidate[]>([]);
 const loading = ref(true);
+
+const { isNavOpen } = useNavbar();
 
 onMounted(async () => {
   try {
@@ -396,17 +399,23 @@ async function submitEditProcess(values: Record<string, string>) {
       :style="{ width: sidebarOpen ? '60%' : '100%' }"
     >
       <div class="flex flex-col gap-2">
-        <div class="flex items-start gap-3">
-          <div>
-            <h1 class="leading-none">{{ process.jobTitle }}</h1>
-            <h3>{{ process.department }}</h3>
+        <div class="flex items-start gap-3 transition-transform duration-500">
+          <div
+          class="flex flex-row gap-4"
+          :class="!isNavOpen ? 'translate-x-16' : ''"
+          >
+            <div>
+              <h1 class="leading-none pb-px">{{ process.jobTitle }}</h1>
+              <h3>{{ process.department }}</h3>
+            </div>
+            <Button
+              class="h-fit"
+              icon="EllipsisVertical"
+              variant="neutral"
+              :disabled="isEncerrado"
+              @click="editProcessOpen = true"
+            />
           </div>
-          <Button
-            icon="EllipsisVertical"
-            variant="neutral"
-            :disabled="isEncerrado"
-            @click="editProcessOpen = true"
-          />
           <div class="ml-auto flex items-center gap-3">
             <Button
               icon="UserPlus"
@@ -496,9 +505,7 @@ async function submitEditProcess(values: Record<string, string>) {
       @confirm="confirmShare"
     />
 
-    <WayToDownloadPopUp
-      v-model="chooseWayToDownload"
-    />
+    <WayToDownloadPopUp v-model="chooseWayToDownload" />
 
     <FormPopup
       v-model="editOpen"
