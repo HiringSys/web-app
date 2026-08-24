@@ -85,11 +85,11 @@ const columns: TableColumn<SelectiveProcess>[] = [
 ];
 
 const STATUS_OPTIONS = [
-  { key: ProcessStatus.Encerrado, label: "Encerrados" },
+  { key: ProcessStatus.Encerrado,  label: "Encerrados"  },
   { key: ProcessStatus.EmProcesso, label: "Em processo" },
-  { key: ProcessStatus.Pausado, label: "Pausados" },
-  { key: ProcessStatus.EmColeta, label: "Em coleta" },
-  { key: ProcessStatus.Rascunho, label: "Rascunhos" },
+  { key: ProcessStatus.Pausado,    label: "Pausados"    },
+  { key: ProcessStatus.EmColeta,   label: "Em coleta"   },
+  { key: ProcessStatus.Rascunho,   label: "Rascunhos"   },
 ];
 
 const activeStatuses = ref<string[]>(

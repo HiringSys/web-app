@@ -49,7 +49,7 @@ async function recoverPassword() {
       <div class="flex flex-col gap-1.5">
         <h4 class="font-semibold leading-none pb-px text-black/60">E-mail</h4>
         <Input
-          class="w-full text-black"
+          class="w-full text-black!"
           :value="email"
           placeholder=""
           disabled
