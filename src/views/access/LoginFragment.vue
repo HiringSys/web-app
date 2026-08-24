@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import Input from "@/components/ui/Input.vue";
 import Button from "@/components/ui/Button.vue";
-import HintPopup from "@/components/ui/HintPopup.vue";
+import HintPopup from "@/components/feedback/HintPopup.vue";
 
 import { handleLogin } from "@/service/Access";
 

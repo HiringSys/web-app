@@ -23,7 +23,7 @@ const color = computed(() => colorByType[notificationState.type])
         class="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex items-center justify-center px-4"
       >
         <div
-          class="pointer-events-auto max-w-md rounded-medium border-l-4 bg-white px-4 py-3 text-black shadow-soft"
+          class="pointer-events-auto max-w-md rounded-medium border-l-4 bg-white px-4 py-3 text-black shadow-flat"
           :class="'border-' + color"
         >
           {{ notificationState.message }}
