@@ -4,7 +4,7 @@ import Notification from "@@/feedback/Notification.vue";
 import Navbar from "@@/layout/navbar/Navbar.vue";
 
 const router = useRoute();
-const sidebar = ["/peneiras"];
+const sidebar = ["/peneiras", "/funcionarios"];
 </script>
 
 <template>

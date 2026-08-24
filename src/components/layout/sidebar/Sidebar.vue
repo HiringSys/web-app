@@ -19,8 +19,9 @@ defineEmits<{
 
 <template>
   <aside
-    class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out"
-    :style="{ width: modelValue ? width : '0px' }"
+    class="sidebar-shell fixed inset-y-0 right-0 z-30 h-full shrink-0 overflow-hidden bg-gray shadow-soft transition-[width] duration-300 ease-in-out md:relative md:bg-transparent md:shadow-none"
+    :class="{ open: modelValue }"
+    :style="{ '--sidebar-width': width }"
   >
     <div class="flex h-full w-full flex-col">
       <div class="flex items-center justify-between px-4 pt-8 pb-4">
@@ -38,3 +39,12 @@ defineEmits<{
     </div>
   </aside>
 </template>
+
+<style scoped>
+.sidebar-shell { width: 0; }
+.sidebar-shell.open { width: 100%; }
+
+@media (min-width: 768px) {
+  .sidebar-shell.open { width: var(--sidebar-width); }
+}
+</style>

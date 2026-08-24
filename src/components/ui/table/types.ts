@@ -49,6 +49,7 @@ export interface Candidate {
   phone: string;
   networks?: SocialLink[];
   seniority: Seniority;
+  experienceYears?: number;
   role: string;
   department?: string;
   salaryExpectation: number;

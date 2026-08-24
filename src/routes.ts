@@ -34,13 +34,23 @@ const router = createRouter({
       meta: { title: 'Peneiras' }
     },
     {
+      path: '/funcionarios',
+      name: 'funcionarios',
+      component: () => import('@/views/core/FuncionariosView.vue'),
+      meta: { title: 'Funcionários' }
+    },
+    {
       path: '/peneiras/:id',
       name: 'peneira-filtragem',
       component: () => import('@/views/core/ProcessDetailView.vue'),
       
       async beforeEnter(to) {
-        const peneira = await getProcess(to.params.id as string)
-        to.meta.title = peneira?.jobTitle
+        try {
+          const peneira = await getProcess(to.params.id as string)
+          to.meta.title = peneira?.jobTitle ?? 'Processo seletivo'
+        } catch {
+          to.meta.title = 'Processo seletivo'
+        }
         return true
       }
     },
@@ -69,7 +79,7 @@ router.beforeEach((to) => {
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title as string
+  document.title = (to.meta.title as string | undefined) ?? 'HiringSys'
 })
 
 export default router

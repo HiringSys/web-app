@@ -52,20 +52,24 @@ async function submit() {
             key="email"
             v-model="email"
             type="email"
+            class="bg-gray"
             placeholder="E-mail"
+            required
           />
           <Input
             v-else
             key="password"
             v-model="password"
             type="password"
+            class="bg-gray"
             placeholder="Senha"
+            required
           />
         </Transition>
         <p v-if="error" class="text-small font-medium text-red">
           E-mail ou senha inválidos.
         </p>
-        <Button :text="buttonText" @click="submit" />
+        <Button :text="buttonText" type="submit" />
       </form>
     </div>
 
