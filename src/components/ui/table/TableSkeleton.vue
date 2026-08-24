@@ -2,9 +2,9 @@
 
 import { computed } from 'vue'
 
-import type { TableColumn }            from './types'
+import type { TableColumn }              from './types'
 import      { gridTemplate, capColumns } from './style/grid'
-import Skeleton from '@/components/ui/Skeleton.vue'
+import Skeleton                          from '@/components/feedback/Skeleton.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -26,7 +26,7 @@ const gridTemplateColumns = computed(() => gridTemplate(visibleColumns.value, []
       <div class="grid items-center gap-4 rounded-medium bg-white px-4 py-3" :style="{ gridTemplateColumns }">
         <span v-if="draggable" />
         <div v-for="column in visibleColumns" :key="column.key" class="flex min-w-0 items-center">
-          <Skeleton width="50%" height="0.875rem" />
+          <Skeleton width="50%" height="1.275rem" />
         </div>
       </div>
 
@@ -35,7 +35,7 @@ const gridTemplateColumns = computed(() => gridTemplate(visibleColumns.value, []
           <div class="grid w-full items-center gap-4" :style="{ gridTemplateColumns }">
             <span v-if="draggable" />
             <div v-for="column in visibleColumns" :key="column.key" class="flex min-w-0 items-center">
-              <Skeleton width="75%" />
+              <Skeleton width="75%" height="2rem" />
             </div>
           </div>
         </div>

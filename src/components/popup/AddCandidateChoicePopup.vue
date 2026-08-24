@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import Popup  from './Popup.vue'
-import Button from '@/components/ui/Button.vue'
+import PopupIcon from './PopupIcon.vue'
+import Button    from '@/components/ui/Button.vue'
 import { Color } from '@/components/ui/lib'
 
 defineProps<{
@@ -31,22 +31,19 @@ function pickExcel() {
 </script>
 
 <template>
-  <Popup :model-value="modelValue" title="Adicionar candidato" width="26rem" @update:model-value="emit('update:modelValue', $event)">
+  <PopupIcon :model-value="modelValue" width="20rem" @update:model-value="emit('update:modelValue', $event)">
     <div class="flex items-start justify-center gap-8 py-2">
       <div class="flex flex-col items-center gap-2">
-        <Button icon="ArrowLeft" variant="neutral" rounded class="!p-4" @click="close" />
-        <span class="text-small text-black/60">Voltar</span>
+        <Button icon="ArrowLeft" variant="neutral" @click="close" />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="UserPlus" :color="Color.Blue" rounded class="!p-4" @click="pickManual" />
-        <span class="text-small text-black/60">Inserção manual</span>
+        <Button icon="UserPlus" :color="Color.Blue" @click="pickManual" />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="FileSpreadsheet" :color="Color.Green" rounded class="!p-4" @click="pickExcel" />
-        <span class="text-small text-black/60">Via Excel</span>
+        <Button icon="FileSpreadsheet" :color="Color.Green" @click="pickExcel" />
       </div>
     </div>
-  </Popup>
+  </PopupIcon>
 </template>
