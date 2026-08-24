@@ -2,12 +2,10 @@ export function formatSalary(amount: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(amount)
 }
 
-/** A phone already carrying visual separators (parentheses/dash) is treated as formatted and left untouched. */
 export function isPhoneFormatted(phone: string): boolean {
   return /[()-]/.test(phone)
 }
 
-/** Backend phones sometimes arrive as bare digits — format them for display only, without touching the underlying value. */
 export function formatPhoneNumber(phone: string): string {
   if (isPhoneFormatted(phone)) return phone
 

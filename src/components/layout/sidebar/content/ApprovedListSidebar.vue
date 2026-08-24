@@ -8,7 +8,6 @@ import type { Candidate } from "@@/ui/table/types";
 const props = defineProps<{
   items: Candidate[];
   approvalLimit: number;
-  /** Owning peneira is encerrada — the approved list is final, no reorder or removal. */
   readOnly?: boolean;
 }>();
 

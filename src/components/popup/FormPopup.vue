@@ -9,7 +9,6 @@ export interface FormField {
   label: string;
   type?: "text" | "number" | "email" | "tel" | "select";
   placeholder?: string;
-  /** Required when type is 'select'. */
   options?: { value: string; label: string }[];
 }
 

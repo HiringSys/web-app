@@ -20,7 +20,6 @@ export const CandidateStatus = {
   Aprovado:  "aprovado",
   Reprovado: "reprovado",
   Contratado: "contratado",
-  /** Client-only status set via the block action — no backend field (see .sdd/swagger/api.md); sent as Reprovado whenever it has to reach the API. */
   Suprimido: "suprimido",
 } as const;
 
@@ -54,14 +53,7 @@ export interface Candidate {
   salaryExpectation: number;
   curriculumUrl?: string;
   jobAffinity: number;
-  /** Overrides the displayed status to Suprimido without moving the candidate out of its actual section/status. Client-only. */
   blocked?: boolean;
-  /**
-   * Cosmetic sub-state within the candidate's real section — Contratado inside
-   * Aprovado, EmAnalise inside Reprovado. Client-only: no backend field backs
-   * it (the Stages API only knows aprovado/reprovado), and it resets whenever
-   * the candidate changes section.
-   */
   subStatus?: typeof CandidateStatus.Contratado | typeof CandidateStatus.EmAnalise;
 }
 
@@ -69,11 +61,8 @@ export interface TableColumn<T> {
   key: string;
   label: string;
   size?: "sm" | "md" | "lg";
-  /** Fixed-size content (badges/chips) — skips the per-cell scroll wrapper so effects like press-shadow aren't clipped. */
   fixed?: boolean;
-  /** Text whose rendered width drives this column's auto-sizing, capped by `size`. Omit for icon-only or badge columns, which stay fixed at `size`. */
   measure?: (item: T) => string;
-  /** Extra pixel width to reserve alongside the measured text, e.g. for an avatar. */
   measureOffset?: number;
   component: Component;
   props: (item: T) => Record<string, unknown>;

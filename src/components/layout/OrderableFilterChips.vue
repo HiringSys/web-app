@@ -9,11 +9,8 @@ import { useDragGhostOpacityFix } from "@/lib/dragGhostOpacity";
 const props = withDefaults(
   defineProps<{
     options: { key: string; label: string }[];
-    /** Keys that are always active, always shown first, and can't be toggled or dragged. */
     pinned?: string[];
-    /** Keys shown right after `pinned`, fixed in place (can't be dragged) but can be toggled on/off. Excluded from `max`. */
     lockedToggleable?: string[];
-    /** Maximum number of active chips. */
     max?: number;
   }>(),
   {

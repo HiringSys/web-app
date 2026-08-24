@@ -20,7 +20,6 @@ const HEADER_OFFSET = 18
 const MEASURE_PADDING = 8
 const MEASURE_MIN_PX = 48
 
-/** Maximum number of columns a table can render at once. Adjust to taste. */
 export const MAX_VISIBLE_COLUMNS = 6
 
 export function capColumns<T>(columns: TableColumn<T>[]) {

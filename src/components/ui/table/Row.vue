@@ -14,18 +14,13 @@ const props = withDefaults(
     columns: TableColumn<T>[];
     gridTemplateColumns: string;
     draggable?: boolean;
-    /** 'detail' (candidates inside a peneira) exposes block/document; 'list' never does. */
     variant?: "list" | "detail";
-    /** Groups trash + edit + block. */
     showManageActions?: boolean;
     showDocument?: boolean;
-    /** Invalidates this row's presence — mutes the row and switches the block button to its active state. */
     blocked?: boolean;
-    /** Board section this row sits in ('detail' only) — picks which quick-action button to show. */
     boardStatus?:
       | typeof CandidateStatus.Aprovado
       | typeof CandidateStatus.Reprovado;
-    /** Owning peneira is encerrada — hides the drag handle and disables every action except delete on 'list' rows. */
     locked?: boolean;
   }>(),
   {
@@ -43,9 +38,7 @@ const emit = defineEmits<{
   "delete-item": [item: T];
   "edit-item": [item: T];
   "toggle-block": [item: T];
-  /** Fired by clicking the status badge, or the '?' quick-action button — toggles Contratado/EmAnalise. */
   "toggle-substatus": [item: T];
-  /** Aprovado-section quick action — sends the candidate back to Reprovado. */
   "reject-item": [item: T];
 }>();
 
@@ -58,7 +51,6 @@ type ActionButton = {
   onClick: () => void;
 };
 
-/** Ordered left-to-right — drives the stagger delay on entry/exit. */
 const actions = computed<ActionButton[]>(() => {
   const list: ActionButton[] = [];
 
@@ -183,8 +175,6 @@ const actions = computed<ActionButton[]>(() => {
         :style="{ transitionDelay: `${index * 45}ms` }"
         @click="action.onClick"
       />
-      <!-- "Mais informações" ainda não tem conteúdo definido; mantido comentado até decidirmos o que exibir aqui. -->
-      <!-- <Button icon="EllipsisVertical" variant="primary" :small="true" /> -->
     </TransitionGroup>
   </div>
 </template>

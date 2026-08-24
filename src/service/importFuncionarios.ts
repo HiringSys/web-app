@@ -30,18 +30,11 @@ function isBlankRow(row: unknown[]): boolean {
   return row.every((cell) => cellToString(cell) === "");
 }
 
-/** Maps each expected column to its index in the header row; missing columns come back as -1. */
 function indexColumns(header: unknown[]): Record<ColumnKey, number> {
   const normalized = header.map((cell) => cellToString(cell).toLowerCase());
   return Object.fromEntries(COLUMNS.map((key) => [key, normalized.indexOf(key)])) as Record<ColumnKey, number>;
 }
 
-/**
- * Rows missing a required field (nome/email/salario/status/experiencia/cargos) are dropped
- * entirely and reported — sending them would get the whole batch rejected by the API, since
- * it validates FuncionarioImportacaoRequest per-item with no partial-failure response.
- * Invalid *optional* fields (telefone/cidade) are cleared instead, and the row still imports.
- */
 export function parseFuncionariosSheet(rows: unknown[][]): ParsedFuncionariosImport {
   const issues: ImportIssue[] = [];
   const funcionarios: FuncionarioImportacaoRequest[] = [];

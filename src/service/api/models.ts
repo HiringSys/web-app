@@ -139,24 +139,11 @@ export interface ArquivoFuncionarioResponse {
   criadoEm:      string;
 }
 
-/**
- * `GET /stages/{stageId}/candidates` — the newer, purpose-built "Peneiras" API.
- * Only `id`/`status` are consumed for now: it's the source of truth for a
- * candidate's status *within this specific stage* (unlike `Funcionario.status`,
- * which is the employee's global status and isn't stage-scoped). See
- * .sdd/swagger/api.md.
- */
 export interface StageCandidateResponse {
   id:     number;
   status: string;
 }
 
-/**
- * `PUT /stages/{stageId}/candidates/selection` — persists the final
- * approved/reproved decision (and the approval order) for every candidate in
- * the stage in one shot. Candidates omitted from the list are marked
- * reprovado. Approving here is what triggers the backend's approval e-mail.
- */
 export interface StageSelectionRequest {
   approvedCandidateIds: number[];
 }

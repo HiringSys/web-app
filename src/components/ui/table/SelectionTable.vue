@@ -21,7 +21,6 @@ const props = withDefaults(
     approvalLimit:      number
     showManageActions?: boolean
     showDocument?:      boolean
-    /** Owning peneira is encerrada — freezes the board: no drag, no row actions. */
     locked?:            boolean
   }>(),
   { showManageActions: true, showDocument: true, locked: false },
@@ -50,7 +49,6 @@ const SECTIONS: { status: BoardStatus; label: string; tint: string }[] = [
   { status: CandidateStatus.Reprovado, label: 'Reprovado', tint: 'bg-red/10'  },
 ]
 
-/** Blocked candidates keep their section but stop counting towards that section's headcount/capacity. */
 function activeCount(status: BoardStatus) {
   return groups[status].filter((candidate) => !candidate.blocked).length
 }
@@ -64,13 +62,11 @@ function groupOf(status: BoardStatus) {
   }
 }
 
-/** Toggles the Suprimido display/headcount override in place — never moves or persists, no backend field exists for it. */
 function toggleBlock(candidate: Candidate) {
   candidate.blocked = !candidate.blocked
   emitAll()
 }
 
-/** Client-only cosmetic toggle (see Candidate.subStatus) — never persisted, no backend field exists for it. */
 function toggleSubStatus(candidate: Candidate) {
   const onValue = candidate.status === CandidateStatus.Aprovado ? CandidateStatus.Contratado : CandidateStatus.EmAnalise
   candidate.subStatus = candidate.subStatus === onValue ? undefined : onValue
@@ -84,11 +80,6 @@ function emitAll() {
   ])
 }
 
-/**
- * Applies whichever candidate now sits in `status`'s bucket but still carries
- * a different status. Purely local — nothing is sent to the API until the
- * recruiter shares/closes the process (see `submitStageSelection`).
- */
 function handleChange(status: BoardStatus) {
   const list = groups[status]
   const moved = list.find((item) => item.status !== status)
