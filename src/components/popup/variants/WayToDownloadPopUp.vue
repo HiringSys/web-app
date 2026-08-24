@@ -1,48 +1,42 @@
 <script setup lang="ts">
-
-import Popup from "@@/popup/Popup.vue";
+import PopupIcon from "@@/popup/PopupIcon.vue";
 import Button from "@@/ui/Button.vue";
 
 defineProps<{
   modelValue: boolean;
 }>();
 
+function close() {
+  emit("update:modelValue", false);
+}
+
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
 }>();
-
 </script>
 
 <template>
-  <Popup
+  <PopupIcon
     :model-value="modelValue"
-    title="Baixar dados"
-    width="32rem"
+    width="26rem"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div class="flex flex-col gap-3 pb-6">
+    <div class="flex items-start justify-center gap-8 py-2">
+      <div class="flex flex-col items-center gap-2">
+        <Button icon="ArrowLeft" variant="neutral" @click="close" />
+      </div>
 
-      <Button
-        text="Download TXT"
-        icon="FileText"
-        variant="neutral"
-        class="w-full justify-start"
-      />
+      <div class="flex flex-col items-center gap-2">
+        <Button icon="FileText" color="blue" />
+      </div>
 
-      <Button
-        text="Download CSV"
-        icon="FileSpreadsheet"
-        variant="neutral"
-        class="w-full justify-start"
-      />
+      <div class="flex flex-col items-center gap-2">
+        <Button icon="FileSpreadsheet" color="purple" />
+      </div>
 
-      <Button
-        text="Download XLSX"
-        icon="Sheet"
-        variant="neutral"
-        class="w-full justify-start"
-      />
-
+      <div class="flex flex-col items-center gap-2">
+        <Button icon="Table2" color="green" />
+      </div>
     </div>
-  </Popup>
+  </PopupIcon>
 </template>

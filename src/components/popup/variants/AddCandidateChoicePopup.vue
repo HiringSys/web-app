@@ -44,11 +44,7 @@ function pickExcel() {
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button
-          icon="FileSpreadsheet"
-          :color="Color.Green"
-          @click="pickExcel"
-        />
+        <Button icon="Table2" :color="Color.Green" @click="pickExcel" />
       </div>
     </div>
   </PopupIcon>

@@ -4,7 +4,7 @@ import { ref }                   from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import Button               from '@@/ui/Button.vue';
-import AccountSettingsPopup from '@@/popup/AccountSettingsPopup.vue';
+import AccountSettingsPopup from '@@/popup/variants/AccountSettingsPopup.vue';
 
 import { handleLogout } from '@/service/Access'
 

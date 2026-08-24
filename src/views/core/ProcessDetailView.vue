@@ -3,21 +3,24 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import SelectionTable from "@@/ui/table/SelectionTable.vue";
-import OrderableFilterChips from "@@/layout/OrderableFilterChips.vue";
 import Button from "@@/ui/Button.vue";
-import Sidebar from "@@/layout/sidebar/Sidebar.vue";
 
+import OrderableFilterChips from "@@/layout/OrderableFilterChips.vue";
+import Sidebar from "@@/layout/sidebar/Sidebar.vue";
 import CandidateResumeSidebar from "@@/layout/sidebar/content/CandidateResumeSidebar.vue";
 import ApprovedListSidebar from "@@/layout/sidebar/content/ApprovedListSidebar.vue";
+
 import ConfirmPopup from "@@/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@@/popup/FormPopup.vue";
-
 import FiltersPopup from "@@/popup/FiltersPopup.vue";
+
 import ImportCandidatesPopup from "@@/popup/variants/ImportCandidatesPopup.vue";
 import AddCandidateChoicePopup from "@@/popup/variants/AddCandidateChoicePopup.vue";
-import Skeleton from "@@/feedback/Skeleton.vue";
+import WayToDownloadPopUp from "@@/popup/variants/WayToDownloadPopUp.vue";
 
+import Skeleton from "@@/feedback/Skeleton.vue";
 import { candidateColumns } from "@@/ui/table/columns/candidateColumns";
+
 import {
   CandidateStatus,
   Seniority,
@@ -491,6 +494,10 @@ async function submitEditProcess(values: Record<string, string>) {
       confirm-text="Encerrar"
       danger
       @confirm="confirmShare"
+    />
+
+    <WayToDownloadPopUp
+      v-model="chooseWayToDownload"
     />
 
     <FormPopup

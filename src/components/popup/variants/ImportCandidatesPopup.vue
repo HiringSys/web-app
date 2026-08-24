@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import Popup from "./Popup.vue";
+import Popup from "@@/popup/Popup.vue";
 import Button from "@@/ui/Button.vue";
 
 import {
