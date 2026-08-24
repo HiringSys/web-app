@@ -14,6 +14,7 @@ import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
 import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
 import AddCandidateChoicePopup from "@/components/popup/AddCandidateChoicePopup.vue";
+import Skeleton                from "@/components/ui/Skeleton.vue";
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
@@ -31,14 +32,19 @@ const processId = route.params.id as string;
 
 const process    = ref<SelectiveProcess>();
 const candidates = ref<Candidate[]>([]);
+const loading    = ref(true);
 
 onMounted(async () => {
-  [process.value, candidates.value] = await Promise.all([
-    getProcess(processId),
-    getCandidatesForProcess(processId),
-  ]);
-  // The API doesn't expose a headcount on Grupo; derive it from the roster we already fetched.
-  if (process.value) process.value.participants = candidates.value.length;
+  try {
+    [process.value, candidates.value] = await Promise.all([
+      getProcess(processId),
+      getCandidatesForProcess(processId),
+    ]);
+    // The API doesn't expose a headcount on Grupo; derive it from the roster we already fetched.
+    if (process.value) process.value.participants = candidates.value.length;
+  } finally {
+    loading.value = false;
+  }
 });
 
 const isEncerrado = computed(() => process.value?.status === ProcessStatus.Encerrado);
@@ -277,7 +283,39 @@ async function submitEditProcess(values: Record<string, string>) {
 </script>
 
 <template>
-  <div v-if="process" class="flex h-full overflow-hidden">
+  <main v-if="loading" class="flex flex-col gap-6 p-8">
+    <div class="flex flex-col gap-2">
+      <div class="flex items-start gap-3">
+        <div class="flex flex-col gap-2">
+          <Skeleton width="16rem" height="2rem" />
+          <Skeleton width="10rem" height="1.25rem" />
+        </div>
+        <Skeleton width="2.5rem" height="2.5rem" rounded="rounded-medium" />
+        <div class="ml-auto flex items-center gap-3">
+          <Skeleton v-for="n in 4" :key="n" width="2.5rem" height="2.5rem" rounded="rounded-medium" />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <Skeleton v-for="n in 6" :key="n" :width="n % 2 ? '6rem' : '4.5rem'" height="2rem" rounded="rounded-full" />
+      </div>
+    </div>
+
+    <div v-for="section in 2" :key="section" class="rounded-medium bg-black/5 p-3">
+      <Skeleton width="6rem" height="1rem" class="mb-2 ml-1" />
+
+      <div class="flex flex-col gap-2">
+        <div v-for="row in 3" :key="row" class="flex items-center gap-4 rounded-medium bg-white px-4 py-3">
+          <Skeleton width="9rem" height="1rem" />
+          <Skeleton width="5rem" height="1rem" />
+          <Skeleton width="7rem" height="1rem" />
+          <Skeleton width="5rem" height="1rem" />
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div v-else-if="process" class="flex h-full overflow-hidden">
     <main
       class="flex flex-col gap-6 overflow-y-auto p-8 transition-[width] duration-300 ease-in-out"
       :style="{ width: sidebarOpen ? '60%' : '100%' }"
