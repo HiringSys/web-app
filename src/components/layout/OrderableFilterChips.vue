@@ -93,8 +93,8 @@ function keyOf(key: string) {
 </script>
 
 <template>
-  <div class="relative w-full min-w-0">
-    <div class="w-full overflow-x-auto scrollbar-hide pb-2 translate-y-2">
+  <div class="flex w-full min-w-0 items-center gap-3">
+    <div class="min-w-0 flex-1 overflow-x-auto px-0.5 py-2 scrollbar-hide">
       <VueDraggable
         class="flex w-max min-h-0 items-center gap-3 flex-nowrap"
         :item-key="keyOf"
@@ -158,16 +158,14 @@ function keyOf(key: string) {
         </template>
       </VueDraggable>
     </div>
-    <div
-      class="absolute h-full box-content bg-gray right-0 top-1/2 -translate-y-1/2 z-10 px-4 pb-4"
-    >
-      <Button
-        class="translate-y-4"
-        icon="Filter"
-        variant="neutral"
-        rounded
-        @click="$emit('open-filters')"
-      />
-    </div>
+    <Button
+      class="shrink-0"
+      icon="Filter"
+      variant="neutral"
+      rounded
+      aria-label="Escolher colunas visíveis"
+      title="Escolher colunas visíveis"
+      @click="$emit('open-filters')"
+    />
   </div>
 </template>

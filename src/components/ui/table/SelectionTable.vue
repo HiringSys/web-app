@@ -53,9 +53,19 @@ const groups = reactive<Record<BoardStatus, Candidate[]>>({
   [CandidateStatus.Reprovado]: props.items.filter((item) => item.status === CandidateStatus.Reprovado),
 })
 
-const SECTIONS: { status: BoardStatus; label: string; tint: string }[] = [
-  { status: CandidateStatus.Aprovado,  label: 'Aprovado',  tint: 'bg-blue/10' },
-  { status: CandidateStatus.Reprovado, label: 'Reprovado', tint: 'bg-red/10'  },
+const SECTIONS: { status: BoardStatus; label: string; tint: string; emptyLabel: string }[] = [
+  {
+    status: CandidateStatus.Aprovado,
+    label: 'Aprovados',
+    tint: 'border-blue/20 bg-blue/[0.08]',
+    emptyLabel: 'Nenhum candidato aprovado',
+  },
+  {
+    status: CandidateStatus.Reprovado,
+    label: 'Reprovados',
+    tint: 'border-red/20 bg-red/[0.08]',
+    emptyLabel: 'Nenhum candidato reprovado',
+  },
 ]
 
 function activeCount(status: BoardStatus) {
@@ -126,15 +136,15 @@ defineExpose({ groups, moveToStatus })
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-      <div v-for="section in SECTIONS" :key="section.status" class="rounded-medium p-3" :class="section.tint">
-        <h3 class="mb-2 px-1 text-black/50">
+  <div class="flex min-w-0 flex-col gap-4">
+      <section v-for="section in SECTIONS" :key="section.status" class="min-w-0 rounded-medium border p-3 sm:p-4" :class="section.tint">
+        <h2 class="mb-3 px-1 text-body font-semibold text-black/70">
           {{ section.label }}
           <template v-if="section.status === CandidateStatus.Aprovado"> ({{ activeCount(section.status) }}/{{ approvalLimit }})</template>
           <template v-else> ({{ activeCount(section.status) }})</template>
-        </h3>
+        </h2>
 
-        <VueDraggable class="flex min-h-16 flex-col gap-2"
+        <VueDraggable class="flex min-h-16 min-w-0 flex-col gap-2"
           v-model="groups[section.status]"
           tag="div"
           item-key="id"
@@ -164,6 +174,12 @@ defineExpose({ groups, moveToStatus })
             />
           </template>
         </VueDraggable>
-      </div>
+        <p
+          v-if="groups[section.status].length === 0"
+          class="pointer-events-none -mt-16 flex min-h-16 items-center justify-center px-4 text-center text-small font-medium text-black/45"
+        >
+          {{ section.emptyLabel }}
+        </p>
+      </section>
   </div>
 </template>

@@ -525,31 +525,34 @@ async function submitEditProcess(values: Record<string, string>) {
 
   <div v-else-if="process" class="flex h-full overflow-hidden">
     <main
-      class="detail-main flex flex-col gap-6 overflow-y-auto p-4 pb-28 transition-[width] duration-300 ease-in-out sm:p-8"
+      class="detail-main min-w-0 max-w-[100vw] flex flex-col gap-6 overflow-x-hidden overflow-y-auto p-4 pb-28 transition-[width] duration-300 ease-in-out sm:p-8"
       :class="{ 'sidebar-active': sidebarOpen }"
     >
       <div class="flex flex-col gap-2">
-        <div class="flex flex-col items-start gap-4 transition-transform duration-500 sm:flex-row sm:gap-3">
+        <div class="flex flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:gap-3">
           <div
-          class="flex flex-row gap-4"
-          :class="!isNavOpen ? 'translate-x-16' : ''"
+          class="flex w-full min-w-0 max-w-full flex-row gap-3 overflow-hidden transition-[padding] duration-300"
+          :class="!isNavOpen ? 'sm:pl-16' : ''"
           >
-            <div>
-              <h1 class="leading-none pb-px">{{ process.jobTitle }}</h1>
-              <h3>{{ process.department }}</h3>
+            <div class="min-w-0 flex-1 overflow-hidden">
+              <h1 class="truncate text-heading leading-none pb-px sm:text-display">{{ process.jobTitle }}</h1>
+              <h3 class="truncate">{{ process.department }}</h3>
             </div>
             <Button
-              class="h-fit"
+              class="h-fit shrink-0"
               icon="EllipsisVertical"
               variant="neutral"
+              aria-label="Editar processo seletivo"
+              title="Editar processo seletivo"
               :disabled="isEncerrado"
               @click="editProcessOpen = true"
             />
           </div>
-          <div class="flex w-full items-center gap-3 overflow-x-auto pb-2 scrollbar-hide sm:ml-auto sm:w-auto sm:pb-0">
+          <div class="grid w-full max-w-full grid-cols-4 items-center gap-3 overflow-hidden rounded-medium bg-white/55 p-2 pb-3 shadow-soft sm:ml-auto sm:flex sm:w-auto" role="toolbar" aria-label="Ações do processo seletivo">
             <Button
               icon="UserPlus"
               aria-label="Adicionar candidato"
+              title="Adicionar candidato"
               variant="primary"
               :disabled="isEncerrado"
               @click="addCandidateChoiceOpen = true"
@@ -557,6 +560,7 @@ async function submitEditProcess(values: Record<string, string>) {
             <Button
               icon="Download"
               aria-label="Exportar candidatos"
+              title="Exportar candidatos"
               color="purple"
               variant="primary"
               @click="chooseWayToDownload = true"
@@ -564,6 +568,7 @@ async function submitEditProcess(values: Record<string, string>) {
             <Button
               icon="CheckCheck"
               aria-label="Encerrar processo seletivo"
+              title="Encerrar processo seletivo"
               variant="primary"
               color="green"
               :disabled="isEncerrado"
@@ -572,6 +577,7 @@ async function submitEditProcess(values: Record<string, string>) {
             <Button
               icon="ListTodo"
               aria-label="Ver candidatos aprovados"
+              title="Ver candidatos aprovados"
               variant="primary"
               :disabled="isEncerrado"
               @click="openApproved"
