@@ -182,10 +182,10 @@ const actions = computed<ActionButton[]>(() => {
       v-if="actions.length"
       name="action-btn"
       tag="div"
-      class="flex shrink-0 flex-row items-center gap-2 bg-white"
+      class="shrink-0 items-center gap-2 bg-white"
       :class="variant === 'detail'
-        ? 'w-full justify-start overflow-x-auto border-t border-black/10 pb-1 pt-3 scrollbar-hide lg:w-auto lg:justify-end lg:overflow-visible lg:border-l lg:border-t-0 lg:pb-1 lg:pl-4 lg:pt-1'
-        : 'absolute right-0 top-1/2 h-full -translate-y-1/2 px-4'"
+        ? 'grid w-full grid-cols-3 border-t border-black/10 pt-3 sm:flex sm:flex-row sm:flex-wrap sm:justify-start lg:w-auto lg:flex-nowrap lg:justify-end lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0'
+        : 'absolute right-0 top-1/2 flex h-full -translate-y-1/2 flex-row px-4'"
     >
       <Button
         v-for="(action, index) in actions"
@@ -198,6 +198,7 @@ const actions = computed<ActionButton[]>(() => {
         :disabled="action.disabled"
         :aria-label="action.label"
         :title="action.label"
+        :class="variant === 'detail' ? 'w-full min-w-0 px-2 sm:w-auto sm:px-4' : ''"
         :style="{ transitionDelay: `${index * 45}ms` }"
         @click="action.onClick"
       />

@@ -24,13 +24,14 @@ function close() {
     width="26rem"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div class="flex items-start justify-center gap-8 py-2">
+    <div class="flex items-start justify-center gap-3 py-2 sm:gap-8">
       <div class="flex flex-col items-center gap-2">
-        <Button icon="ArrowLeft" variant="neutral" @click="close" />
+        <Button class="px-4" icon="ArrowLeft" variant="neutral" @click="close" />
       </div>
 
       <div class="flex flex-col items-center gap-2">
         <Button
+          class="px-4"
           icon="FileText"
           color="blue"
           title="Baixar como TXT"
@@ -40,6 +41,7 @@ function close() {
 
       <div class="flex flex-col items-center gap-2">
         <Button
+          class="px-4"
           icon="FileSpreadsheet"
           color="purple"
           title="Baixar como CSV"
@@ -49,6 +51,7 @@ function close() {
 
       <div class="flex flex-col items-center gap-2">
         <Button
+          class="px-4"
           icon="Table2"
           color="green"
           title="Baixar como XLSX"

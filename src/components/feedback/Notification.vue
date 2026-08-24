@@ -20,10 +20,10 @@ const color = computed(() => colorByType[notificationState.type])
     <Transition name="notification">
       <div
         v-if="notificationState.visible"
-        class="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex items-center justify-center px-4"
+        class="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex items-center justify-center px-4 sm:bottom-8"
       >
         <div
-          class="pointer-events-auto max-w-md rounded-medium border-l-4 bg-white px-4 py-3 text-black shadow-flat"
+          class="pointer-events-auto w-full max-w-md rounded-medium border-l-4 bg-white px-4 py-3 text-black shadow-flat"
           :class="'border-' + color"
         >
           {{ notificationState.message }}

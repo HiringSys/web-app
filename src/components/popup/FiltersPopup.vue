@@ -41,8 +41,8 @@ function toggle(key: string) {
 
 <template>
   <Popup :model-value="modelValue" :title="title" width="22rem" @update:model-value="emit('update:modelValue', $event)">
-    <div class="flex w-full items-center-safe justify-center-safe">
-      <ul class="flex flex-col gap-4 w-[95%]">
+    <div class="flex w-full items-center justify-center">
+      <ul class="flex w-full flex-col gap-3 sm:w-[95%] sm:gap-4">
         <li v-for="option in options" :key="option.key">
           <Button
             :text="option.label"

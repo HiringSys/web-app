@@ -33,7 +33,7 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
   <Teleport to="body">
     <Transition name="popup">
       <div
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4"
         v-if="modelValue"
         role="dialog"
         aria-modal="true"
@@ -41,12 +41,12 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
         @mousedown.self="close"
       >
         <div
-          class="popup-box flex max-h-[90vh] w-full flex-col overflow-hidden rounded-medium bg-gray shadow-soft"
+          class="popup-box flex max-h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden rounded-medium bg-gray shadow-soft sm:max-h-[90dvh]"
           :style="{ maxWidth: width }"
         >
-          <div class="flex flex-col px-6 overflow-y-auto">
-            <div class="flex items-center justify-between gap-4 pt-6 pb-4">
-              <h2 v-if="title" class="leading-none pb-px">{{ title }}</h2>
+          <div class="flex min-h-0 flex-col overflow-y-auto px-4 sm:px-6">
+            <div class="flex items-start justify-between gap-3 pb-4 pt-4 sm:gap-4 sm:pt-6">
+              <h2 v-if="title" class="min-w-0 leading-tight pb-px">{{ title }}</h2>
               <Button
                 icon="X"
                 aria-label="Fechar"
@@ -63,7 +63,7 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
 
             <div
               v-if="$slots.actions"
-              class="flex items-center justify-end gap-3 pt-4 pb-8"
+              class="flex flex-col-reverse items-stretch justify-end gap-3 pb-5 pt-4 [&>*]:w-full sm:flex-row sm:items-center sm:pb-8 sm:[&>*]:w-auto"
             >
               <slot name="actions" />
             </div>

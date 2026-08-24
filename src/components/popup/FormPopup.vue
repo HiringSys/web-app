@@ -3,6 +3,7 @@ import { reactive, ref, watch } from "vue";
 import Popup from "./Popup.vue";
 import Input from "@@/ui/Input.vue";
 import Button from "@@/ui/Button.vue";
+import { ChevronDown } from "@lucide/vue";
 
 export interface FormField {
   key: string;
@@ -88,20 +89,26 @@ function submit() {
           field.label
         }}</span>
 
-        <select
-          v-if="field.type === 'select'"
-          v-model="values[field.key]"
-          :required="field.required"
-          class="w-full rounded-medium bg-white px-4 py-2.5 font-medium text-black focus:outline-0 focus-visible:ring-2 focus-visible:ring-blue/70"
-        >
-          <option
-            v-for="option in field.options"
-            :key="option.value"
-            :value="option.value"
+        <div v-if="field.type === 'select'" class="group relative">
+          <select
+            v-model="values[field.key]"
+            :required="field.required"
+            class="w-full appearance-none rounded-medium bg-white py-2.5 pr-12 pl-4 font-medium text-black focus:outline-0 focus-visible:ring-2 focus-visible:ring-blue/70"
           >
-            {{ option.label }}
-          </option>
-        </select>
+            <option
+              v-for="option in field.options"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+          <span
+            class="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-medium bg-black/[0.035] text-black/55 transition-colors group-focus-within:bg-blue/10 group-focus-within:text-blue"
+          >
+            <ChevronDown :size="18" :stroke-width="2.5" aria-hidden="true" />
+          </span>
+        </div>
 
         <Input
           v-else

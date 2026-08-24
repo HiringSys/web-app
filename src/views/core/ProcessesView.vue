@@ -4,6 +4,7 @@ import { ref, computed, watch, onMounted } from "vue";
 
 import Table from "@@/ui/table/Table.vue";
 import TableSkeleton from "@@/ui/table/TableSkeleton.vue";
+import Skeleton from "@@/feedback/Skeleton.vue";
 import Button from "@@/ui/Button.vue";
 import FilterChips from "@@/layout/FilterChips.vue";
 import ConfirmPopup from "@@/popup/ConfirmPopup.vue";
@@ -285,20 +286,20 @@ async function submitEditProcess(values: Record<string, string>) {
 </script>
 
 <template>
-  <main class="flex flex-col gap-6 p-4 pb-28 sm:p-8">
-    <div class="flex items-center gap-3">
+  <main class="flex min-w-0 flex-col gap-6 p-4 pb-28 sm:p-8">
+    <div class="flex min-w-0 flex-wrap items-center gap-3">
       <div
-        class="flex flex-row gap-4"
-        :class="!isNavOpen ? 'translate-x-16' : ''"
+        class="flex min-w-0 flex-1 flex-row items-center gap-3 sm:gap-4"
+        :class="!isNavOpen ? 'sm:pl-16' : ''"
       >
-        <h1>Processos seletivos</h1>
-        <Button class="h-fit" icon="LayoutGrid" variant="primary" />
+        <h1 class="min-w-0">Processos seletivos</h1>
+        <Button class="h-fit shrink-0" icon="LayoutGrid" variant="primary" aria-label="Visualização em grade" />
       </div>
       <Button
         icon="ListFilterPlus"
         aria-label="Criar processo seletivo"
         variant="primary"
-        class="ml-auto"
+        class="ml-auto shrink-0"
         @click="newProcessOpen = true"
       />
     </div>
@@ -309,12 +310,24 @@ async function submitEditProcess(values: Record<string, string>) {
       @open-filters="filtersOpen = true"
     />
 
-    <TableSkeleton
-      v-if="loading"
-      :columns="columns"
-      :rows="PAGE_SIZE"
-      :draggable="false"
-    />
+    <template v-if="loading">
+      <div class="hidden lg:block">
+        <TableSkeleton
+          :columns="columns"
+          :rows="PAGE_SIZE"
+          :draggable="false"
+        />
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:hidden" aria-label="Carregando processos">
+        <article v-for="item in 4" :key="item" class="rounded-medium bg-white p-4 shadow-soft">
+          <Skeleton height="1.25rem" width="65%" />
+          <Skeleton class="mt-2" height="0.85rem" width="42%" />
+          <div class="mt-5 grid grid-cols-2 gap-3">
+            <Skeleton v-for="field in 4" :key="field" height="2.75rem" />
+          </div>
+        </article>
+      </div>
+    </template>
 
     <section v-else-if="loadError" class="flex flex-col items-center gap-4 rounded-medium bg-white px-6 py-12 text-center shadow-soft">
       <div>
@@ -329,20 +342,75 @@ async function submitEditProcess(values: Record<string, string>) {
       <p class="mt-1 text-black/50">Ajuste os filtros ou crie um novo processo seletivo.</p>
     </section>
 
-    <Table
-      v-else
-      :columns="columns"
-      :items="paginatedProcesses"
-      :draggable="false"
-      :disabled-items="(process) => process.status === ProcessStatus.Encerrado"
-      @delete-item="deleteTarget = $event"
-      @edit-item="editTarget = $event"
-    >
-    </Table>
+    <template v-else>
+      <div class="hidden lg:block">
+        <Table
+          :columns="columns"
+          :items="paginatedProcesses"
+          :draggable="false"
+          :disabled-items="(process) => process.status === ProcessStatus.Encerrado"
+          @delete-item="deleteTarget = $event"
+          @edit-item="editTarget = $event"
+        />
+      </div>
+
+      <section class="grid gap-3 sm:grid-cols-2 lg:hidden" aria-label="Lista de processos seletivos">
+        <article
+          v-for="process in paginatedProcesses"
+          :key="process.id"
+          class="flex min-w-0 flex-col rounded-medium bg-white p-4 shadow-soft"
+        >
+          <div class="flex min-w-0 items-start justify-between gap-3">
+            <RouterLink
+              :to="{ name: 'peneira-filtragem', params: { id: process.id } }"
+              class="min-w-0 flex-1 rounded-small outline-none focus-visible:ring-2 focus-visible:ring-blue/70"
+            >
+              <h2 class="truncate text-subheading">{{ process.jobTitle }}</h2>
+              <p class="truncate text-small font-medium text-black/45">{{ process.department }}</p>
+            </RouterLink>
+            <ProcessStatusField :status="process.status" />
+          </div>
+
+          <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-small">
+            <div>
+              <dt class="text-black/40">Vagas disponíveis</dt>
+              <dd class="mt-0.5 font-semibold">{{ process.availableSlots }}</dd>
+            </div>
+            <div>
+              <dt class="text-black/40">Participantes</dt>
+              <dd class="mt-0.5 font-semibold">{{ process.participants }}</dd>
+            </div>
+            <div class="col-span-2 min-w-0">
+              <dt class="text-black/40">Cargo</dt>
+              <dd class="mt-0.5 truncate font-semibold">{{ process.role || "Não informado" }}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-5 grid grid-cols-2 gap-2 border-t border-black/5 pt-3">
+            <Button
+              text="Editar"
+              icon="Pencil"
+              small
+              class="w-full"
+              :disabled="process.status === ProcessStatus.Encerrado"
+              @click="editTarget = process"
+            />
+            <Button
+              text="Excluir"
+              icon="Trash2"
+              small
+              color="red"
+              class="w-full"
+              @click="deleteTarget = process"
+            />
+          </div>
+        </article>
+      </section>
+    </template>
 
     <div
       v-if="!loading && !loadError && filteredProcesses.length"
-      class="flex w-full items-center justify-end-safe gap-4 px-3 pb-4 pt-2 rounded-medium"
+      class="flex w-full items-center justify-center gap-4 rounded-medium px-3 pt-2 pb-4 sm:justify-end"
     >
       <Button
         icon="ArrowLeft"

@@ -9,8 +9,8 @@ const sidebar = ["/peneiras", "/funcionarios"];
 </script>
 
 <template>
-  <div class="flex h-screen flex-col">
-    <div class="flex flex-1 overflow-hidden">
+  <div class="flex h-dvh min-h-0 min-w-0 flex-col">
+    <div class="flex min-h-0 min-w-0 flex-1 overflow-hidden">
       <Navbar
         v-if="
           sidebar.some(
@@ -19,7 +19,7 @@ const sidebar = ["/peneiras", "/funcionarios"];
           )
         "
       />
-      <RouterView :key="router.fullPath" class="flex-1 overflow-y-auto" />
+      <RouterView :key="router.fullPath" class="min-w-0 flex-1 overflow-y-auto" />
     </div>
 
     <Notification />

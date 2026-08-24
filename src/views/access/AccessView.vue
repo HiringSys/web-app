@@ -2,9 +2,9 @@
 </script>
 
 <template>
-  <div class="flex min-h-screen w-full bg-white">
-    <section class="flex w-full flex-col items-start justify-center gap-8 px-6 py-10 sm:px-12 lg:w-[58%] lg:px-[clamp(4rem,8vw,9rem)]">
-        <img class="w-40" src="/logotype.svg" alt="HiringSys">
+  <div class="flex min-h-dvh min-w-0 w-full bg-white">
+    <section class="flex min-w-0 w-full flex-col items-stretch justify-center gap-6 px-4 py-8 sm:items-start sm:gap-8 sm:px-12 sm:py-10 lg:w-[58%] lg:px-[clamp(4rem,8vw,9rem)]">
+        <img class="w-32 sm:w-40" src="/logotype.svg" alt="HiringSys">
         <RouterView />
     </section>
     <section class="login-hero relative hidden flex-1 overflow-hidden lg:flex lg:items-end lg:p-12" aria-label="Apresentação do HiringSys">

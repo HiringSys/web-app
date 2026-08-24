@@ -26,27 +26,31 @@ function toggle(key: string) {
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-3">
-    <button
-      v-for="option in options"
-      :key="option.key"
-      type="button"
-      class="rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-      :class="
-        active.includes(option.key)
-          ? [option.color?.bg ?? 'bg-blue', option.color?.text ?? 'text-white']
-          : 'bg-white text-black/60'
-      "
-      :style="{
-        '--press-shadow-color': active.includes(option.key)
-          ? (option.color?.shadow ?? 'var(--color-blue-co)')
-          : 'var(--color-gray-co)',
-      }"
-      @click="toggle(option.key)"
-    >
-      {{ option.label }}
-    </button>
+  <div class="flex min-w-0 items-center gap-3">
+    <div class="min-w-0 flex-1 overflow-x-auto px-0.5 py-2 scrollbar-hide">
+      <div class="flex w-max items-center gap-3">
+        <button
+          v-for="option in options"
+          :key="option.key"
+          type="button"
+          class="rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
+          :class="
+            active.includes(option.key)
+              ? [option.color?.bg ?? 'bg-blue', option.color?.text ?? 'text-white']
+              : 'bg-white text-black/60'
+          "
+          :style="{
+            '--press-shadow-color': active.includes(option.key)
+              ? (option.color?.shadow ?? 'var(--color-blue-co)')
+              : 'var(--color-gray-co)',
+          }"
+          @click="toggle(option.key)"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+    </div>
 
-    <Button icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
+    <Button class="shrink-0" icon="Filter" variant="neutral" rounded aria-label="Abrir filtros" @click="$emit('open-filters')" />
   </div>
 </template>
