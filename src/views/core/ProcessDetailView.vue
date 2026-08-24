@@ -12,6 +12,7 @@ import ApprovedListSidebar     from "@/components/layout/sidebar/content/Approve
 import ConfirmPopup            from "@/components/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
+import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
@@ -185,6 +186,12 @@ async function submitEditCandidate(values: Record<string, string>) {
 }
 
 const newCandidateOpen = ref(false);
+const importOpen = ref(false);
+
+async function refreshCandidates() {
+  candidates.value = await getCandidatesForProcess(processId);
+  if (process.value) process.value.participants = candidates.value.length;
+}
 
 async function submitNewCandidate(values: Record<string, string>) {
   try {
@@ -244,17 +251,19 @@ async function confirmShare() {
 async function submitEditProcess(values: Record<string, string>) {
   if (!process.value) return;
 
-  // approvalLimit/teamEmail have no backend field yet (see .sdd/swagger/gaps.md) — applied locally only.
-  Object.assign(process.value, {
+  const updated: SelectiveProcess = {
+    ...process.value,
     jobTitle: values.jobTitle,
     department: values.department,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
-  });
+  };
 
   try {
-    await updateProcess(processId, process.value);
+    const saved = await updateProcess(processId, updated);
+    // The API doesn't expose a headcount on Grupo, so `saved.participants` is always 0 — keep the count derived from the roster.
+    Object.assign(process.value, saved, { participants: process.value.participants });
   } catch {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
@@ -277,6 +286,7 @@ async function submitEditProcess(values: Record<string, string>) {
           <Button icon="EllipsisVertical" variant="neutral" :disabled="isEncerrado" @click="editProcessOpen = true" />
           <div class="ml-auto flex items-center gap-3">
             <Button icon="UserPlus" variant="primary" :disabled="isEncerrado" @click="newCandidateOpen = true" />
+            <Button icon="FileSpreadsheet" variant="primary" :disabled="isEncerrado" @click="importOpen = true" />
             <Button icon="Download" variant="primary" />
             <Button icon="Share2"   variant="primary" :disabled="isEncerrado" @click="shareConfirmOpen = true" />
             <Button icon="ListTodo" variant="primary" :disabled="isEncerrado" @click="openApproved" />
@@ -362,6 +372,12 @@ async function submitEditProcess(values: Record<string, string>) {
       :fields="PROCESS_FIELDS"
       :initial-values="editProcessValues"
       @submit="submitEditProcess"
+    />
+
+    <ImportCandidatesPopup
+      v-model="importOpen"
+      :grupo-id="processId"
+      @imported="refreshCandidates"
     />
 
     <FiltersPopup v-model="filtersOpen" title="Colunas visíveis" :options="COLUMN_OPTIONS" v-model:active="activeColumns" />

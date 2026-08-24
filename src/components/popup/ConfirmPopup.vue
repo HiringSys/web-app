@@ -44,7 +44,7 @@ function cancel() {
 
     <template #actions>
       <Button :text="cancelText" variant="neutral" @click="cancel" />
-      <Button :text="confirmText" variant="primary" :color="danger ? Color.Red : Color.Blue" @click="confirm" />
+      <Button :text="confirmText" :color="danger ? Color.Red : Color.Blue" @click="confirm" />
     </template>
   </Popup>
 </template>
