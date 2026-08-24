@@ -25,7 +25,9 @@ import { useNavbar } from "@/components/layout/navbar/useNavbar";
 import {
   CandidateStatus,
   Seniority,
+  SocialNetwork,
   type Candidate,
+  type SocialLink,
   type TableColumn,
 } from "@@/ui/table/types";
 
@@ -144,16 +146,6 @@ function openApproved() {
   sidebarOpen.value = true;
 }
 
-async function exportCandidates() {
-  if (!process.value) return;
-
-  try {
-    await exportCandidatesToExcel(process.value, candidates.value);
-  } catch {
-    notify("Não foi possível gerar a planilha de exportação.", "error");
-  }
-}
-
 function reorderApproved(items: Candidate[]) {
   if (!tableRef.value) return;
   tableRef.value.groups[CandidateStatus.Aprovado] = items;
@@ -183,7 +175,20 @@ const CANDIDATE_FIELDS: FormField[] = [
     ],
   },
   { key: "salaryExpectation", label: "Expectativa salarial", type: "number" },
+  { key: "linkedinUrl", label: "LinkedIn", placeholder: "URL do perfil" },
+  { key: "githubUrl", label: "GitHub", placeholder: "URL do perfil" },
 ];
+
+function networksFromFormValues(values: Record<string, string>): SocialLink[] {
+  const networks: SocialLink[] = [];
+  if (values.linkedinUrl?.trim()) {
+    networks.push({ network: SocialNetwork.LinkedIn, url: values.linkedinUrl.trim() });
+  }
+  if (values.githubUrl?.trim()) {
+    networks.push({ network: SocialNetwork.GitHub, url: values.githubUrl.trim() });
+  }
+  return networks;
+}
 
 const deleteTarget = ref<Candidate | null>(null);
 const deleteConfirmOpen = computed({
@@ -227,6 +232,12 @@ const editValues = computed<Record<string, string>>(() => {
     role: candidate.role,
     seniority: candidate.seniority,
     salaryExpectation: String(candidate.salaryExpectation),
+    linkedinUrl:
+      candidate.networks?.find((link) => link.network === SocialNetwork.LinkedIn)
+        ?.url ?? "",
+    githubUrl:
+      candidate.networks?.find((link) => link.network === SocialNetwork.GitHub)
+        ?.url ?? "",
   };
 });
 
@@ -243,6 +254,7 @@ async function submitEditCandidate(values: Record<string, string>) {
     role: values.role,
     seniority: values.seniority as Seniority,
     salaryExpectation: Number(values.salaryExpectation),
+    networks: networksFromFormValues(values),
   };
 
   try {
@@ -307,6 +319,7 @@ async function submitNewCandidate(values: Record<string, string>) {
       role: values.role,
       seniority: values.seniority as Seniority,
       salaryExpectation: Number(values.salaryExpectation),
+      networks: networksFromFormValues(values),
     });
     candidates.value.push(created);
     if (process.value) process.value.participants = candidates.value.length;
@@ -557,7 +570,12 @@ async function submitEditProcess(values: Record<string, string>) {
       @confirm="confirmShare"
     />
 
-    <WayToDownloadPopUp v-model="chooseWayToDownload" />
+    <WayToDownloadPopUp
+      v-model="chooseWayToDownload"
+      @txt="downloadTxt"
+      @csv="downloadCsv"
+      @xlsx="downloadXlsx"
+    />
 
     <FormPopup
       v-model="editOpen"

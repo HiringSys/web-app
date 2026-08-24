@@ -252,6 +252,7 @@ export interface NewCandidateInput {
   role: string;
   seniority: Seniority;
   salaryExpectation: number;
+  networks?: SocialLink[];
 }
 
 export async function createCandidate(
@@ -267,6 +268,7 @@ export async function createCandidate(
     salario: values.salaryExpectation,
     experiencia: values.seniority.toUpperCase() as FuncionarioExperiencia,
     cargoIds: cargoId !== undefined ? [cargoId] : undefined,
+    redes: toRedeRequests(values.networks),
   };
 
   const funcionario = await apiFetch<FuncionarioResponse>("/funcionarios", {
