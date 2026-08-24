@@ -37,9 +37,9 @@ function goNext() {
 type FileKind = "pdf" | "docx" | "image";
 
 const fileKind = computed<FileKind>(() => {
-  const url = candidate.value?.curriculumUrl ?? "";
-  if (/\.pdf(\?|$)/i.test(url)) return "pdf";
-  if (/\.docx?(\?|$)/i.test(url)) return "docx";
+  const name = candidate.value?.curriculumFileName ?? candidate.value?.curriculumUrl ?? "";
+  if (/\.pdf(\?|$)/i.test(name)) return "pdf";
+  if (/\.docx?(\?|$)/i.test(name)) return "docx";
   return "image";
 });
 
