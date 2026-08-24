@@ -118,7 +118,7 @@ const actions = computed<ActionButton[]>(() => {
     class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden"
   >
     <div
-      class="grid max-h-18 items-center gap-4"
+      class="grid max-h-18 w-full min-w-0 items-center gap-4 overflow-x-auto scrollbar-hide"
       :style="{ gridTemplateColumns }"
       draggable="false"
     >
