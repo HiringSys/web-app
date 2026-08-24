@@ -43,7 +43,9 @@ function candidateRow(candidate: Candidate): (string | number)[] {
     SENIORITY_LABELS[candidate.seniority],
     formatSalary(candidate.salaryExpectation),
     statusLabel(candidate),
-    `${candidate.jobAffinity}%`,
+    candidate.jobAffinity === null
+      ? "Em análise"
+      : `${candidate.jobAffinity}%`,
   ];
 }
 

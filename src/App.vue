@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from "vue-router";
+import GlobalLoading from "@@/feedback/GlobalLoading.vue";
 import Notification from "@@/feedback/Notification.vue";
 import Navbar from "@@/layout/navbar/Navbar.vue";
 
@@ -22,5 +23,6 @@ const sidebar = ["/peneiras", "/funcionarios"];
     </div>
 
     <Notification />
+    <GlobalLoading />
   </div>
 </template>

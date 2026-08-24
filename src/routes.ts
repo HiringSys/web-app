@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getAuthToken } from '@/service/api'
 import { getProcess   } from '@/service/Peneiras'
+import { beginGlobalLoading } from '@@/feedback/globalLoading'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,8 +65,12 @@ const router = createRouter({
 })
 
 const PUBLIC_ROUTES = new Set(['login', 'recuperar-senha'])
+let finishNavigationLoading: (() => void) | undefined
 
 router.beforeEach((to) => {
+  finishNavigationLoading?.()
+  finishNavigationLoading = beginGlobalLoading('Carregando página...')
+
   const isAuthenticated = !!getAuthToken()
   const isPublic = PUBLIC_ROUTES.has(to.name as string)
 
@@ -80,6 +85,13 @@ router.beforeEach((to) => {
 
 router.afterEach((to) => {
   document.title = (to.meta.title as string | undefined) ?? 'HiringSys'
+  finishNavigationLoading?.()
+  finishNavigationLoading = undefined
+})
+
+router.onError(() => {
+  finishNavigationLoading?.()
+  finishNavigationLoading = undefined
 })
 
 export default router

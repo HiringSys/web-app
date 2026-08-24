@@ -34,7 +34,12 @@ const COLUMNS: Column<Candidate>[] = [
     }),
   },
   { header: 'Expectativa salarial (R$)', cell: (candidate) => ({ value: candidate.salaryExpectation, type: Number, format: '#,##0.00' }) },
-  { header: 'Afinidade com a vaga (%)', cell: (candidate) => ({ value: candidate.jobAffinity, type: Number }) },
+  {
+    header: 'Afinidade com a vaga (%)',
+    cell: (candidate) => candidate.jobAffinity === null
+      ? { value: 'Em análise', type: String }
+      : { value: candidate.jobAffinity, type: Number },
+  },
   { header: 'Redes sociais', cell: (candidate) => ({ value: (candidate.networks ?? []).map((network) => network.url).join('; '), type: String }) },
 ]
 
