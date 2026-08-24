@@ -8,13 +8,16 @@ export function isMockMode(): boolean {
 
 const TOKEN_STORAGE_KEY = "hiringsys.accessToken";
 const EMAIL_STORAGE_KEY = "hiringsys.accountEmail";
+export const AUTH_EXPIRED_EVENT = "hiringsys:auth-expired";
 
 let authToken: string | null = localStorage.getItem(TOKEN_STORAGE_KEY);
 let accountEmail: string | null = localStorage.getItem(EMAIL_STORAGE_KEY);
+let authExpirationHandled = false;
 
 export function setAuthToken(token: string | null) {
   authToken = token;
   if (token) {
+    authExpirationHandled = false;
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
   } else {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -68,6 +71,10 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
     },
   });
 
+  if (response.status === 401) {
+    handleUnauthorizedResponse();
+  }
+
   if (!response.ok) {
     const body = await response.text().catch(() => "");
     const message = extractErrorMessage(body) ?? `Request to ${path} failed with status ${response.status}`;
@@ -95,6 +102,15 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   } finally {
     finishLoading();
   }
+}
+
+function handleUnauthorizedResponse() {
+  if (!authToken || authExpirationHandled) return;
+
+  authExpirationHandled = true;
+  setAuthToken(null);
+  setAccountEmail(null);
+  window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
 }
 
 export async function apiFetchBlob(path: string, init?: RequestInit): Promise<Blob> {
