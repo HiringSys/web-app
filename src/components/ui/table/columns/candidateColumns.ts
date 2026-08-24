@@ -1,11 +1,12 @@
 import type { TableColumn, Candidate } from '../types'
 import { CandidateStatus } from '../types'
-import { formatSalary } from '@/lib/format'
+import { formatSalary, formatPhoneNumber } from '@/lib/format'
 
 import CandidateField  from '../fields/CandidateField.vue'
 import StatusField     from '../fields/StatusField.vue'
 import NetworkField    from '../fields/NetworkField.vue'
 import ValueField      from '../fields/ValueField.vue'
+import PhoneField      from '../fields/PhoneField.vue'
 import SeniorityField  from '../fields/SeniorityField.vue'
 import AffinityField   from '../fields/AffinityField.vue'
 
@@ -32,9 +33,9 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       key: 'phone',
       label: 'Telefone',
       size: 'md',
-      measure: (item) => item.phone,
-      component: ValueField,
-      props: (item) => ({ value: item.phone, copyable: true }),
+      measure: (item) => formatPhoneNumber(item.phone),
+      component: PhoneField,
+      props: (item) => ({ value: item.phone }),
     },
     {
       key: 'network',
