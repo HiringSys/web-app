@@ -130,6 +130,12 @@ async function confirmDeleteProcess() {
 const PROCESS_FIELDS: FormField[] = [
   { key: "jobTitle", label: "Finalidade da vaga" },
   { key: "department", label: "Departamento" },
+  {
+    key: "status",
+    label: "Estado",
+    type: "select",
+    options: STATUS_OPTIONS.map((option) => ({ value: option.key, label: option.label })),
+  },
   { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
   { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
   { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
@@ -186,6 +192,7 @@ const editValues = computed<Record<string, string>>(() => {
   return {
     jobTitle: process.jobTitle,
     department: process.department,
+    status: process.status,
     availableSlots: String(process.availableSlots),
     approvalLimit: String(process.approvalLimit),
     teamEmail: process.teamEmail,
@@ -201,6 +208,7 @@ async function submitEditProcess(values: Record<string, string>) {
     ...target,
     jobTitle: values.jobTitle,
     department: values.department,
+    status: values.status as ProcessStatus,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,

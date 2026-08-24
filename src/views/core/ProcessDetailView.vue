@@ -17,7 +17,7 @@ import AddCandidateChoicePopup from "@/components/popup/AddCandidateChoicePopup.
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
-import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
+import { ProcessStatus, PROCESS_STATUS_OPTIONS, type SelectiveProcess } from "@/types/peneira";
 import { MAX_VISIBLE_COLUMNS } from "@/components/ui/table/style/grid";
 import {
   getProcess, getCandidatesForProcess, updateProcess,
@@ -215,6 +215,7 @@ async function submitNewCandidate(values: Record<string, string>) {
 const PROCESS_FIELDS: FormField[] = [
   { key: "jobTitle", label: "Finalidade da vaga" },
   { key: "department", label: "Departamento" },
+  { key: "status", label: "Estado", type: "select", options: PROCESS_STATUS_OPTIONS },
   { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
   { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
   { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
@@ -227,6 +228,7 @@ const editProcessValues = computed<Record<string, string>>(() => {
   return {
     jobTitle: process.value.jobTitle,
     department: process.value.department,
+    status: process.value.status,
     availableSlots: String(process.value.availableSlots),
     approvalLimit: String(process.value.approvalLimit),
     teamEmail: process.value.teamEmail,
@@ -257,6 +259,7 @@ async function submitEditProcess(values: Record<string, string>) {
     ...process.value,
     jobTitle: values.jobTitle,
     department: values.department,
+    status: values.status as ProcessStatus,
     availableSlots: Number(values.availableSlots),
     approvalLimit: Number(values.approvalLimit),
     teamEmail: values.teamEmail,
