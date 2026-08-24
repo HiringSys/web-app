@@ -50,8 +50,6 @@ import {
 import { notify } from "@/components/feedback/notify";
 import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
 
-import { notify } from "@@/feedback/notify";
-
 import {
   downloadCandidatesAsTxt,
   downloadCandidatesAsCsv,
@@ -597,6 +595,7 @@ async function submitEditProcess(values: Record<string, string>) {
       v-model="filtersOpen"
       title="Colunas visíveis"
       :options="COLUMN_OPTIONS"
+      :pinned="['name']"
       v-model:active="activeColumns"
     />
   </div>

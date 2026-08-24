@@ -47,6 +47,6 @@ function toggle(key: string) {
       {{ option.label }}
     </button>
 
-    <Button icon="Filter" variant="neutral" rounded />
+    <Button icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
   </div>
 </template>
