@@ -43,7 +43,7 @@ onBeforeUnmount(() => document.removeEventListener("keydown", handleKeydown));
         >
           <div class="flex flex-col px-6 overflow-y-auto">
             <div class="flex items-center justify-between gap-4 pt-6 pb-4">
-              <h2 v-if="title" class="leading-none">{{ title }}</h2>
+              <h2 v-if="title" class="leading-none pb-px">{{ title }}</h2>
               <Button
                 icon="X"
                 variant="neutral"
