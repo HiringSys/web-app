@@ -19,11 +19,11 @@ defineEmits<{
 
 <template>
   <aside
-    class="h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out"
+    class="relative h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out"
     :style="{ width: modelValue ? width : '0px' }"
   >
     <div class="flex h-full w-full flex-col">
-      <div class="flex items-center justify-between px-4 pt-8">
+      <div class="flex items-center justify-between px-4 pt-8 pb-4">
         <Button
           icon="X"
           variant="neutral"
