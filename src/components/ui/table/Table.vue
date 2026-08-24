@@ -44,8 +44,7 @@ const rows = computed({
 </script>
 
 <template>
-  <div class="overflow-x-auto scrollbar-hide">
-    <div class="flex min-w-fit flex-col gap-3">
+  <div class="flex flex-col gap-3">
       <TableHeader :columns="visibleColumns" :grid-template-columns="gridTemplateColumns" :draggable="props.draggable" />
 
       <VueDraggable
@@ -89,6 +88,5 @@ const rows = computed({
           </template>
         </Row>
       </div>
-    </div>
   </div>
 </template>

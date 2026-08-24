@@ -117,8 +117,7 @@ defineExpose({ groups, moveToStatus })
 </script>
 
 <template>
-  <div class="overflow-x-auto scrollbar-hide">
-    <div class="flex min-w-fit flex-col gap-3">
+  <div class="flex flex-col gap-3">
       <div v-for="section in SECTIONS" :key="section.status" class="rounded-medium p-3" :class="section.tint">
         <h3 class="mb-2 px-1 text-black/50">
           {{ section.label }}
@@ -156,6 +155,5 @@ defineExpose({ groups, moveToStatus })
           </template>
         </VueDraggable>
       </div>
-    </div>
   </div>
 </template>
