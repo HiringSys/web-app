@@ -1,3 +1,5 @@
+import { beginGlobalLoading } from "@@/feedback/globalLoading";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function isMockMode(): boolean {
@@ -76,12 +78,32 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await request(path, init);
-  const text = await response.text();
-  return (text ? JSON.parse(text) : undefined) as T;
+  const method = init?.method?.toUpperCase() ?? "GET";
+  const message = method === "GET"
+    ? "Carregando dados..."
+    : method === "DELETE"
+      ? "Excluindo informações..."
+      : method === "PUT" || method === "PATCH"
+        ? "Salvando alterações..."
+        : "Processando solicitação...";
+  const finishLoading = beginGlobalLoading(message);
+
+  try {
+    const response = await request(path, init);
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
+  } finally {
+    finishLoading();
+  }
 }
 
 export async function apiFetchBlob(path: string, init?: RequestInit): Promise<Blob> {
-  const response = await request(path, init);
-  return response.blob();
+  const finishLoading = beginGlobalLoading("Baixando arquivo...");
+
+  try {
+    const response = await request(path, init);
+    return response.blob();
+  } finally {
+    finishLoading();
+  }
 }
