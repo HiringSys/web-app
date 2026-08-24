@@ -1,12 +1,15 @@
 <script setup lang="ts" generic="T extends { id: string | number }">
 
-import { Grip } from '@lucide/vue'
-import Button   from '@/components/ui/Button.vue'
+import { computed } from 'vue'
+import { Grip }      from '@lucide/vue'
+import Button        from '@/components/ui/Button.vue'
+import type { IconName } from '@/components/ui/Icon.vue'
+import type { Color }    from '@/components/ui/lib'
 
 import type { TableColumn } from './types'
 import { CandidateStatus }  from './types'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     item:                 T
     columns:              TableColumn<T>[]
@@ -27,7 +30,7 @@ withDefaults(
   { draggable: true, variant: 'list', showManageActions: true, showDocument: true, blocked: false, locked: false },
 )
 
-defineEmits<{
+const emit = defineEmits<{
   'view-resume':      [item: T]
   'delete-item':      [item: T]
   'edit-item':        [item: T]
@@ -37,6 +40,42 @@ defineEmits<{
   /** Aprovado-section quick action — sends the candidate back to Reprovado. */
   'reject-item':      [item: T]
 }>()
+
+type ActionButton = {
+  key:       string
+  icon:      IconName
+  color?:    Color
+  toggled?:  boolean
+  disabled?: boolean
+  onClick:   () => void
+}
+
+/** Ordered left-to-right — drives the stagger delay on entry/exit. */
+const actions = computed<ActionButton[]>(() => {
+  const list: ActionButton[] = []
+
+  if (props.showManageActions) {
+    list.push({ key: 'delete', icon: 'Trash2', color: 'red', disabled: props.variant === 'detail' && props.locked, onClick: () => emit('delete-item', props.item) })
+    list.push({ key: 'edit',   icon: 'Pencil',                disabled: props.locked,                              onClick: () => emit('edit-item', props.item) })
+
+    if (props.variant === 'detail') {
+      list.push({ key: 'block', icon: 'CircleSlash', color: 'orange', toggled: props.blocked, disabled: props.locked, onClick: () => emit('toggle-block', props.item) })
+
+      if (props.boardStatus === CandidateStatus.Aprovado) {
+        list.push({ key: 'reject', icon: 'X', color: 'red', disabled: props.locked, onClick: () => emit('reject-item', props.item) })
+      }
+      if (props.boardStatus === CandidateStatus.Reprovado) {
+        list.push({ key: 'toggle-substatus', icon: 'CircleHelp', color: 'yellow', disabled: props.locked, onClick: () => emit('toggle-substatus', props.item) })
+      }
+    }
+  }
+
+  if (props.variant === 'detail' && props.showDocument) {
+    list.push({ key: 'document', icon: 'File', disabled: props.locked, onClick: () => emit('view-resume', props.item) })
+  }
+
+  return list
+})
 
 </script>
 
@@ -63,42 +102,40 @@ defineEmits<{
       <slot name="actions" :item="item" />
     </div>
 
-    <div class="absolute px-4 h-full right-0 top-1/2 -translate-y-1/2 flex flex-row items-center-safe gap-2 bg-white">
-      <div v-if="showManageActions" class="flex flex-row gap-2">
-        <Button icon="Trash2" variant="primary" color="red" :small="true" :disabled="variant === 'detail' && locked" @click="$emit('delete-item', item)" />
-        <Button icon="Pencil" variant="primary"             :small="true" :disabled="locked" @click="$emit('edit-item', item)" />
-        <Button
-          v-if="variant === 'detail'"
-          icon="CircleSlash" variant="primary"
-          color="orange"
-          :small="true"
-          :toggled="blocked"
-          :disabled="locked"
-          @click="$emit('toggle-block', item)"
-        />
-        <Button
-          v-if="variant === 'detail' && boardStatus === CandidateStatus.Aprovado"
-          icon="X" variant="primary"
-          color="red"
-          :small="true"
-          :disabled="locked"
-          @click="$emit('reject-item', item)"
-        />
-        <Button
-          v-if="variant === 'detail' && boardStatus === CandidateStatus.Reprovado"
-          icon="CircleHelp" variant="primary"
-          color="yellow"
-          :small="true"
-          :disabled="locked"
-          @click="$emit('toggle-substatus', item)"
-        />
-      </div>
-
-      <div class="flex flex-row gap-2">
-        <Button v-if="variant === 'detail' && showDocument" icon="File" variant="primary" :small="true" :disabled="locked" @click="$emit('view-resume', item)" />
-        <!-- "Mais informações" ainda não tem conteúdo definido; mantido comentado até decidirmos o que exibir aqui. -->
-        <!-- <Button icon="EllipsisVertical" variant="primary" :small="true" /> -->
-      </div>
-    </div>
+    <TransitionGroup
+      name="action-btn" tag="div"
+      class="absolute px-4 h-full right-0 top-1/2 -translate-y-1/2 flex flex-row items-center-safe gap-2 bg-white"
+    >
+      <Button
+        v-for="(action, index) in actions" :key="action.key"
+        :icon="action.icon" variant="primary"
+        :color="action.color"
+        :small="true"
+        :toggled="action.toggled"
+        :disabled="action.disabled"
+        :style="{ transitionDelay: `${index * 45}ms` }"
+        @click="action.onClick"
+      />
+      <!-- "Mais informações" ainda não tem conteúdo definido; mantido comentado até decidirmos o que exibir aqui. -->
+      <!-- <Button icon="EllipsisVertical" variant="primary" :small="true" /> -->
+    </TransitionGroup>
   </div>
 </template>
+
+<style scoped>
+.action-btn-enter-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.action-btn-enter-from {
+  opacity:   0;
+  transform: translateY(10px);
+}
+.action-btn-leave-active {
+  position:   absolute;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.action-btn-leave-to {
+  opacity:   0;
+  transform: translateY(10px);
+}
+</style>
