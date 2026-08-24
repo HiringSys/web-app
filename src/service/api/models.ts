@@ -32,6 +32,7 @@ export interface GrupoResponse {
   cargo?:           string;
   limiteAprovados?: number;
   emailEquipe?:     string;
+  quantidadeParticipantes: number;
   criadoEm:         string;
 }
 
