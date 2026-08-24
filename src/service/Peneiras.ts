@@ -1,4 +1,5 @@
 import { apiFetch, apiFetchBlob } from "./api";
+
 import type {
   GrupoResponse, GrupoRequest, GrupoEstado,
   FuncionarioResponse, FuncionarioCreateRequest, FuncionarioUpdateRequest, FuncionarioStatus, FuncionarioExperiencia,
@@ -13,11 +14,6 @@ import type {
 import { CandidateStatus, Seniority, type Candidate, type SocialLink, type SocialNetwork } from "@/components/ui/table/types";
 import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
 import { getStageMocks, getPersonMocksForStage } from "@mocks/handler";
-
-// --- Rede (social link) <-> SocialNetwork -----------------------------------
-// The API only knows 4 network types; the frontend supports more (for
-// display of hand-entered links). Only the overlapping ones round-trip.
-// See .sdd/swagger/api.md.
 
 const NETWORK_TO_REDE_TIPO: Partial<Record<SocialNetwork, RedeTipo>> = {
   linkedin: "LINKEDIN",
@@ -47,9 +43,6 @@ function fromRedeResponses(redes: RedeResponse[] = []): SocialLink[] {
     .filter((link): link is SocialLink => link !== null);
 }
 
-// --- Cargo --------------------------------------------------------------
-
-/** Finds a cargo by exact name, creating it if it doesn't exist yet. */
 export async function findOrCreateCargoId(nome: string): Promise<number | undefined> {
   const trimmed = nome.trim();
   if (!trimmed) return undefined;
@@ -65,8 +58,6 @@ export async function findOrCreateCargoId(nome: string): Promise<number | undefi
   return created.id;
 }
 
-// --- Grupo <-> SelectiveProcess ------------------------------------------
-
 function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
   return {
     id:             grupo.id,
@@ -74,10 +65,8 @@ function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
     department:     grupo.area,
     status:         grupo.estado.toLowerCase() as ProcessStatus,
     availableSlots: grupo.disponiveis,
-    // The API doesn't expose a headcount on Grupo; see .sdd/swagger/api.md.
     participants:   0,
     role:           grupo.cargo ?? "",
-    // Seeded from disponiveis when the group predates limiteAprovados.
     approvalLimit:  grupo.limiteAprovados ?? grupo.disponiveis,
     teamEmail:      grupo.emailEquipe ?? "",
   };
@@ -133,19 +122,10 @@ export async function deleteProcess(id: string | number): Promise<void> {
   await apiFetch(`/grupos/${id}`, { method: "DELETE" });
 }
 
-// --- Funcionario <-> Candidate --------------------------------------------
-
-/** Suprimido (the `blocked` override) has no backend status — sent as Reprovado whenever the candidate reaches the API. */
 function toFuncionarioStatus(candidate: Pick<Candidate, "status" | "blocked">): FuncionarioStatus {
   return candidate.blocked ? "REPROVADO" : (candidate.status.toUpperCase() as FuncionarioStatus);
 }
 
-/**
- * `Funcionario.status` is global to the employee record, not scoped to a
- * selective process — it drifts from what a given peneira actually decided.
- * `stageStatus`, read separately from `/stages/{id}/candidates`, is the
- * status that's actually specific to this stage; it wins when present.
- */
 function mapFuncionarioToCandidate(
   funcionario: FuncionarioResponse,
   grupoId: string | number,
@@ -167,7 +147,6 @@ function mapFuncionarioToCandidate(
   };
 }
 
-/** Falls back to an empty map (letting callers keep `Funcionario.status`) if the newer Stages API is unreachable. */
 async function getStageCandidateStatuses(stageId: string | number): Promise<Map<number, CandidateStatus>> {
   try {
     const stageCandidates = await apiFetch<StageCandidateResponse[]>(`/stages/${stageId}/candidates`);
@@ -198,7 +177,6 @@ export interface NewCandidateInput {
   salaryExpectation: number;
 }
 
-/** Creates the funcionario, then links them to the process's grupo. */
 export async function createCandidate(grupoId: string | number, values: NewCandidateInput): Promise<Candidate> {
   const cargoId = await findOrCreateCargoId(values.role);
 
@@ -224,7 +202,6 @@ export async function createCandidate(grupoId: string | number, values: NewCandi
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
-/** Bulk-imports pre-parsed rows (see `parseFuncionariosSheet`) into the group in a single request. */
 export async function importFuncionariosFromExcel(grupoId: string | number, funcionarios: FuncionarioImportacaoRequest[]): Promise<ImportacaoFuncionariosResponse> {
   return apiFetch<ImportacaoFuncionariosResponse>(`/grupos/${grupoId}/funcionarios/importacao`, {
     method: "POST",
@@ -232,7 +209,6 @@ export async function importFuncionariosFromExcel(grupoId: string | number, func
   });
 }
 
-/** Full update (PUT) — the API requires status/experiencia/cargoIds/redes on every call, so the whole candidate is round-tripped. */
 export async function updateCandidate(grupoId: string | number, candidate: Candidate): Promise<Candidate> {
   const cargoId = await findOrCreateCargoId(candidate.role);
 
@@ -255,13 +231,6 @@ export async function updateCandidate(grupoId: string | number, candidate: Candi
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
-/**
- * Persists the peneira's final decision: candidates in `approvedCandidateIds`
- * (in that order) become aprovado, everyone else in the stage becomes
- * reprovado. This is what triggers the backend's approval e-mail, so it must
- * only be called once, when the recruiter shares/closes the process — never
- * on every drag-and-drop move (see `/stages/{id}/candidates/selection`).
- */
 export async function submitStageSelection(stageId: string | number, approvedCandidateIds: (string | number)[]): Promise<void> {
   await apiFetch(`/stages/${stageId}/candidates/selection`, {
     method: "PUT",
@@ -271,19 +240,13 @@ export async function submitStageSelection(stageId: string | number, approvedCan
   });
 }
 
-/** Unlinks the candidate from this process only — the funcionario record itself (and any other group membership) is untouched. */
 export async function removeCandidateFromProcess(grupoId: string | number, candidateId: string | number): Promise<void> {
   await apiFetch(`/grupos/${grupoId}/funcionarios/${candidateId}`, { method: "DELETE" });
 }
 
-/** Hard-deletes the funcionario record everywhere, not just from one process. */
 export async function deleteCandidate(id: string | number): Promise<void> {
   await apiFetch(`/funcionarios/${id}`, { method: "DELETE" });
 }
-
-// --- Arquivos (candidate files) -------------------------------------------
-// Implemented for completeness; only résumé preview/download is wired into
-// the UI today (no upload UI exists yet — see .sdd/swagger/api.md).
 
 export async function listCandidateFiles(candidateId: string | number): Promise<ArquivoFuncionarioResponse[]> {
   return apiFetch<ArquivoFuncionarioResponse[]>(`/funcionarios/${candidateId}/arquivos`);
@@ -307,7 +270,6 @@ export async function deleteCandidateFile(candidateId: string | number, arquivoI
   await apiFetch(`/funcionarios/${candidateId}/arquivos/${arquivoId}`, { method: "DELETE" });
 }
 
-/** Resolves an object URL for the candidate's first CURRICULO file, for the resume sidebar. Caller owns revoking it. */
 export async function resolveCandidateResumeUrl(candidateId: string | number): Promise<string | undefined> {
   const files = await listCandidateFiles(candidateId);
   const resume = files.find((file) => file.categoria === "CURRICULO");

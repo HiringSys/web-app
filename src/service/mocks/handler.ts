@@ -27,10 +27,6 @@ export function getStageMocks(): SelectiveProcess[] {
   return stageMocks as SelectiveProcess[];
 }
 
-// Only stage id 1 ships with a full candidate mock (it's the one used to
-// demonstrate the approve/reject drag mechanic end to end, matching the
-// design mockup: 5 approved + 2 rejected against an approvalLimit of 5).
-// Every other stage intentionally has no entry and resolves to an empty list.
 export function getPersonMocksForStage(stageId: string | number): Candidate[] {
   const people = (personMocks as Record<string, RawPerson[]>)[stageId] ?? [];
   return people.map(({ curriculumFile, ...person }) => ({

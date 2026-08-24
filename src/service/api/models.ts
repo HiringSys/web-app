@@ -1,9 +1,3 @@
-// Types generated from the HiringSys API OpenAPI spec (v1.0).
-// Source: https://ms-hiring-api-r3jt.onrender.com/v3/api-docs
-// Documented in detail at .sdd/swagger/. Kept close to the backend's own
-// (Portuguese) naming — the `service/` layer maps these to the app's
-// domain types (Candidate, SelectiveProcess, ...).
-
 export type RedeTipo = "LINKEDIN" | "GITHUB" | "PORTFOLIO" | "OUTRO";
 
 export interface RedeRequest {

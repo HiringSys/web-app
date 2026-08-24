@@ -1,7 +1,5 @@
 import type { FuncionarioImportacaoRequest, FuncionarioStatus, FuncionarioExperiencia } from "./api/models";
 
-// Column layout matches the exemplo.xlsx template shipped with the project:
-// nome, email, telefone, salario, cidade, status, experiencia, cargos (";"-separated).
 const COLUMNS = ["nome", "email", "telefone", "salario", "cidade", "status", "experiencia", "cargos"] as const;
 type ColumnKey = (typeof COLUMNS)[number];
 const REQUIRED_COLUMNS: ColumnKey[] = ["nome", "email", "salario", "status", "experiencia", "cargos"];
@@ -10,11 +8,10 @@ const STATUS_VALUES: FuncionarioStatus[] = ["EM_ANALISE", "APROVADO", "REPROVADO
 const EXPERIENCIA_VALUES: FuncionarioExperiencia[] = ["SEM_EXPERIENCIA", "ESTAGIARIO", "JUNIOR", "PLENO", "SENIOR"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Matches ImportacaoFuncionariosRequest.funcionarios' maxItems. */
 const MAX_FUNCIONARIOS = 1000;
 
 export interface ImportIssue {
-  row:     number; // 1-based Excel row (0 = sheet-level issue, not tied to a row)
+  row:     number;
   message: string;
 }
 
@@ -65,7 +62,7 @@ export function parseFuncionariosSheet(rows: unknown[][]): ParsedFuncionariosImp
   }
 
   dataRows.forEach((row, index) => {
-    const excelRow = index + 2; // header occupies row 1
+    const excelRow = index + 2;
     if (isBlankRow(row)) return;
 
     const get = (key: ColumnKey) => row[columns[key]];

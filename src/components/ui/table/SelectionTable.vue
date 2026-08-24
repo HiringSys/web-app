@@ -34,13 +34,8 @@ const emit = defineEmits<{
   'edit-item':    [item: Candidate]
 }>()
 
-// Only Aprovado/Reprovado are real board sections — Contratado/EmAnalise live
-// as the client-only `subStatus` toggle, and Suprimido as `blocked` (see types.ts).
 type BoardStatus = typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
 
-// Coerce anything that isn't Aprovado into Reprovado — the board only recognizes
-// these two sections, so a stray EmAnalise/Contratado (e.g. from the global
-// Funcionario-status fallback in getCandidatesForProcess) would otherwise vanish.
 props.items.forEach((item) => {
   if (item.status !== CandidateStatus.Aprovado) item.status = CandidateStatus.Reprovado
 })

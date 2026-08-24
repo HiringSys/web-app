@@ -8,7 +8,6 @@ const SIZE_VAR: Record<NonNullable<TableColumn<unknown>['size']>, string> = {
   lg: 'var(--container-slot-lg)',
 }
 
-// px equivalents of SIZE_VAR, used as the auto-sizing cap for measured columns.
 const SIZE_MAX_PX: Record<NonNullable<TableColumn<unknown>['size']>, number> = {
   sm: 7 * 16,
   md: 11 * 16,
@@ -17,7 +16,7 @@ const SIZE_MAX_PX: Record<NonNullable<TableColumn<unknown>['size']>, number> = {
 
 const MEASURE_FONT = '500 1rem "DM Sans", sans-serif'
 const HEADER_FONT = '600 0.875rem "DM Sans", sans-serif'
-const HEADER_OFFSET = 18 // help icon (14px) + gap-1 (4px)
+const HEADER_OFFSET = 18
 const MEASURE_PADDING = 8
 const MEASURE_MIN_PX = 48
 
