@@ -76,10 +76,18 @@ function handleMutations(mutations: MutationRecord[]) {
 
   if (!landedEl) return
 
+  // Read the landed position now, synchronously: `landedEl` is the real
+  // dragged node, already moved into its final spot by Sortable's own DOM
+  // manipulation. When the drag crosses between two separate v-for lists
+  // (e.g. Aprovado/Reprovado), Vue's reactive re-render unmounts this exact
+  // node and mounts a fresh one shortly after, so deferring this read to
+  // nextTick() can land on a detached element whose rect is all zeros,
+  // sending the ghost flying to the top-left of the screen.
+  const toRect = landedEl.getBoundingClientRect()
   landedEl.style.setProperty('opacity', '0', 'important')
 
   nextTick(() => {
-    flyGhostTo(flyingGhost, flyingFromRect, landedEl.getBoundingClientRect(), landedEl)
+    flyGhostTo(flyingGhost, flyingFromRect, toRect, landedEl)
   })
 }
 

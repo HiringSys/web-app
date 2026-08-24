@@ -55,54 +55,58 @@ export interface GrupoFuncionarioResponse {
 }
 
 export interface FuncionarioCreateRequest {
-  nome:         string;
-  email:        string;
-  telefone?:    string;
-  salario?:     number;
-  cidade?:      string;
-  experiencia?: FuncionarioExperiencia;
-  cargoIds?:    number[];
-  redes?:       RedeRequest[];
+  nome:          string;
+  email:         string;
+  telefone?:     string;
+  salario?:      number;
+  cidade?:       string;
+  departamento?: string;
+  experiencia?:  FuncionarioExperiencia;
+  cargoIds?:     number[];
+  redes?:        RedeRequest[];
 }
 
 export interface FuncionarioUpdateRequest {
-  nome:        string;
-  email:       string;
-  telefone?:   string;
-  salario?:    number;
-  cidade?:     string;
-  status:      FuncionarioStatus;
-  experiencia: FuncionarioExperiencia;
-  cargoIds:    number[];
-  redes:       RedeRequest[];
+  nome:          string;
+  email:         string;
+  telefone?:     string;
+  salario?:      number;
+  cidade?:       string;
+  departamento?: string;
+  status:        FuncionarioStatus;
+  experiencia:   FuncionarioExperiencia;
+  cargoIds:      number[];
+  redes:         RedeRequest[];
 }
 
 export interface FuncionarioPatchRequest {
-  nome?:        string;
-  email?:       string;
-  telefone?:    string;
-  salario?:     number;
-  cidade?:      string;
-  status?:      FuncionarioStatus;
-  experiencia?: FuncionarioExperiencia;
-  cargoIds?:    number[];
-  redes?:       RedeRequest[];
+  nome?:         string;
+  email?:        string;
+  telefone?:     string;
+  salario?:      number;
+  cidade?:       string;
+  departamento?: string;
+  status?:       FuncionarioStatus;
+  experiencia?:  FuncionarioExperiencia;
+  cargoIds?:     number[];
+  redes?:        RedeRequest[];
 }
 
 export interface FuncionarioResponse {
-  id:           number;
-  nome:         string;
-  email:        string;
-  telefone?:    string;
-  salario?:     number;
-  cidade?:      string;
-  status:       FuncionarioStatus;
-  experiencia?: FuncionarioExperiencia;
-  cargos?:      CargoResponse[];
-  redes?:       RedeResponse[];
-  grupos?:      GrupoFuncionarioResponse[];
-  arquivos?:    ArquivoFuncionarioResponse[];
-  criadoEm?:    string;
+  id:            number;
+  nome:          string;
+  email:         string;
+  telefone?:     string;
+  salario?:      number;
+  cidade?:       string;
+  departamento?: string;
+  status:        FuncionarioStatus;
+  experiencia?:  FuncionarioExperiencia;
+  cargos?:       CargoResponse[];
+  redes?:        RedeResponse[];
+  grupos?:       GrupoFuncionarioResponse[];
+  arquivos?:     ArquivoFuncionarioResponse[];
+  criadoEm?:     string;
   atualizadoEm?: string;
 }
 
