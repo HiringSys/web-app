@@ -19,7 +19,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-4 scrollbar-hide">
     <div>
       <h1 class="leading-none">Aprovados</h1>
       <h3 class="text-black/40">{{ props.items.length }}/{{ props.approvalLimit }} aprovados para a Vaga</h3>
