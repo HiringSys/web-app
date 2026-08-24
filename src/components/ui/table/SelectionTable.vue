@@ -34,21 +34,25 @@ const emit = defineEmits<{
   'edit-item':    [item: Candidate]
 }>()
 
-// Suprimido is a display-only override (see `blocked`) — candidates never actually hold it as their real status.
-type BoardStatus = Exclude<CandidateStatus, typeof CandidateStatus.Suprimido>
+// Only Aprovado/Reprovado are real board sections — Contratado/EmAnalise live
+// as the client-only `subStatus` toggle, and Suprimido as `blocked` (see types.ts).
+type BoardStatus = typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
+
+// Coerce anything that isn't Aprovado into Reprovado — the board only recognizes
+// these two sections, so a stray EmAnalise/Contratado (e.g. from the global
+// Funcionario-status fallback in getCandidatesForProcess) would otherwise vanish.
+props.items.forEach((item) => {
+  if (item.status !== CandidateStatus.Aprovado) item.status = CandidateStatus.Reprovado
+})
 
 const groups = reactive<Record<BoardStatus, Candidate[]>>({
-  [CandidateStatus.EmAnalise]:  props.items.filter((item) => item.status === CandidateStatus.EmAnalise),
-  [CandidateStatus.Aprovado]:   props.items.filter((item) => item.status === CandidateStatus.Aprovado),
-  [CandidateStatus.Reprovado]:  props.items.filter((item) => item.status === CandidateStatus.Reprovado),
-  [CandidateStatus.Contratado]: props.items.filter((item) => item.status === CandidateStatus.Contratado),
+  [CandidateStatus.Aprovado]:  props.items.filter((item) => item.status === CandidateStatus.Aprovado),
+  [CandidateStatus.Reprovado]: props.items.filter((item) => item.status === CandidateStatus.Reprovado),
 })
 
 const SECTIONS: { status: BoardStatus; label: string; tint: string }[] = [
-  { status: CandidateStatus.EmAnalise,  label: 'Em análise', tint: 'bg-yellow/10' },
-  { status: CandidateStatus.Aprovado,   label: 'Aprovado',   tint: 'bg-blue/10'   },
-  { status: CandidateStatus.Reprovado,  label: 'Reprovado',  tint: 'bg-red/10'    },
-  { status: CandidateStatus.Contratado, label: 'Contratado', tint: 'bg-green/10'  },
+  { status: CandidateStatus.Aprovado,  label: 'Aprovado',  tint: 'bg-blue/10' },
+  { status: CandidateStatus.Reprovado, label: 'Reprovado', tint: 'bg-red/10'  },
 ]
 
 /** Blocked candidates keep their section but stop counting towards that section's headcount/capacity. */
@@ -71,12 +75,17 @@ function toggleBlock(candidate: Candidate) {
   emitAll()
 }
 
+/** Client-only cosmetic toggle (see Candidate.subStatus) — never persisted, no backend field exists for it. */
+function toggleSubStatus(candidate: Candidate) {
+  const onValue = candidate.status === CandidateStatus.Aprovado ? CandidateStatus.Contratado : CandidateStatus.EmAnalise
+  candidate.subStatus = candidate.subStatus === onValue ? undefined : onValue
+  emitAll()
+}
+
 function emitAll() {
   emit('update:items', [
-    ...groups[CandidateStatus.EmAnalise],
     ...groups[CandidateStatus.Aprovado],
     ...groups[CandidateStatus.Reprovado],
-    ...groups[CandidateStatus.Contratado],
   ])
 }
 
@@ -88,6 +97,7 @@ async function handleChange(status: BoardStatus) {
   if (moved) {
     const previousStatus = moved.status as BoardStatus
     moved.status = status
+    moved.subStatus = undefined
     try {
       await updateCandidateStatus(moved.id, status)
     } catch {
@@ -110,6 +120,7 @@ async function moveToStatus(candidate: Candidate, status: BoardStatus) {
   const idx = sourceList.indexOf(candidate)
   if (idx !== -1) sourceList.splice(idx, 1)
   candidate.status = status
+  candidate.subStatus = undefined
   groups[status].push(candidate)
 
   try {
@@ -162,10 +173,13 @@ defineExpose({ groups, moveToStatus })
               :show-manage-actions="showManageActions"
               :show-document="showDocument"
               :blocked="element.blocked"
+              :board-status="section.status"
               @view-resume="emit('view-resume', $event)"
               @delete-item="emit('delete-item', $event)"
               @edit-item="emit('edit-item', $event)"
               @toggle-block="toggleBlock"
+              @toggle-substatus="toggleSubStatus"
+              @reject-item="moveToStatus($event, CandidateStatus.Reprovado)"
             />
           </template>
         </VueDraggable>

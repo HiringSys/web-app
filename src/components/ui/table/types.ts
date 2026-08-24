@@ -56,6 +56,13 @@ export interface Candidate {
   jobAffinity: number;
   /** Overrides the displayed status to Suprimido without moving the candidate out of its actual section/status. Client-only. */
   blocked?: boolean;
+  /**
+   * Cosmetic sub-state within the candidate's real section — Contratado inside
+   * Aprovado, EmAnalise inside Reprovado. Client-only: no backend field backs
+   * it (the Stages API only knows aprovado/reprovado), and it resets whenever
+   * the candidate changes section.
+   */
+  subStatus?: typeof CandidateStatus.Contratado | typeof CandidateStatus.EmAnalise;
 }
 
 export interface TableColumn<T> {
