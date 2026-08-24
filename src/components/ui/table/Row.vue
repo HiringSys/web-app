@@ -37,6 +37,7 @@ const emit = defineEmits<{
   "view-resume": [item: T];
   "delete-item": [item: T];
   "edit-item": [item: T];
+  "edit-department": [item: T];
   "toggle-block": [item: T];
   "toggle-substatus": [item: T];
   "reject-item": [item: T];
@@ -70,6 +71,13 @@ const actions = computed<ActionButton[]>(() => {
     });
 
     if (props.variant === "detail") {
+      list.push({
+        key: "department",
+        icon: "Building2",
+        disabled: props.locked,
+        onClick: () => emit("edit-department", props.item),
+      });
+
       list.push({
         key: "block",
         icon: "CircleSlash",

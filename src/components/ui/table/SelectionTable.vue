@@ -31,6 +31,7 @@ const emit = defineEmits<{
   'view-resume':  [item: Candidate]
   'delete-item':  [item: Candidate]
   'edit-item':    [item: Candidate]
+  'edit-department': [item: Candidate]
 }>()
 
 type BoardStatus = typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
@@ -148,6 +149,7 @@ defineExpose({ groups, moveToStatus })
               @view-resume="emit('view-resume', $event)"
               @delete-item="emit('delete-item', $event)"
               @edit-item="emit('edit-item', $event)"
+              @edit-department="emit('edit-department', $event)"
               @toggle-block="toggleBlock"
               @toggle-substatus="toggleSubStatus"
               @reject-item="moveToStatus($event, CandidateStatus.Reprovado)"
