@@ -23,8 +23,6 @@ function logout() {
 <template>
   <aside v-if="isOpen" class="flex h-full py-8 w-16 pl-8 flex-col justify-between gap-6 items-center">
     <div class="flex flex-col gap-6">
-      <!-- <img class="w-8" src="/logo.svg" alt="Logo"> -->
-
       <Button class="px-4" icon="PanelLeftClose" variant="primary" @click="isOpen = false" />
 
       <RouterLink :to="{ name: 'peneiras' }" class="text-black/40 hover:text-black/80 transition-colors duration-300" active-class="text-black">

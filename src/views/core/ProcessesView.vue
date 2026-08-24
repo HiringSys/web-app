@@ -234,7 +234,7 @@ async function submitEditProcess(values: Record<string, string>) {
     <div class="flex items-center gap-3">
       <h1>Processos seletivos</h1>
       <Button icon="LayoutGrid" variant="primary" />
-      <Button icon="Plus" text="Novo processo" variant="primary" class="ml-auto" @click="newProcessOpen = true" />
+      <Button icon="Plus" variant="primary" class="ml-auto" @click="newProcessOpen = true" />
     </div>
 
     <FilterChips :options="STATUS_OPTIONS" v-model="activeStatuses" @open-filters="filtersOpen = true" />
@@ -250,10 +250,9 @@ async function submitEditProcess(values: Record<string, string>) {
     >
     </Table>
 
-    <div class="flex w-fit bg-white items-center justify-end-safe gap-4 px-3 pb-4 pt-2 rounded-medium">
-      <!-- <span class="text-black/40">Página {{ page }} de {{ pageCount }}</span> -->
-      <Button icon="ArrowLeft" variant="primary" :disabled="!hasPrevPage" @click="prevPage" />
-      <Button icon="ArrowRight" variant="primary" :disabled="!hasNextPage" @click="nextPage" />
+    <div class="flex w-full items-center justify-end-safe gap-4 px-3 pb-4 pt-2 rounded-medium">
+      <Button icon="ArrowLeft"  :variant="hasPrevPage ? 'primary' : 'neutral'" :disabled="!hasPrevPage" :class="!hasPrevPage ? 'opacity-40 bg-white!' : ''" @click="prevPage" />
+      <Button icon="ArrowRight" :variant="hasNextPage ? 'primary' : 'neutral'" :disabled="!hasNextPage" :class="!hasNextPage ? 'opacity-40 bg-white!' : ''" @click="nextPage" />
     </div>
 
     <ConfirmPopup
