@@ -191,7 +191,7 @@ function mapFuncionarioToCandidate(
     role: funcionario.cargos?.[0]?.nome ?? "",
     department: funcionario.departamento ?? "",
     salaryExpectation: funcionario.salario ?? 0,
-    jobAffinity: grupoMembership?.scoreProximidade ?? 0,
+    jobAffinity: grupoMembership?.scoreProximidade ?? null,
   };
 }
 

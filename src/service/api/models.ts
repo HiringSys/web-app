@@ -52,7 +52,7 @@ export interface GrupoFuncionarioResponse {
   id:               number;
   nome:             string;
   area:             string;
-  scoreProximidade?: number;
+  scoreProximidade?: number | null;
 }
 
 export interface FuncionarioCreateRequest {
@@ -140,7 +140,7 @@ export interface IntegranteGrupoResponse {
   funcionarioId:     number;
   nome:              string;
   email:             string;
-  scoreProximidade?: number;
+  scoreProximidade?: number | null;
 }
 
 export type ArquivoCategoria = "CURRICULO" | "FOTO" | "CERTIFICADO" | "DOCUMENTO" | "OUTRO";
