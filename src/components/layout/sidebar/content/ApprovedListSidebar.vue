@@ -9,6 +9,8 @@ import type { Candidate } from '@/components/ui/table/types'
 const props = defineProps<{
   items:         Candidate[]
   approvalLimit: number
+  /** Owning peneira is encerrada — the approved list is final, no reorder or removal. */
+  readOnly?:     boolean
 }>()
 
 const emit = defineEmits<{
@@ -33,11 +35,12 @@ const emit = defineEmits<{
       handle=".drag-handle"
       :animation="150"
       :force-fallback="true"
+      :disabled="readOnly"
       @update:model-value="emit('reorder', $event)"
     >
       <template #item="{ element }">
         <div class="flex items-center gap-2 rounded-medium bg-white p-2 pr-3">
-          <span class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
+          <span v-if="!readOnly" class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
             <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
           </span>
 
@@ -50,7 +53,7 @@ const emit = defineEmits<{
             <p class="truncate leading-none text-small text-black/40">{{ element.email }}</p>
           </div>
 
-          <Button icon="X" variant="neutral" small @click="emit('remove', element)" />
+          <Button icon="X" variant="neutral" small :disabled="readOnly" @click="emit('remove', element)" />
         </div>
       </template>
     </VueDraggable>

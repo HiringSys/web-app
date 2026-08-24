@@ -5,9 +5,8 @@ import type {
   CargoResponse,
   RedeRequest, RedeResponse, RedeTipo,
   VinculoGrupoFuncionarioRequest,
-  AtualizarStatusRequest,
   ArquivoFuncionarioResponse, ArquivoCategoria,
-  StageCandidateResponse,
+  StageCandidateResponse, StageSelectionRequest,
 } from "./api/models";
 
 import { CandidateStatus, Seniority, type Candidate, type SocialLink, type SocialNetwork } from "@/components/ui/table/types";
@@ -240,10 +239,19 @@ export async function updateCandidate(grupoId: string | number, candidate: Candi
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
-export async function updateCandidateStatus(id: string | number, status: CandidateStatus): Promise<void> {
-  await apiFetch(`/funcionarios/${id}/status`, {
-    method: "PATCH",
-    body: JSON.stringify({ status: status.toUpperCase() as FuncionarioStatus } satisfies AtualizarStatusRequest),
+/**
+ * Persists the peneira's final decision: candidates in `approvedCandidateIds`
+ * (in that order) become aprovado, everyone else in the stage becomes
+ * reprovado. This is what triggers the backend's approval e-mail, so it must
+ * only be called once, when the recruiter shares/closes the process — never
+ * on every drag-and-drop move (see `/stages/{id}/candidates/selection`).
+ */
+export async function submitStageSelection(stageId: string | number, approvedCandidateIds: (string | number)[]): Promise<void> {
+  await apiFetch(`/stages/${stageId}/candidates/selection`, {
+    method: "PUT",
+    body: JSON.stringify({
+      approvedCandidateIds: approvedCandidateIds.map(Number),
+    } satisfies StageSelectionRequest),
   });
 }
 

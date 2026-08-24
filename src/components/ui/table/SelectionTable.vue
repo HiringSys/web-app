@@ -8,8 +8,6 @@ import      { CandidateStatus }          from './types'
 import      { gridTemplate, capColumns } from './style/grid'
 import      { useDragGhostOpacityFix }   from '@/lib/dragGhostOpacity'
 import      { useFontsReady }            from '@/lib/fontsReady'
-import      { updateCandidateStatus }    from '@/service/Peneiras'
-import      { notify }                   from '@/components/feedback/notify'
 
 import Row from './Row.vue'
 
@@ -23,8 +21,10 @@ const props = withDefaults(
     approvalLimit:      number
     showManageActions?: boolean
     showDocument?:      boolean
+    /** Owning peneira is encerrada — freezes the board: no drag, no row actions. */
+    locked?:            boolean
   }>(),
-  { showManageActions: true, showDocument: true },
+  { showManageActions: true, showDocument: true, locked: false },
 )
 
 const emit = defineEmits<{
@@ -89,30 +89,24 @@ function emitAll() {
   ])
 }
 
-/** Persists whichever candidate now sits in `status`'s bucket but still carries a different status. Reverts the move if the API rejects the transition. */
-async function handleChange(status: BoardStatus) {
+/**
+ * Applies whichever candidate now sits in `status`'s bucket but still carries
+ * a different status. Purely local — nothing is sent to the API until the
+ * recruiter shares/closes the process (see `submitStageSelection`).
+ */
+function handleChange(status: BoardStatus) {
   const list = groups[status]
   const moved = list.find((item) => item.status !== status)
 
   if (moved) {
-    const previousStatus = moved.status as BoardStatus
     moved.status = status
     moved.subStatus = undefined
-    try {
-      await updateCandidateStatus(moved.id, status)
-    } catch {
-      moved.status = previousStatus
-      const idx = list.indexOf(moved)
-      if (idx !== -1) list.splice(idx, 1)
-      groups[previousStatus].push(moved)
-      notify('Não foi possível mover o candidato.', 'error')
-    }
   }
 
   emitAll()
 }
 
-async function moveToStatus(candidate: Candidate, status: BoardStatus) {
+function moveToStatus(candidate: Candidate, status: BoardStatus) {
   const previousStatus = candidate.status as BoardStatus
   if (previousStatus === status) return
 
@@ -122,16 +116,6 @@ async function moveToStatus(candidate: Candidate, status: BoardStatus) {
   candidate.status = status
   candidate.subStatus = undefined
   groups[status].push(candidate)
-
-  try {
-    await updateCandidateStatus(candidate.id, status)
-  } catch {
-    const newIdx = groups[status].indexOf(candidate)
-    if (newIdx !== -1) groups[status].splice(newIdx, 1)
-    candidate.status = previousStatus
-    groups[previousStatus].push(candidate)
-    notify('Não foi possível mover o candidato.', 'error')
-  }
 
   emitAll()
 }
@@ -164,6 +148,7 @@ defineExpose({ groups, moveToStatus })
           :group="groupOf(section.status)"
           :animation="150"
           :force-fallback="true"
+          :disabled="locked"
           @change="handleChange(section.status)"
         >
           <template #item="{ element }">
@@ -174,6 +159,7 @@ defineExpose({ groups, moveToStatus })
               :show-document="showDocument"
               :blocked="element.blocked"
               :board-status="section.status"
+              :locked="locked"
               @view-resume="emit('view-resume', $event)"
               @delete-item="emit('delete-item', $event)"
               @edit-item="emit('edit-item', $event)"

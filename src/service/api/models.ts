@@ -153,6 +153,16 @@ export interface StageCandidateResponse {
   status: string;
 }
 
+/**
+ * `PUT /stages/{stageId}/candidates/selection` — persists the final
+ * approved/reproved decision (and the approval order) for every candidate in
+ * the stage in one shot. Candidates omitted from the list are marked
+ * reprovado. Approving here is what triggers the backend's approval e-mail.
+ */
+export interface StageSelectionRequest {
+  approvedCandidateIds: number[];
+}
+
 export interface LoginRequest {
   email:    string;
   password: string;
