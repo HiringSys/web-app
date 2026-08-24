@@ -83,21 +83,20 @@ async function confirmImport() {
 
 <template>
   <Popup :model-value="modelValue" title="Importar candidatos via Excel" width="32rem" @update:model-value="(value) => { if (!value) close() }">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 pb-2">
       <p class="text-black/60">
         A planilha deve ter as colunas: nome, email, telefone, salario, cidade,
-        status, experiencia, cargos (separados por ";"). Veja <code>exemplo.xlsx</code>
-        na raiz do projeto.
+        status, experiencia, cargos. Baixe aqui um modelo de planilha que o sistema aceita!
       </p>
 
       <input ref="fileInput" type="file" accept=".xlsx" class="hidden" @change="handleFileChange" />
-      <Button :text="fileName || 'Selecionar planilha'" variant="neutral" :disabled="parsing" @click="pickFile" />
+      <Button :text="fileName || 'Selecionar planilha'" :variant="!fileName ? 'neutral' : 'primary'" :color="!fileName ? 'green' : 'white'" :disabled="parsing" @click="pickFile" />
 
       <div v-if="parsing" class="text-black/60">Lendo planilha…</div>
 
       <template v-else-if="parsed">
         <p class="font-semibold">
-          {{ parsed.funcionarios.length }} de {{ parsed.totalRows }} linha(s) prontas para importar.
+          {{ parsed.funcionarios.length }} de {{ parsed.totalRows }} linha(s) escaneadas com sucesso. Clique em importar para prosseguir!
         </p>
 
         <div v-if="parsed.issues.length" class="flex max-h-40 flex-col gap-1 overflow-y-auto rounded-medium bg-white p-3">
@@ -113,6 +112,8 @@ async function confirmImport() {
       <Button
         text="Importar"
         variant="primary"
+        color="green"
+        :class="!parsed ? 'opacity-40 bg-white!' : ''"
         :disabled="!parsed || parsed.funcionarios.length === 0 || submitting"
         @click="confirmImport"
       />
