@@ -49,6 +49,12 @@ import {
 
 import { notify } from "@@/feedback/notify";
 
+import {
+  downloadCandidatesAsTxt,
+  downloadCandidatesAsCsv,
+  downloadCandidatesAsXlsx,
+} from "@/lib/exportCandidates";
+
 const route = useRoute();
 const processId = route.params.id as string;
 
@@ -240,6 +246,36 @@ const addCandidateChoiceOpen = ref(false);
 const chooseWayToDownload = ref(false);
 const newCandidateOpen = ref(false);
 const importOpen = ref(false);
+
+const exportFilename = computed(() => {
+  const slug = (process.value?.jobTitle ?? "candidatos")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "candidatos";
+});
+
+function downloadTxt() {
+  downloadCandidatesAsTxt(candidates.value, exportFilename.value);
+  chooseWayToDownload.value = false;
+}
+
+function downloadCsv() {
+  downloadCandidatesAsCsv(candidates.value, exportFilename.value);
+  chooseWayToDownload.value = false;
+}
+
+async function downloadXlsx() {
+  try {
+    await downloadCandidatesAsXlsx(candidates.value, exportFilename.value);
+  } catch {
+    notify("Não foi possível gerar o arquivo XLSX.", "error");
+  } finally {
+    chooseWayToDownload.value = false;
+  }
+}
 
 async function refreshCandidates() {
   candidates.value = await getCandidatesForProcess(processId);
