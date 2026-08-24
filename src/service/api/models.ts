@@ -141,6 +141,18 @@ export interface ArquivoFuncionarioResponse {
   criadoEm:      string;
 }
 
+/**
+ * `GET /stages/{stageId}/candidates` — the newer, purpose-built "Peneiras" API.
+ * Only `id`/`status` are consumed for now: it's the source of truth for a
+ * candidate's status *within this specific stage* (unlike `Funcionario.status`,
+ * which is the employee's global status and isn't stage-scoped). See
+ * .sdd/swagger/api.md.
+ */
+export interface StageCandidateResponse {
+  id:     number;
+  status: string;
+}
+
 export interface LoginRequest {
   email:    string;
   password: string;

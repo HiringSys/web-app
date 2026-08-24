@@ -7,6 +7,7 @@ import type {
   VinculoGrupoFuncionarioRequest,
   AtualizarStatusRequest,
   ArquivoFuncionarioResponse, ArquivoCategoria,
+  StageCandidateResponse,
 } from "./api/models";
 
 import { CandidateStatus, Seniority, type Candidate, type SocialLink, type SocialNetwork } from "@/components/ui/table/types";
@@ -132,14 +133,24 @@ function toFuncionarioStatus(candidate: Pick<Candidate, "status" | "blocked">): 
   return candidate.blocked ? "REPROVADO" : (candidate.status.toUpperCase() as FuncionarioStatus);
 }
 
-function mapFuncionarioToCandidate(funcionario: FuncionarioResponse, grupoId: string | number): Candidate {
+/**
+ * `Funcionario.status` is global to the employee record, not scoped to a
+ * selective process — it drifts from what a given peneira actually decided.
+ * `stageStatus`, read separately from `/stages/{id}/candidates`, is the
+ * status that's actually specific to this stage; it wins when present.
+ */
+function mapFuncionarioToCandidate(
+  funcionario: FuncionarioResponse,
+  grupoId: string | number,
+  stageStatus?: CandidateStatus,
+): Candidate {
   const grupoMembership = funcionario.grupos?.find((grupo) => String(grupo.id) === String(grupoId));
 
   return {
     id:                funcionario.id,
     name:              funcionario.nome,
     email:             funcionario.email,
-    status:            funcionario.status.toLowerCase() as CandidateStatus,
+    status:            stageStatus ?? (funcionario.status.toLowerCase() as CandidateStatus),
     phone:             funcionario.telefone ?? "",
     networks:          fromRedeResponses(funcionario.redes),
     seniority:         (funcionario.experiencia ?? "SEM_EXPERIENCIA").toLowerCase() as Seniority,
@@ -149,10 +160,23 @@ function mapFuncionarioToCandidate(funcionario: FuncionarioResponse, grupoId: st
   };
 }
 
+/** Falls back to an empty map (letting callers keep `Funcionario.status`) if the newer Stages API is unreachable. */
+async function getStageCandidateStatuses(stageId: string | number): Promise<Map<number, CandidateStatus>> {
+  try {
+    const stageCandidates = await apiFetch<StageCandidateResponse[]>(`/stages/${stageId}/candidates`);
+    return new Map(stageCandidates.map((candidate) => [candidate.id, candidate.status as CandidateStatus]));
+  } catch {
+    return new Map();
+  }
+}
+
 export async function getCandidatesForProcess(id: string | number): Promise<Candidate[]> {
   try {
-    const funcionarios = await apiFetch<FuncionarioResponse[]>(`/funcionarios/grupo/${id}`);
-    return funcionarios.map((funcionario) => mapFuncionarioToCandidate(funcionario, id));
+    const [funcionarios, stageStatuses] = await Promise.all([
+      apiFetch<FuncionarioResponse[]>(`/funcionarios/grupo/${id}`),
+      getStageCandidateStatuses(id),
+    ]);
+    return funcionarios.map((funcionario) => mapFuncionarioToCandidate(funcionario, id, stageStatuses.get(funcionario.id)));
   } catch {
     return getPersonMocksForStage(id);
   }
