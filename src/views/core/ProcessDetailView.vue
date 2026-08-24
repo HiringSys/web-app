@@ -26,6 +26,7 @@ import {
   resolveCandidateResumeUrl, submitStageSelection,
 } from "@/service/Peneiras";
 import { notify } from "@/components/feedback/notify";
+import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
 
 const route     = useRoute();
 const processId = route.params.id as string;
@@ -97,6 +98,16 @@ async function openResume(candidate: Candidate) {
 function openApproved() {
   sidebarMode.value = "approved";
   sidebarOpen.value = true;
+}
+
+async function exportCandidates() {
+  if (!process.value) return;
+
+  try {
+    await exportCandidatesToExcel(process.value, candidates.value);
+  } catch {
+    notify("Não foi possível gerar a planilha de exportação.", "error");
+  }
 }
 
 function reorderApproved(items: Candidate[]) {
@@ -331,7 +342,7 @@ async function submitEditProcess(values: Record<string, string>) {
           <Button icon="EllipsisVertical" variant="neutral" :disabled="isEncerrado" @click="editProcessOpen = true" />
           <div class="ml-auto flex items-center gap-3">
             <Button icon="UserPlus" variant="primary" :disabled="isEncerrado" @click="addCandidateChoiceOpen = true" />
-            <Button icon="Download" variant="primary" />
+            <Button icon="Download" variant="primary" :disabled="!candidates.length" @click="exportCandidates" />
             <Button icon="Share2"   variant="primary" :disabled="isEncerrado" @click="shareConfirmOpen = true" />
             <Button icon="ListTodo" variant="primary" :disabled="isEncerrado" @click="openApproved" />
           </div>
