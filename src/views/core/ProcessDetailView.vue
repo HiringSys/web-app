@@ -1,30 +1,29 @@
 <script setup lang="ts">
-
 import { computed, onMounted, ref } from "vue";
-import { useRoute }                 from "vue-router";
+import { useRoute } from "vue-router";
 
-import SelectionTable       from "@/components/ui/table/SelectionTable.vue";
-import OrderableFilterChips from "@/components/layout/OrderableFilterChips.vue";
-import Button               from "@/components/ui/Button.vue";
-import Sidebar              from "@/components/layout/sidebar/Sidebar.vue";
+import SelectionTable from "@@/ui/table/SelectionTable.vue";
+import OrderableFilterChips from "@@/layout/OrderableFilterChips.vue";
+import Button from "@@/ui/Button.vue";
+import Sidebar from "@@/layout/sidebar/Sidebar.vue";
 
-import CandidateResumeSidebar        from "@/components/layout/sidebar/content/CandidateResumeSidebar.vue";
-import ApprovedListSidebar           from "@/components/layout/sidebar/content/ApprovedListSidebar.vue";
-import ConfirmPopup                  from "@/components/popup/ConfirmPopup.vue";
-import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
+import CandidateResumeSidebar from "@@/layout/sidebar/content/CandidateResumeSidebar.vue";
+import ApprovedListSidebar from "@@/layout/sidebar/content/ApprovedListSidebar.vue";
+import ConfirmPopup from "@@/popup/ConfirmPopup.vue";
+import FormPopup, { type FormField } from "@@/popup/FormPopup.vue";
 
-import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
-import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
-import AddCandidateChoicePopup from "@/components/popup/AddCandidateChoicePopup.vue";
-import Skeleton                from "@/components/feedback/Skeleton.vue";
+import FiltersPopup from "@@/popup/FiltersPopup.vue";
+import ImportCandidatesPopup from "@@/popup/ImportCandidatesPopup.vue";
+import AddCandidateChoicePopup from "@@/popup/AddCandidateChoicePopup.vue";
+import Skeleton from "@@/feedback/Skeleton.vue";
 
-import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
+import { candidateColumns } from "@@/ui/table/columns/candidateColumns";
 import {
   CandidateStatus,
   Seniority,
   type Candidate,
   type TableColumn,
-} from "@/components/ui/table/types";
+} from "@@/ui/table/types";
 
 import {
   ProcessStatus,
@@ -32,7 +31,7 @@ import {
   type SelectiveProcess,
 } from "@/types/peneira";
 
-import { MAX_VISIBLE_COLUMNS } from "@/components/ui/table/style/grid";
+import { MAX_VISIBLE_COLUMNS } from "@@/ui/table/style/grid";
 import {
   getProcess,
   getCandidatesForProcess,
@@ -44,7 +43,7 @@ import {
   submitStageSelection,
 } from "@/service/Peneiras";
 
-import { notify } from "@/components/feedback/notify";
+import { notify } from "@@/feedback/notify";
 
 const route = useRoute();
 const processId = route.params.id as string;
@@ -232,6 +231,7 @@ async function submitEditCandidate(values: Record<string, string>) {
 }
 
 const addCandidateChoiceOpen = ref(false);
+const chooseWayToDownload = ref(false);
 const newCandidateOpen = ref(false);
 const importOpen = ref(false);
 
@@ -332,7 +332,6 @@ async function submitEditProcess(values: Record<string, string>) {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
 }
-
 </script>
 
 <template>
@@ -371,7 +370,7 @@ async function submitEditProcess(values: Record<string, string>) {
       :key="section"
       class="rounded-medium bg-black/5 p-3"
     >
-      <Skeleton width="6rem" height="1rem" class="mb-2 ml-1" />
+      <Skeleton width="6arem" height="1rem" class="mb-2 ml-1" />
 
       <div class="flex flex-col gap-2">
         <div
@@ -379,10 +378,10 @@ async function submitEditProcess(values: Record<string, string>) {
           :key="row"
           class="flex items-center gap-4 rounded-medium bg-white px-4 py-3"
         >
-          <Skeleton width="9rem" height="1rem" />
-          <Skeleton width="5rem" height="1rem" />
-          <Skeleton width="7rem" height="1rem" />
-          <Skeleton width="5rem" height="1rem" />
+          <Skeleton width="9rem" height="2rem" />
+          <Skeleton width="5rem" height="2rem" />
+          <Skeleton width="7rem" height="2rem" />
+          <Skeleton width="5rem" height="2rem" />
         </div>
       </div>
     </div>
@@ -412,10 +411,16 @@ async function submitEditProcess(values: Record<string, string>) {
               :disabled="isEncerrado"
               @click="addCandidateChoiceOpen = true"
             />
-            <Button icon="Download" variant="primary" />
             <Button
-              icon="Share2"
+              icon="Download"
+              color="purple"
               variant="primary"
+              @click="chooseWayToDownload = true"
+            />
+            <Button
+              icon="CheckCheck"
+              variant="primary"
+              color="green"
               :disabled="isEncerrado"
               @click="shareConfirmOpen = true"
             />

@@ -42,7 +42,7 @@ const buttonClasses = computed(() => twMerge(
   props.small   ? 'gap-1 px-4 py-2 h-fit text-small' : 'gap-2',
   !props.small  && (props.icon && !props.text ? 'py-2.75 px-5' : 'px-4 py-2'),
   props.variant === 'neutral' ? 'bg-white text-black/60' : [colorClasses[props.color].bg, 'text-white'],
-  props.disabled ? 'bg-gray text-black/60 cursor-not-allowed pointer-events-none' : '',
+  props.disabled ? 'text-black/60 cursor-not-allowed pointer-events-none' : '',
   props.class,
 ))
 

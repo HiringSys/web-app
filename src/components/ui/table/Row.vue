@@ -1,89 +1,145 @@
 <script setup lang="ts" generic="T extends { id: string | number }">
+import { computed } from "vue";
+import { Grip } from "@lucide/vue";
+import Button from "@@/ui/Button.vue";
+import type { IconName } from "@@/ui/Icon.vue";
+import type { Color } from "@@/ui/lib";
 
-import { computed } from 'vue'
-import { Grip }      from '@lucide/vue'
-import Button        from '@/components/ui/Button.vue'
-import type { IconName } from '@/components/ui/Icon.vue'
-import type { Color }    from '@/components/ui/lib'
-
-import type { TableColumn } from './types'
-import { CandidateStatus }  from './types'
+import type { TableColumn } from "./types";
+import { CandidateStatus } from "./types";
 
 const props = withDefaults(
   defineProps<{
-    item:                 T
-    columns:              TableColumn<T>[]
-    gridTemplateColumns:  string
-    draggable?:           boolean
+    item: T;
+    columns: TableColumn<T>[];
+    gridTemplateColumns: string;
+    draggable?: boolean;
     /** 'detail' (candidates inside a peneira) exposes block/document; 'list' never does. */
-    variant?:             'list' | 'detail'
+    variant?: "list" | "detail";
     /** Groups trash + edit + block. */
-    showManageActions?:   boolean
-    showDocument?:        boolean
+    showManageActions?: boolean;
+    showDocument?: boolean;
     /** Invalidates this row's presence — mutes the row and switches the block button to its active state. */
-    blocked?:             boolean
+    blocked?: boolean;
     /** Board section this row sits in ('detail' only) — picks which quick-action button to show. */
-    boardStatus?:         typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
+    boardStatus?:
+      | typeof CandidateStatus.Aprovado
+      | typeof CandidateStatus.Reprovado;
     /** Owning peneira is encerrada — hides the drag handle and disables every action except delete on 'list' rows. */
-    locked?:              boolean
+    locked?: boolean;
   }>(),
-  { draggable: true, variant: 'list', showManageActions: true, showDocument: true, blocked: false, locked: false },
-)
+  {
+    draggable: true,
+    variant: "list",
+    showManageActions: true,
+    showDocument: true,
+    blocked: false,
+    locked: false,
+  },
+);
 
 const emit = defineEmits<{
-  'view-resume':      [item: T]
-  'delete-item':      [item: T]
-  'edit-item':        [item: T]
-  'toggle-block':     [item: T]
+  "view-resume": [item: T];
+  "delete-item": [item: T];
+  "edit-item": [item: T];
+  "toggle-block": [item: T];
   /** Fired by clicking the status badge, or the '?' quick-action button — toggles Contratado/EmAnalise. */
-  'toggle-substatus': [item: T]
+  "toggle-substatus": [item: T];
   /** Aprovado-section quick action — sends the candidate back to Reprovado. */
-  'reject-item':      [item: T]
-}>()
+  "reject-item": [item: T];
+}>();
 
 type ActionButton = {
-  key:       string
-  icon:      IconName
-  color?:    Color
-  toggled?:  boolean
-  disabled?: boolean
-  onClick:   () => void
-}
+  key: string;
+  icon: IconName;
+  color?: Color;
+  toggled?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+};
 
 /** Ordered left-to-right — drives the stagger delay on entry/exit. */
 const actions = computed<ActionButton[]>(() => {
-  const list: ActionButton[] = []
+  const list: ActionButton[] = [];
 
   if (props.showManageActions) {
-    list.push({ key: 'delete', icon: 'Trash2', color: 'red', disabled: props.variant === 'detail' && props.locked, onClick: () => emit('delete-item', props.item) })
-    list.push({ key: 'edit',   icon: 'Pencil',                disabled: props.locked,                              onClick: () => emit('edit-item', props.item) })
+    list.push({
+      key: "delete",
+      icon: "Trash2",
+      color: "red",
+      disabled: props.variant === "detail" && props.locked,
+      onClick: () => emit("delete-item", props.item),
+    });
+    list.push({
+      key: "edit",
+      icon: "Pencil",
+      disabled: props.locked,
+      onClick: () => emit("edit-item", props.item),
+    });
 
-    if (props.variant === 'detail') {
-      list.push({ key: 'block', icon: 'CircleSlash', color: 'orange', toggled: props.blocked, disabled: props.locked, onClick: () => emit('toggle-block', props.item) })
+    if (props.variant === "detail") {
+      list.push({
+        key: "block",
+        icon: "CircleSlash",
+        color: "orange",
+        toggled: props.blocked,
+        disabled: props.locked,
+        onClick: () => emit("toggle-block", props.item),
+      });
 
       if (props.boardStatus === CandidateStatus.Aprovado) {
-        list.push({ key: 'reject', icon: 'X', color: 'red', disabled: props.locked, onClick: () => emit('reject-item', props.item) })
+        list.push({
+          key: "reject",
+          icon: "X",
+          color: "red",
+          disabled: props.locked,
+          onClick: () => emit("reject-item", props.item),
+        });
       }
       if (props.boardStatus === CandidateStatus.Reprovado) {
-        list.push({ key: 'toggle-substatus', icon: 'CircleHelp', color: 'yellow', disabled: props.locked, onClick: () => emit('toggle-substatus', props.item) })
+        list.push({
+          key: "toggle-substatus",
+          icon: "CircleHelp",
+          color: "yellow",
+          disabled: props.locked,
+          onClick: () => emit("toggle-substatus", props.item),
+        });
       }
     }
   }
 
-  if (props.variant === 'detail' && props.showDocument) {
-    list.push({ key: 'document', icon: 'File', disabled: props.locked, onClick: () => emit('view-resume', props.item) })
+  if (props.variant === "detail" && props.showDocument) {
+    list.push({
+      key: "document",
+      icon: "File",
+      disabled: props.locked,
+      onClick: () => emit("view-resume", props.item),
+    });
   }
 
-  return list
-})
-
+  return list;
+});
 </script>
 
 <template>
-  <div class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden">
-    <div class="grid max-h-18 items-center gap-4" :style="{ gridTemplateColumns }" draggable="false">
-      <span v-if="draggable && !locked" class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
-        <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
+  <div
+    class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden"
+  >
+    <div
+      class="grid max-h-18 items-center gap-4"
+      :style="{ gridTemplateColumns }"
+      draggable="false"
+    >
+      <span
+        v-if="draggable && !locked"
+        class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]"
+        draggable="false"
+      >
+        <Grip
+          :size="16"
+          class="pointer-events-none text-black/30"
+          draggable="false"
+        />
       </span>
 
       <div
@@ -91,10 +147,18 @@ const actions = computed<ActionButton[]>(() => {
         :key="column.key"
         class="flex self-center-safe min-w-0 items-center justify-start"
         :class="[
-          column.fixed ? '' : 'overflow-x-auto scrollbar-hide whitespace-nowrap',
-          variant === 'detail' && column.key === 'status' && !blocked && !locked ? 'cursor-pointer' : '',
+          column.fixed
+            ? ''
+            : 'overflow-x-auto scrollbar-hide whitespace-nowrap',
+          variant === 'detail' && column.key === 'status' && !blocked && !locked
+            ? 'cursor-pointer'
+            : '',
         ]"
-        @click="variant === 'detail' && column.key === 'status' && !blocked && !locked ? $emit('toggle-substatus', item) : undefined"
+        @click="
+          variant === 'detail' && column.key === 'status' && !blocked && !locked
+            ? $emit('toggle-substatus', item)
+            : undefined
+        "
       >
         <component :is="column.component" v-bind="column.props(item)" />
       </div>
@@ -103,12 +167,15 @@ const actions = computed<ActionButton[]>(() => {
     </div>
 
     <TransitionGroup
-      name="action-btn" tag="div"
+      name="action-btn"
+      tag="div"
       class="absolute px-4 h-full right-0 top-1/2 -translate-y-1/2 flex flex-row items-center-safe gap-2 bg-white"
     >
       <Button
-        v-for="(action, index) in actions" :key="action.key"
-        :icon="action.icon" variant="primary"
+        v-for="(action, index) in actions"
+        :key="action.key"
+        :icon="action.icon"
+        variant="primary"
         :color="action.color"
         :small="true"
         :toggled="action.toggled"
@@ -124,18 +191,22 @@ const actions = computed<ActionButton[]>(() => {
 
 <style scoped>
 .action-btn-enter-active {
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
 }
 .action-btn-enter-from {
-  opacity:   0;
+  opacity: 0;
   transform: translateY(10px);
 }
 .action-btn-leave-active {
-  position:   absolute;
-  transition: opacity 120ms ease, transform 120ms ease;
+  position: absolute;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
 }
 .action-btn-leave-to {
-  opacity:   0;
+  opacity: 0;
   transform: translateY(10px);
 }
 </style>

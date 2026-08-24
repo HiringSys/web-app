@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref }                   from "vue";
+import { ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import Input  from "@/components/ui/Input.vue";
-import Button from "@/components/ui/Button.vue";
+import Input from "@@/ui/Input.vue";
+import Button from "@@/ui/Button.vue";
 
 import { handleRecoverPassword } from "@/service/Access";
-import { notify } from "@/components/feedback/notify";
+import { notify } from "@@/feedback/notify";
 
 const router = useRouter();
 
@@ -20,7 +20,10 @@ async function submit() {
   loading.value = false;
 
   if (!success) {
-    notify("Não foi possível enviar a nova senha. Verifique o e-mail informado.", "error");
+    notify(
+      "Não foi possível enviar a nova senha. Verifique o e-mail informado.",
+      "error",
+    );
     return;
   }
 
@@ -37,11 +40,7 @@ async function submit() {
         class="w-full max-w-120 flex flex-col gap-4"
         @submit.prevent="submit"
       >
-        <Input
-          v-model="email"
-          type="email"
-          placeholder="E-mail"
-        />
+        <Input v-model="email" type="email" placeholder="E-mail" />
         <Button text="Enviar" :disabled="loading" @click="submit" />
       </form>
     </div>

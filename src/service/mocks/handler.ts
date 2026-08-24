@@ -1,4 +1,4 @@
-import type { Candidate, SocialLink, SocialNetwork } from "@/components/ui/table/types";
+import type { Candidate, SocialLink, SocialNetwork } from "@@/ui/table/types";
 import type { SelectiveProcess } from "@/types/peneira";
 
 import stageMocks from "./stage.json";

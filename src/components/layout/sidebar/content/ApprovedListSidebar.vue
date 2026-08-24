@@ -1,30 +1,30 @@
 <script setup lang="ts">
+import VueDraggable from "vuedraggable";
+import { Grip } from "@lucide/vue";
 
-import VueDraggable from 'vuedraggable'
-import { Grip }     from '@lucide/vue'
-
-import Button from '@/components/ui/Button.vue'
-import type { Candidate } from '@/components/ui/table/types'
+import Button from "@@/ui/Button.vue";
+import type { Candidate } from "@@/ui/table/types";
 
 const props = defineProps<{
-  items:         Candidate[]
-  approvalLimit: number
+  items: Candidate[];
+  approvalLimit: number;
   /** Owning peneira is encerrada — the approved list is final, no reorder or removal. */
-  readOnly?:     boolean
-}>()
+  readOnly?: boolean;
+}>();
 
 const emit = defineEmits<{
-  reorder: [items: Candidate[]]
-  remove:  [item: Candidate]
-}>()
-
+  reorder: [items: Candidate[]];
+  remove: [item: Candidate];
+}>();
 </script>
 
 <template>
   <div class="flex flex-col gap-4 scrollbar-hide">
     <div>
-      <h1 class="leading-none">Aprovados</h1>
-      <h3 class="text-black/40">{{ props.items.length }}/{{ props.approvalLimit }} aprovados para a Vaga</h3>
+      <h2 class="leading-none pb-px">Aprovados</h2>
+      <h3 class="text-black/40">
+        {{ props.items.length }}/{{ props.approvalLimit }} aprovados para a vaga
+      </h3>
     </div>
 
     <VueDraggable
@@ -40,20 +40,53 @@ const emit = defineEmits<{
     >
       <template #item="{ element }">
         <div class="flex items-center gap-2 rounded-medium bg-white p-2 pr-3">
-          <span v-if="!readOnly" class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
-            <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
+          <span
+            v-if="!readOnly"
+            class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]"
+            draggable="false"
+          >
+            <Grip
+              :size="16"
+              class="pointer-events-none text-black/30"
+              draggable="false"
+            />
           </span>
 
-          <div class="h-9 w-9 aspect-square shrink-0 overflow-hidden rounded-full bg-gray-300">
-            <img v-if="element.avatarUrl" :src="element.avatarUrl" :alt="element.name" class="h-full w-full object-cover" />
+          <div
+            class="h-9 w-9 aspect-square shrink-0 overflow-hidden rounded-full bg-gray-300"
+          >
+            <img
+              v-if="element.avatarUrl"
+              :src="element.avatarUrl"
+              :alt="element.name"
+              class="h-full w-full object-cover"
+            />
           </div>
 
           <div class="flex min-w-0 flex-1 flex-col gap-px">
-            <p class="truncate leading-none text-small font-semibold text-black">{{ element.name }}</p>
-            <p class="truncate leading-none text-small text-black/40">{{ element.email }}</p>
+            <p
+              class="truncate leading-none text-small font-semibold text-black"
+            >
+              {{ element.name }}
+            </p>
+            <p class="truncate leading-none text-small text-black/40">
+              {{ element.email }}
+            </p>
           </div>
 
-          <Button icon="X" variant="neutral" small :disabled="readOnly" @click="emit('remove', element)" />
+          <Button
+            icon="CircleSlash"
+            color="orange"
+            small
+            :disabled="readOnly"
+          />
+          <Button
+            icon="X"
+            color="red"
+            small
+            :disabled="readOnly"
+            @click="emit('remove', element)"
+          />
         </div>
       </template>
     </VueDraggable>

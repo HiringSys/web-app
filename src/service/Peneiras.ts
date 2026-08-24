@@ -1,28 +1,46 @@
 import { apiFetch, apiFetchBlob } from "./api";
 
 import type {
-  GrupoResponse, GrupoRequest, GrupoEstado,
-  FuncionarioResponse, FuncionarioCreateRequest, FuncionarioUpdateRequest, FuncionarioStatus, FuncionarioExperiencia,
+  GrupoResponse,
+  GrupoRequest,
+  GrupoEstado,
+  FuncionarioResponse,
+  FuncionarioCreateRequest,
+  FuncionarioUpdateRequest,
+  FuncionarioStatus,
+  FuncionarioExperiencia,
   CargoResponse,
-  RedeRequest, RedeResponse, RedeTipo,
+  RedeRequest,
+  RedeResponse,
+  RedeTipo,
   VinculoGrupoFuncionarioRequest,
-  ArquivoFuncionarioResponse, ArquivoCategoria,
-  StageCandidateResponse, StageSelectionRequest,
-  FuncionarioImportacaoRequest, ImportacaoFuncionariosRequest, ImportacaoFuncionariosResponse,
+  ArquivoFuncionarioResponse,
+  ArquivoCategoria,
+  StageCandidateResponse,
+  StageSelectionRequest,
+  FuncionarioImportacaoRequest,
+  ImportacaoFuncionariosRequest,
+  ImportacaoFuncionariosResponse,
 } from "./api/models";
 
-import { CandidateStatus, Seniority, type Candidate, type SocialLink, type SocialNetwork } from "@/components/ui/table/types";
+import {
+  CandidateStatus,
+  Seniority,
+  type Candidate,
+  type SocialLink,
+  type SocialNetwork,
+} from "@@/ui/table/types";
 import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
 import { getStageMocks, getPersonMocksForStage } from "@mocks/handler";
 
 const NETWORK_TO_REDE_TIPO: Partial<Record<SocialNetwork, RedeTipo>> = {
   linkedin: "LINKEDIN",
-  github:   "GITHUB",
+  github: "GITHUB",
 };
 
 const REDE_TIPO_TO_NETWORK: Partial<Record<RedeTipo, SocialNetwork>> = {
   LINKEDIN: "linkedin",
-  GITHUB:   "github",
+  GITHUB: "github",
 };
 
 function toRedeRequests(networks: SocialLink[] = []): RedeRequest[] {
@@ -43,12 +61,18 @@ function fromRedeResponses(redes: RedeResponse[] = []): SocialLink[] {
     .filter((link): link is SocialLink => link !== null);
 }
 
-export async function findOrCreateCargoId(nome: string): Promise<number | undefined> {
+export async function findOrCreateCargoId(
+  nome: string,
+): Promise<number | undefined> {
   const trimmed = nome.trim();
   if (!trimmed) return undefined;
 
-  const matches = await apiFetch<CargoResponse[]>(`/cargos/buscar?nome=${encodeURIComponent(trimmed)}`);
-  const exact = matches.find((cargo) => cargo.nome.toLowerCase() === trimmed.toLowerCase());
+  const matches = await apiFetch<CargoResponse[]>(
+    `/cargos/buscar?nome=${encodeURIComponent(trimmed)}`,
+  );
+  const exact = matches.find(
+    (cargo) => cargo.nome.toLowerCase() === trimmed.toLowerCase(),
+  );
   if (exact) return exact.id;
 
   const created = await apiFetch<CargoResponse>("/cargos", {
@@ -60,27 +84,38 @@ export async function findOrCreateCargoId(nome: string): Promise<number | undefi
 
 function mapGrupoToProcess(grupo: GrupoResponse): SelectiveProcess {
   return {
-    id:             grupo.id,
-    jobTitle:       grupo.nome,
-    department:     grupo.area,
-    status:         grupo.estado.toLowerCase() as ProcessStatus,
+    id: grupo.id,
+    jobTitle: grupo.nome,
+    department: grupo.area,
+    status: grupo.estado.toLowerCase() as ProcessStatus,
     availableSlots: grupo.disponiveis,
-    participants:   0,
-    role:           grupo.cargo ?? "",
-    approvalLimit:  grupo.limiteAprovados ?? grupo.disponiveis,
-    teamEmail:      grupo.emailEquipe ?? "",
+    participants: 0,
+    role: grupo.cargo ?? "",
+    approvalLimit: grupo.limiteAprovados ?? grupo.disponiveis,
+    teamEmail: grupo.emailEquipe ?? "",
   };
 }
 
-function mapProcessToGrupoRequest(process: Pick<SelectiveProcess, "jobTitle" | "department" | "status" | "availableSlots" | "role" | "approvalLimit" | "teamEmail">): GrupoRequest {
+function mapProcessToGrupoRequest(
+  process: Pick<
+    SelectiveProcess,
+    | "jobTitle"
+    | "department"
+    | "status"
+    | "availableSlots"
+    | "role"
+    | "approvalLimit"
+    | "teamEmail"
+  >,
+): GrupoRequest {
   return {
-    nome:            process.jobTitle,
-    area:            process.department,
-    estado:          process.status.toUpperCase() as GrupoEstado,
-    disponiveis:     process.availableSlots,
-    cargo:           process.role || undefined,
+    nome: process.jobTitle,
+    area: process.department,
+    estado: process.status.toUpperCase() as GrupoEstado,
+    disponiveis: process.availableSlots,
+    cargo: process.role || undefined,
     limiteAprovados: process.approvalLimit,
-    emailEquipe:     process.teamEmail || undefined,
+    emailEquipe: process.teamEmail || undefined,
   };
 }
 
@@ -93,7 +128,9 @@ export async function listProcesses(): Promise<SelectiveProcess[]> {
   }
 }
 
-export async function getProcess(id: string | number): Promise<SelectiveProcess | undefined> {
+export async function getProcess(
+  id: string | number,
+): Promise<SelectiveProcess | undefined> {
   try {
     const grupo = await apiFetch<GrupoResponse>(`/grupos/${id}`);
     return mapGrupoToProcess(grupo);
@@ -102,7 +139,18 @@ export async function getProcess(id: string | number): Promise<SelectiveProcess 
   }
 }
 
-export async function createProcess(process: Pick<SelectiveProcess, "jobTitle" | "department" | "status" | "availableSlots" | "role" | "approvalLimit" | "teamEmail">): Promise<SelectiveProcess> {
+export async function createProcess(
+  process: Pick<
+    SelectiveProcess,
+    | "jobTitle"
+    | "department"
+    | "status"
+    | "availableSlots"
+    | "role"
+    | "approvalLimit"
+    | "teamEmail"
+  >,
+): Promise<SelectiveProcess> {
   const grupo = await apiFetch<GrupoResponse>("/grupos", {
     method: "POST",
     body: JSON.stringify(mapProcessToGrupoRequest(process)),
@@ -110,7 +158,10 @@ export async function createProcess(process: Pick<SelectiveProcess, "jobTitle" |
   return mapGrupoToProcess(grupo);
 }
 
-export async function updateProcess(id: string | number, process: SelectiveProcess): Promise<SelectiveProcess> {
+export async function updateProcess(
+  id: string | number,
+  process: SelectiveProcess,
+): Promise<SelectiveProcess> {
   const grupo = await apiFetch<GrupoResponse>(`/grupos/${id}`, {
     method: "PUT",
     body: JSON.stringify(mapProcessToGrupoRequest(process)),
@@ -122,8 +173,12 @@ export async function deleteProcess(id: string | number): Promise<void> {
   await apiFetch(`/grupos/${id}`, { method: "DELETE" });
 }
 
-function toFuncionarioStatus(candidate: Pick<Candidate, "status" | "blocked">): FuncionarioStatus {
-  return candidate.blocked ? "REPROVADO" : (candidate.status.toUpperCase() as FuncionarioStatus);
+function toFuncionarioStatus(
+  candidate: Pick<Candidate, "status" | "blocked">,
+): FuncionarioStatus {
+  return candidate.blocked
+    ? "REPROVADO"
+    : (candidate.status.toUpperCase() as FuncionarioStatus);
 }
 
 function mapFuncionarioToCandidate(
@@ -131,62 +186,87 @@ function mapFuncionarioToCandidate(
   grupoId: string | number,
   stageStatus?: CandidateStatus,
 ): Candidate {
-  const grupoMembership = funcionario.grupos?.find((grupo) => String(grupo.id) === String(grupoId));
+  const grupoMembership = funcionario.grupos?.find(
+    (grupo) => String(grupo.id) === String(grupoId),
+  );
 
   return {
-    id:                funcionario.id,
-    name:              funcionario.nome,
-    email:             funcionario.email,
-    status:            stageStatus ?? (funcionario.status.toLowerCase() as CandidateStatus),
-    phone:             funcionario.telefone ?? "",
-    networks:          fromRedeResponses(funcionario.redes),
-    seniority:         (funcionario.experiencia ?? "SEM_EXPERIENCIA").toLowerCase() as Seniority,
-    role:              funcionario.cargos?.[0]?.nome ?? "",
+    id: funcionario.id,
+    name: funcionario.nome,
+    email: funcionario.email,
+    status:
+      stageStatus ?? (funcionario.status.toLowerCase() as CandidateStatus),
+    phone: funcionario.telefone ?? "",
+    networks: fromRedeResponses(funcionario.redes),
+    seniority: (
+      funcionario.experiencia ?? "SEM_EXPERIENCIA"
+    ).toLowerCase() as Seniority,
+    role: funcionario.cargos?.[0]?.nome ?? "",
     salaryExpectation: funcionario.salario ?? 0,
-    jobAffinity:       grupoMembership?.scoreProximidade ?? 0,
+    jobAffinity: grupoMembership?.scoreProximidade ?? 0,
   };
 }
 
-async function getStageCandidateStatuses(stageId: string | number): Promise<Map<number, CandidateStatus>> {
+async function getStageCandidateStatuses(
+  stageId: string | number,
+): Promise<Map<number, CandidateStatus>> {
   try {
-    const stageCandidates = await apiFetch<StageCandidateResponse[]>(`/stages/${stageId}/candidates`);
-    return new Map(stageCandidates.map((candidate) => [candidate.id, candidate.status as CandidateStatus]));
+    const stageCandidates = await apiFetch<StageCandidateResponse[]>(
+      `/stages/${stageId}/candidates`,
+    );
+    return new Map(
+      stageCandidates.map((candidate) => [
+        candidate.id,
+        candidate.status as CandidateStatus,
+      ]),
+    );
   } catch {
     return new Map();
   }
 }
 
-export async function getCandidatesForProcess(id: string | number): Promise<Candidate[]> {
+export async function getCandidatesForProcess(
+  id: string | number,
+): Promise<Candidate[]> {
   try {
     const [funcionarios, stageStatuses] = await Promise.all([
       apiFetch<FuncionarioResponse[]>(`/funcionarios/grupo/${id}`),
       getStageCandidateStatuses(id),
     ]);
-    return funcionarios.map((funcionario) => mapFuncionarioToCandidate(funcionario, id, stageStatuses.get(funcionario.id)));
+    return funcionarios.map((funcionario) =>
+      mapFuncionarioToCandidate(
+        funcionario,
+        id,
+        stageStatuses.get(funcionario.id),
+      ),
+    );
   } catch {
     return getPersonMocksForStage(id);
   }
 }
 
 export interface NewCandidateInput {
-  name:  string;
+  name: string;
   email: string;
   phone: string;
-  role:  string;
+  role: string;
   seniority: Seniority;
   salaryExpectation: number;
 }
 
-export async function createCandidate(grupoId: string | number, values: NewCandidateInput): Promise<Candidate> {
+export async function createCandidate(
+  grupoId: string | number,
+  values: NewCandidateInput,
+): Promise<Candidate> {
   const cargoId = await findOrCreateCargoId(values.role);
 
   const body: FuncionarioCreateRequest = {
-    nome:  values.name,
+    nome: values.name,
     email: values.email,
-    telefone:    values.phone || undefined,
-    salario:     values.salaryExpectation,
+    telefone: values.phone || undefined,
+    salario: values.salaryExpectation,
     experiencia: values.seniority.toUpperCase() as FuncionarioExperiencia,
-    cargoIds:    cargoId !== undefined ? [cargoId] : undefined,
+    cargoIds: cargoId !== undefined ? [cargoId] : undefined,
   };
 
   const funcionario = await apiFetch<FuncionarioResponse>("/funcionarios", {
@@ -196,42 +276,61 @@ export async function createCandidate(grupoId: string | number, values: NewCandi
 
   await apiFetch(`/grupos/${grupoId}/funcionarios`, {
     method: "POST",
-    body: JSON.stringify({ funcionarioId: funcionario.id } satisfies VinculoGrupoFuncionarioRequest),
+    body: JSON.stringify({
+      funcionarioId: funcionario.id,
+    } satisfies VinculoGrupoFuncionarioRequest),
   });
 
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
-export async function importFuncionariosFromExcel(grupoId: string | number, funcionarios: FuncionarioImportacaoRequest[]): Promise<ImportacaoFuncionariosResponse> {
-  return apiFetch<ImportacaoFuncionariosResponse>(`/grupos/${grupoId}/funcionarios/importacao`, {
-    method: "POST",
-    body: JSON.stringify({ funcionarios } satisfies ImportacaoFuncionariosRequest),
-  });
+export async function importFuncionariosFromExcel(
+  grupoId: string | number,
+  funcionarios: FuncionarioImportacaoRequest[],
+): Promise<ImportacaoFuncionariosResponse> {
+  return apiFetch<ImportacaoFuncionariosResponse>(
+    `/grupos/${grupoId}/funcionarios/importacao`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        funcionarios,
+      } satisfies ImportacaoFuncionariosRequest),
+    },
+  );
 }
 
-export async function updateCandidate(grupoId: string | number, candidate: Candidate): Promise<Candidate> {
+export async function updateCandidate(
+  grupoId: string | number,
+  candidate: Candidate,
+): Promise<Candidate> {
   const cargoId = await findOrCreateCargoId(candidate.role);
 
   const body: FuncionarioUpdateRequest = {
-    nome:  candidate.name,
+    nome: candidate.name,
     email: candidate.email,
-    telefone:    candidate.phone || undefined,
-    salario:     candidate.salaryExpectation,
-    status:      toFuncionarioStatus(candidate),
+    telefone: candidate.phone || undefined,
+    salario: candidate.salaryExpectation,
+    status: toFuncionarioStatus(candidate),
     experiencia: candidate.seniority.toUpperCase() as FuncionarioExperiencia,
-    cargoIds:    cargoId !== undefined ? [cargoId] : [],
-    redes:       toRedeRequests(candidate.networks),
+    cargoIds: cargoId !== undefined ? [cargoId] : [],
+    redes: toRedeRequests(candidate.networks),
   };
 
-  const funcionario = await apiFetch<FuncionarioResponse>(`/funcionarios/${candidate.id}`, {
-    method: "PUT",
-    body: JSON.stringify(body),
-  });
+  const funcionario = await apiFetch<FuncionarioResponse>(
+    `/funcionarios/${candidate.id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(body),
+    },
+  );
 
   return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
-export async function submitStageSelection(stageId: string | number, approvedCandidateIds: (string | number)[]): Promise<void> {
+export async function submitStageSelection(
+  stageId: string | number,
+  approvedCandidateIds: (string | number)[],
+): Promise<void> {
   await apiFetch(`/stages/${stageId}/candidates/selection`, {
     method: "PUT",
     body: JSON.stringify({
@@ -240,37 +339,65 @@ export async function submitStageSelection(stageId: string | number, approvedCan
   });
 }
 
-export async function removeCandidateFromProcess(grupoId: string | number, candidateId: string | number): Promise<void> {
-  await apiFetch(`/grupos/${grupoId}/funcionarios/${candidateId}`, { method: "DELETE" });
+export async function removeCandidateFromProcess(
+  grupoId: string | number,
+  candidateId: string | number,
+): Promise<void> {
+  await apiFetch(`/grupos/${grupoId}/funcionarios/${candidateId}`, {
+    method: "DELETE",
+  });
 }
 
 export async function deleteCandidate(id: string | number): Promise<void> {
   await apiFetch(`/funcionarios/${id}`, { method: "DELETE" });
 }
 
-export async function listCandidateFiles(candidateId: string | number): Promise<ArquivoFuncionarioResponse[]> {
-  return apiFetch<ArquivoFuncionarioResponse[]>(`/funcionarios/${candidateId}/arquivos`);
+export async function listCandidateFiles(
+  candidateId: string | number,
+): Promise<ArquivoFuncionarioResponse[]> {
+  return apiFetch<ArquivoFuncionarioResponse[]>(
+    `/funcionarios/${candidateId}/arquivos`,
+  );
 }
 
-export async function downloadCandidateFile(candidateId: string | number, arquivoId: string | number): Promise<Blob> {
-  return apiFetchBlob(`/funcionarios/${candidateId}/arquivos/${arquivoId}/download`);
+export async function downloadCandidateFile(
+  candidateId: string | number,
+  arquivoId: string | number,
+): Promise<Blob> {
+  return apiFetchBlob(
+    `/funcionarios/${candidateId}/arquivos/${arquivoId}/download`,
+  );
 }
 
-export async function uploadCandidateFile(candidateId: string | number, file: File, categoria: ArquivoCategoria = "CURRICULO"): Promise<ArquivoFuncionarioResponse> {
+export async function uploadCandidateFile(
+  candidateId: string | number,
+  file: File,
+  categoria: ArquivoCategoria = "CURRICULO",
+): Promise<ArquivoFuncionarioResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  return apiFetch<ArquivoFuncionarioResponse>(`/funcionarios/${candidateId}/arquivos?categoria=${categoria}`, {
-    method: "POST",
-    body: formData,
+  return apiFetch<ArquivoFuncionarioResponse>(
+    `/funcionarios/${candidateId}/arquivos?categoria=${categoria}`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+}
+
+export async function deleteCandidateFile(
+  candidateId: string | number,
+  arquivoId: string | number,
+): Promise<void> {
+  await apiFetch(`/funcionarios/${candidateId}/arquivos/${arquivoId}`, {
+    method: "DELETE",
   });
 }
 
-export async function deleteCandidateFile(candidateId: string | number, arquivoId: string | number): Promise<void> {
-  await apiFetch(`/funcionarios/${candidateId}/arquivos/${arquivoId}`, { method: "DELETE" });
-}
-
-export async function resolveCandidateResumeUrl(candidateId: string | number): Promise<string | undefined> {
+export async function resolveCandidateResumeUrl(
+  candidateId: string | number,
+): Promise<string | undefined> {
   const files = await listCandidateFiles(candidateId);
   const resume = files.find((file) => file.categoria === "CURRICULO");
   if (!resume) return undefined;

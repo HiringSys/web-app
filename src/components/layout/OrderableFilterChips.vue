@@ -1,88 +1,105 @@
 <script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import { Grip } from "@lucide/vue";
+import VueDraggable from "vuedraggable";
 
-import { ref, computed, watch } from 'vue'
-import { Grip }                 from '@lucide/vue'
-import VueDraggable              from 'vuedraggable'
-
-import Button                     from '@/components/ui/Button.vue'
-import { useDragGhostOpacityFix } from '@/lib/dragGhostOpacity'
+import Button from "@@/ui/Button.vue";
+import { useDragGhostOpacityFix } from "@/lib/dragGhostOpacity";
 
 const props = withDefaults(
   defineProps<{
-    options: { key: string; label: string }[]
+    options: { key: string; label: string }[];
     /** Keys that are always active, always shown first, and can't be toggled or dragged. */
-    pinned?: string[]
+    pinned?: string[];
     /** Keys shown right after `pinned`, fixed in place (can't be dragged) but can be toggled on/off. Excluded from `max`. */
-    lockedToggleable?: string[]
+    lockedToggleable?: string[];
     /** Maximum number of active chips. */
-    max?:    number
+    max?: number;
   }>(),
   {
-    pinned:           () => [],
+    pinned: () => [],
     lockedToggleable: () => [],
   },
-)
+);
 
-const active = defineModel<string[]>({ default: () => [] })
+const active = defineModel<string[]>({ default: () => [] });
 
 defineEmits<{
-  'open-filters': []
-}>()
+  "open-filters": [];
+}>();
 
-useDragGhostOpacityFix()
+useDragGhostOpacityFix();
 
 const selectionOrder = ref<string[]>(
-  active.value.filter((key) => !props.pinned.includes(key) && !props.lockedToggleable.includes(key)),
-)
+  active.value.filter(
+    (key) =>
+      !props.pinned.includes(key) && !props.lockedToggleable.includes(key),
+  ),
+);
 
 const lockedActive = ref<Set<string>>(
   new Set(props.lockedToggleable.filter((key) => active.value.includes(key))),
-)
+);
 
-watch([selectionOrder, lockedActive], () => {
-  active.value = [
-    ...props.pinned,
-    ...props.lockedToggleable.filter((key) => lockedActive.value.has(key)),
-    ...selectionOrder.value,
-  ]
-}, { deep: true })
+watch(
+  [selectionOrder, lockedActive],
+  () => {
+    active.value = [
+      ...props.pinned,
+      ...props.lockedToggleable.filter((key) => lockedActive.value.has(key)),
+      ...selectionOrder.value,
+    ];
+  },
+  { deep: true },
+);
 
-const labelOf = computed(() => new Map(props.options.map((option) => [option.key, option.label])))
+const labelOf = computed(
+  () => new Map(props.options.map((option) => [option.key, option.label])),
+);
 
 const unselectedOptions = computed(() => {
-  const selected = new Set(active.value)
-  return props.options.filter((option) => !selected.has(option.key) && !props.lockedToggleable.includes(option.key))
-})
+  const selected = new Set(active.value);
+  return props.options.filter(
+    (option) =>
+      !selected.has(option.key) && !props.lockedToggleable.includes(option.key),
+  );
+});
 
 function toggle(key: string) {
-  if (props.pinned.includes(key)) return
+  if (props.pinned.includes(key)) return;
 
   if (props.lockedToggleable.includes(key)) {
-    const next = new Set(lockedActive.value)
-    next.has(key) ? next.delete(key) : next.add(key)
-    lockedActive.value = next
-    return
+    const next = new Set(lockedActive.value);
+    next.has(key) ? next.delete(key) : next.add(key);
+    lockedActive.value = next;
+    return;
   }
 
   if (selectionOrder.value.includes(key)) {
-    selectionOrder.value = selectionOrder.value.filter((activeKey) => activeKey !== key)
-    return
+    selectionOrder.value = selectionOrder.value.filter(
+      (activeKey) => activeKey !== key,
+    );
+    return;
   }
 
-  if (props.max !== undefined && props.pinned.length + selectionOrder.value.length >= props.max) return
-  selectionOrder.value = [...selectionOrder.value, key]
+  if (
+    props.max !== undefined &&
+    props.pinned.length + selectionOrder.value.length >= props.max
+  )
+    return;
+  selectionOrder.value = [...selectionOrder.value, key];
 }
 
 function keyOf(key: string) {
-  return key
+  return key;
 }
-
 </script>
 
 <template>
   <div class="relative w-full min-w-0">
     <div class="w-full overflow-x-auto scrollbar-hide pb-2 translate-y-2">
-      <VueDraggable class="flex w-max min-h-0 items-center gap-3 flex-nowrap"
+      <VueDraggable
+        class="flex w-max min-h-0 items-center gap-3 flex-nowrap"
         :item-key="keyOf"
         :animation="150"
         :force-fallback="true"
@@ -112,7 +129,7 @@ function keyOf(key: string) {
             @click="toggle(key)"
           />
         </template>
-    
+
         <template #item="{ element: key }">
           <button
             type="button"
@@ -130,7 +147,7 @@ function keyOf(key: string) {
             {{ labelOf.get(key) }}
           </button>
         </template>
-    
+
         <template #footer>
           <Button
             v-for="option in unselectedOptions"
@@ -144,8 +161,16 @@ function keyOf(key: string) {
         </template>
       </VueDraggable>
     </div>
-    <div class="absolute h-full box-content bg-gray right-0 top-1/2 -translate-y-1/2 z-10 px-4 pb-4">
-      <Button class="translate-y-4" icon="Filter" variant="neutral" rounded @click="$emit('open-filters')" />
+    <div
+      class="absolute h-full box-content bg-gray right-0 top-1/2 -translate-y-1/2 z-10 px-4 pb-4"
+    >
+      <Button
+        class="translate-y-4"
+        icon="Filter"
+        variant="neutral"
+        rounded
+        @click="$emit('open-filters')"
+      />
     </div>
   </div>
 </template>
