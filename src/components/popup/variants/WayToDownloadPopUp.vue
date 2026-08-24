@@ -6,13 +6,16 @@ defineProps<{
   modelValue: boolean;
 }>();
 
+const emit = defineEmits<{
+  "update:modelValue": [value: boolean];
+  txt: [];
+  csv: [];
+  xlsx: [];
+}>();
+
 function close() {
   emit("update:modelValue", false);
 }
-
-const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
-}>();
 </script>
 
 <template>
@@ -27,15 +30,30 @@ const emit = defineEmits<{
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="FileText" color="blue" />
+        <Button
+          icon="FileText"
+          color="blue"
+          title="Baixar como TXT"
+          @click="emit('txt')"
+        />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="FileSpreadsheet" color="purple" />
+        <Button
+          icon="FileSpreadsheet"
+          color="purple"
+          title="Baixar como CSV"
+          @click="emit('csv')"
+        />
       </div>
 
       <div class="flex flex-col items-center gap-2">
-        <Button icon="Table2" color="green" />
+        <Button
+          icon="Table2"
+          color="green"
+          title="Baixar como XLSX"
+          @click="emit('xlsx')"
+        />
       </div>
     </div>
   </PopupIcon>
