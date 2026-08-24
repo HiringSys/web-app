@@ -52,6 +52,7 @@ export interface Candidate {
   role: string;
   salaryExpectation: number;
   curriculumUrl?: string;
+  curriculumFileName?: string;
   jobAffinity: number;
   blocked?: boolean;
   subStatus?: typeof CandidateStatus.Contratado | typeof CandidateStatus.EmAnalise;

@@ -397,13 +397,18 @@ export async function deleteCandidateFile(
   });
 }
 
+export interface CandidateResumeFile {
+  url: string;
+  fileName: string;
+}
+
 export async function resolveCandidateResumeUrl(
   candidateId: string | number,
-): Promise<string | undefined> {
+): Promise<CandidateResumeFile | undefined> {
   const files = await listCandidateFiles(candidateId);
   const resume = files.find((file) => file.categoria === "CURRICULO");
   if (!resume) return undefined;
 
   const blob = await downloadCandidateFile(candidateId, resume.id);
-  return URL.createObjectURL(blob);
+  return { url: URL.createObjectURL(blob), fileName: resume.nomeArquivo };
 }

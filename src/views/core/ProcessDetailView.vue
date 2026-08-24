@@ -134,7 +134,9 @@ async function openResume(candidate: Candidate) {
 
   if (!candidate.curriculumUrl) {
     try {
-      candidate.curriculumUrl = await resolveCandidateResumeUrl(candidate.id);
+      const resume = await resolveCandidateResumeUrl(candidate.id);
+      candidate.curriculumUrl = resume?.url;
+      candidate.curriculumFileName = resume?.fileName;
     } catch {
       notify("Não foi possível carregar o currículo.", "error");
     }
