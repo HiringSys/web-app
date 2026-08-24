@@ -92,26 +92,25 @@ function keyOf(key: string) {
         direction="horizontal"
       >
         <template #header>
-          <button
+          <Button
             v-for="key in pinned"
             :key="key"
-            type="button"
-            class="cursor-default select-none rounded-full bg-blue px-4 py-2 text-center font-semibold text-white shrink-0 whitespace-nowrap"
-          >
-            {{ labelOf.get(key) }}
-          </button>
+            :text="labelOf.get(key)"
+            rounded
+            color="purple"
+            class="cursor-default select-none shrink-0 whitespace-nowrap"
+          />
 
-          <button
+          <Button
             v-for="key in lockedToggleable"
             :key="key"
-            type="button"
-            class="select-none rounded-full px-4 py-2 text-center font-semibold cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-            :class="lockedActive.has(key) ? 'bg-blue text-white' : 'bg-white text-black/60'"
-            :style="{ '--press-shadow-color': lockedActive.has(key) ? 'var(--color-blue-co)' : 'var(--color-gray-co)' }"
+            :text="labelOf.get(key)"
+            rounded
+            :variant="lockedActive.has(key) ? 'primary' : 'neutral'"
+            color="orange"
+            class="select-none shrink-0 whitespace-nowrap"
             @click="toggle(key)"
-          >
-            {{ labelOf.get(key) }}
-          </button>
+          />
         </template>
     
         <template #item="{ element: key }">
@@ -133,17 +132,15 @@ function keyOf(key: string) {
         </template>
     
         <template #footer>
-          <button
+          <Button
             v-for="option in unselectedOptions"
             :key="option.key"
-            type="button"
-            class="rounded-full bg-white px-4 py-2 text-center font-semibold text-black/60 cursor-pointer transition-all duration-150 press-shadow shrink-0 whitespace-nowrap"
-            style="--press-shadow-color: var(--color-gray-co)"
+            :text="option.label"
+            rounded
+            variant="neutral"
+            class="select-none shrink-0 whitespace-nowrap"
             @click="toggle(option.key)"
-          >
-            {{ option.label }}
-          </button>
-    
+          />
         </template>
       </VueDraggable>
     </div>
