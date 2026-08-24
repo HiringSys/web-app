@@ -1,12 +1,22 @@
 <script setup lang="ts">
 
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import Button from '@@/ui/Button.vue';
+
+const router = useRouter();
+
+function returnToHomePage() {
+  router.push("/");
+}
 
 </script>
 
 <template>
-  <main class="mx-auto flex max-w-md flex-col gap-2 p-8">
-    <h1>Página não encontrada</h1>
-    <RouterLink to="/" class="text-primary underline">Voltar para o início</RouterLink>
+  <main class="w-full h-full items-center-safe justify-center mx-auto flex max-w-md flex-col gap-6 text-center">
+    <div class="flex flex-col gap-2">
+      <h1 class="leading-none pb-px">Página não encontrada</h1>
+      <h3 class="leading-none pb-px">Oppss.... Algo de errado não está certo...</h3>
+    </div>
+    <Button icon="TrafficCone" color="orange" small class="px-24" @click="returnToHomePage()" />
   </main>
 </template>
