@@ -45,13 +45,15 @@ const buttonClasses = computed(() => twMerge(
   props.small   ? 'gap-1 px-4 py-2 h-fit text-small' : 'gap-2',
   !props.small  && (props.icon && !props.text ? 'py-2.75 px-5' : 'px-4 py-2'),
   props.variant === 'neutral' ? 'bg-white text-black/60' : [colorClasses[props.color].bg, 'text-white'],
-  props.disabled ? 'text-black/60 cursor-not-allowed pointer-events-none opacity-40 bg-white' : '',
+  props.disabled ? 'cursor-not-allowed pointer-events-none bg-white text-black/45 opacity-80 grayscale-[20%]' : '',
   props.class,
 ))
 
 const buttonStyle = computed(() => ({
   '--press-shadow-color': pressShadowColor.value,
-  ...(props.toggled || props.disabled
+  ...(props.disabled
+    ? { boxShadow: '0 3px 0 0 var(--press-shadow-color)', transform: 'none' }
+    : props.toggled
     ? { boxShadow: '0 4px 0 0 var(--press-shadow-color)', transform: 'translateY(0.25rem)' }
     : {}),
 }))

@@ -45,6 +45,7 @@ const emit = defineEmits<{
 
 type ActionButton = {
   key: string;
+  label: string;
   icon: IconName;
   color?: Color;
   toggled?: boolean;
@@ -58,6 +59,7 @@ const actions = computed<ActionButton[]>(() => {
   if (props.showManageActions) {
     list.push({
       key: "delete",
+      label: "Excluir candidato",
       icon: "Trash2",
       color: "red",
       disabled: props.variant === "detail" && props.locked,
@@ -65,6 +67,7 @@ const actions = computed<ActionButton[]>(() => {
     });
     list.push({
       key: "edit",
+      label: "Editar candidato",
       icon: "Pencil",
       disabled: props.locked,
       onClick: () => emit("edit-item", props.item),
@@ -73,6 +76,7 @@ const actions = computed<ActionButton[]>(() => {
     if (props.variant === "detail") {
       list.push({
         key: "department",
+        label: "Editar departamento",
         icon: "Building2",
         disabled: props.locked,
         onClick: () => emit("edit-department", props.item),
@@ -80,6 +84,7 @@ const actions = computed<ActionButton[]>(() => {
 
       list.push({
         key: "block",
+        label: props.blocked ? "Desbloquear candidato" : "Bloquear candidato",
         icon: "CircleSlash",
         color: "orange",
         toggled: props.blocked,
@@ -90,6 +95,7 @@ const actions = computed<ActionButton[]>(() => {
       if (props.boardStatus === CandidateStatus.Aprovado) {
         list.push({
           key: "reject",
+          label: "Mover para reprovados",
           icon: "X",
           color: "red",
           disabled: props.locked,
@@ -99,6 +105,7 @@ const actions = computed<ActionButton[]>(() => {
       if (props.boardStatus === CandidateStatus.Reprovado) {
         list.push({
           key: "toggle-substatus",
+          label: "Alterar situação da análise",
           icon: "CircleHelp",
           color: "yellow",
           disabled: props.locked,
@@ -111,6 +118,7 @@ const actions = computed<ActionButton[]>(() => {
   if (props.variant === "detail" && props.showDocument) {
     list.push({
       key: "document",
+      label: "Visualizar currículo",
       icon: "File",
       disabled: props.locked,
       onClick: () => emit("view-resume", props.item),
@@ -123,23 +131,25 @@ const actions = computed<ActionButton[]>(() => {
 
 <template>
   <div
-    class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden"
-    :class="variant === 'detail' ? 'max-lg:flex-col' : ''"
+    class="relative flex min-h-16 select-none overflow-hidden rounded-medium bg-white px-4 py-3 shadow-[0_1px_0_rgb(25_25_25/0.03)]"
+    :class="variant === 'detail' ? 'flex-col gap-3 lg:flex-row lg:items-center' : 'flex-row justify-between'"
   >
     <div
-      class="grid w-full min-w-0 items-center gap-4 overflow-x-auto scrollbar-hide py-1.5"
-      :class="variant === 'detail' ? 'max-lg:max-h-none' : 'max-h-18'"
+      class="grid min-w-0 flex-1 items-center gap-4 overflow-x-auto py-1.5 scrollbar-hide"
+      :class="variant === 'detail' ? 'max-h-none' : 'max-h-18'"
       :style="{ gridTemplateColumns }"
       draggable="false"
     >
       <span
-        v-if="draggable && !locked"
-        class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]"
+        v-if="draggable"
+        class="inline-flex items-center justify-center p-1 [-webkit-user-drag:none]"
+        :class="locked ? 'cursor-default' : 'drag-handle cursor-grab'"
         draggable="false"
       >
         <Grip
+          v-if="!locked"
           :size="16"
-          class="pointer-events-none text-black/30"
+          class="pointer-events-none text-black/40"
           draggable="false"
         />
       </span>
@@ -169,11 +179,12 @@ const actions = computed<ActionButton[]>(() => {
     </div>
 
     <TransitionGroup
+      v-if="actions.length"
       name="action-btn"
       tag="div"
-      class="flex flex-row items-center-safe gap-2 bg-white"
+      class="flex shrink-0 flex-row items-center gap-2 bg-white"
       :class="variant === 'detail'
-        ? 'relative mt-2 h-auto w-full justify-start overflow-x-auto border-t border-black/5 px-0 pb-1 pt-3 scrollbar-hide lg:absolute lg:right-0 lg:top-1/2 lg:mt-0 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:justify-end lg:overflow-visible lg:border-0 lg:px-4 lg:pb-0 lg:pt-0'
+        ? 'w-full justify-start overflow-x-auto border-t border-black/10 pb-1 pt-3 scrollbar-hide lg:w-auto lg:justify-end lg:overflow-visible lg:border-l lg:border-t-0 lg:pb-1 lg:pl-4 lg:pt-1'
         : 'absolute right-0 top-1/2 h-full -translate-y-1/2 px-4'"
     >
       <Button
@@ -185,6 +196,8 @@ const actions = computed<ActionButton[]>(() => {
         :small="true"
         :toggled="action.toggled"
         :disabled="action.disabled"
+        :aria-label="action.label"
+        :title="action.label"
         :style="{ transitionDelay: `${index * 45}ms` }"
         @click="action.onClick"
       />
