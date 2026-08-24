@@ -1,5 +1,10 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+/** True when no real backend is configured — services fall back to local mocks. */
+export function isMockMode(): boolean {
+  return !BASE_URL;
+}
+
 const TOKEN_STORAGE_KEY = "hiringsys.accessToken";
 const EMAIL_STORAGE_KEY = "hiringsys.accountEmail";
 

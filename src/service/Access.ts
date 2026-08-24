@@ -1,4 +1,4 @@
-import { apiFetch, setAuthToken, setAccountEmail } from "./api";
+import { apiFetch, isMockMode, setAuthToken, setAccountEmail } from "./api";
 import type { LoginRequest, LoginResponse, RecuperacaoSenhaRequest, RecuperacaoSenhaResponse } from "./api/models";
 
 export async function handleLogin(email: string, password: string): Promise<LoginResponse | null> {
@@ -11,6 +11,13 @@ export async function handleLogin(email: string, password: string): Promise<Logi
     setAccountEmail(email);
     return response;
   } catch {
+    // No backend configured: accept any credentials so the app is usable against the local mocks.
+    if (isMockMode()) {
+      const response: LoginResponse = { accessToken: "mock-token" };
+      setAuthToken(response.accessToken);
+      setAccountEmail(email);
+      return response;
+    }
     return null;
   }
 }
