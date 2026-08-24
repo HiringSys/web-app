@@ -38,14 +38,14 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleKeydown))
         v-if="modelValue"
         @mousedown.self="close"
       >
-        <div class="popup-box flex max-h-[90vh] w-full flex-col overflow-hidden rounded-medium bg-gray shadow-lg" :style="{ maxWidth: width }">
+        <div class="popup-box flex max-h-[90vh] w-full flex-col overflow-hidden rounded-medium bg-gray shadow-soft" :style="{ maxWidth: width }">
           <div class="flex flex-col px-6 overflow-y-auto">
             <div class="flex items-center justify-between gap-4 pt-6 pb-4">
               <h2 v-if="title" class="leading-none">{{ title }}</h2>
               <Button icon="X" variant="neutral" small class="ml-auto" @click="close" />
             </div>
   
-            <div class="flex-1 overflow-y-auto">
+            <div class="flex-1 overflow-y-auto scrollbar-hide">
               <slot />
             </div>
   
