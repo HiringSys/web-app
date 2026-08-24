@@ -20,7 +20,7 @@ export const CandidateStatus = {
   Aprovado:  "aprovado",
   Reprovado: "reprovado",
   Contratado: "contratado",
-  /** Client-only status set via the block action — no backend field (see .sdd/swagger/gaps.md); sent as Reprovado whenever it has to reach the API. */
+  /** Client-only status set via the block action — no backend field (see .sdd/swagger/api.md); sent as Reprovado whenever it has to reach the API. */
   Suprimido: "suprimido",
 } as const;
 

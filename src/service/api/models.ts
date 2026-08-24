@@ -20,21 +20,25 @@ export interface RedeResponse {
 export type GrupoEstado = "EM_COLETA" | "EM_PROCESSO" | "PAUSADO" | "ENCERRADO" | "RASCUNHO";
 
 export interface GrupoRequest {
-  nome:        string;
-  area:        string;
-  estado:      GrupoEstado;
-  disponiveis: number;
-  cargo?:      string;
+  nome:             string;
+  area:             string;
+  estado:           GrupoEstado;
+  disponiveis:      number;
+  cargo?:           string;
+  limiteAprovados?: number;
+  emailEquipe?:     string;
 }
 
 export interface GrupoResponse {
-  id:          number;
-  nome:        string;
-  area:        string;
-  estado:      GrupoEstado;
-  disponiveis: number;
-  cargo?:      string;
-  criadoEm:    string;
+  id:               number;
+  nome:             string;
+  area:             string;
+  estado:           GrupoEstado;
+  disponiveis:      number;
+  cargo?:           string;
+  limiteAprovados?: number;
+  emailEquipe?:     string;
+  criadoEm:         string;
 }
 
 export interface CargoRequest {
@@ -171,4 +175,26 @@ export interface RecuperacaoSenhaRequest {
 
 export interface RecuperacaoSenhaResponse {
   mensagem?: string;
+}
+
+export interface FuncionarioImportacaoRequest {
+  nome:             string;
+  email:            string;
+  telefone?:        string;
+  salario:          number;
+  cidade?:          string;
+  status:           FuncionarioStatus;
+  experiencia:      FuncionarioExperiencia;
+  anosExperiencia?: number;
+  cargos:           string[];
+}
+
+export interface ImportacaoFuncionariosRequest {
+  funcionarios: FuncionarioImportacaoRequest[];
+}
+
+export interface ImportacaoFuncionariosResponse {
+  grupoId?:        number;
+  totalRecebidos?: number;
+  mensagem?:       string;
 }
