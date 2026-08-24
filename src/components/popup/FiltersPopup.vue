@@ -1,15 +1,18 @@
 <script setup lang="ts">
 
-import Popup from './Popup.vue'
+import Popup  from './Popup.vue'
+import Button from '@@/ui/Button.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue: boolean
     options:    { key: string; label: string }[]
+    pinned?:    string[]
     title?:     string
   }>(),
   {
-    title: 'Filtros',
+    title:  'Filtros',
+    pinned: () => [],
   },
 )
 
@@ -19,7 +22,13 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
+function isPinned(key: string) {
+  return props.pinned.includes(key)
+}
+
 function toggle(key: string) {
+  if (isPinned(key)) return
+
   if (active.value.includes(key)) {
     if (active.value.length === 1) return
     active.value = active.value.filter((activeKey) => activeKey !== key)
@@ -32,18 +41,18 @@ function toggle(key: string) {
 
 <template>
   <Popup :model-value="modelValue" :title="title" width="22rem" @update:model-value="emit('update:modelValue', $event)">
-    <ul class="flex flex-col gap-1">
+    <ul class="flex flex-col gap-2">
       <li v-for="option in options" :key="option.key">
-        <label class="flex cursor-pointer items-center gap-3 rounded-medium px-2 py-2 hover:bg-gray/60">
-          <input
-            type="checkbox"
-            class="h-4 w-4 accent-blue disabled:cursor-not-allowed disabled:opacity-50"
-            :checked="active.includes(option.key)"
-            :disabled="active.length === 1 && active.includes(option.key)"
-            @change="toggle(option.key)"
-          />
-          <span class="font-medium text-black">{{ option.label }}</span>
-        </label>
+        <Button
+          :text="option.label"
+          :icon="isPinned(option.key) ? 'Lock' : undefined"
+          :color="isPinned(option.key) ? 'purple' : 'blue'"
+          :variant="isPinned(option.key) || active.includes(option.key) ? 'primary' : 'neutral'"
+          :toggled="isPinned(option.key) || active.includes(option.key)"
+          :disabled="!isPinned(option.key) && active.length === 1 && active.includes(option.key)"
+          :class="isPinned(option.key) ? 'w-full justify-start cursor-default select-none' : 'w-full justify-start'"
+          @click="toggle(option.key)"
+        />
       </li>
     </ul>
   </Popup>

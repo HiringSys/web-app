@@ -618,6 +618,7 @@ async function submitEditProcess(values: Record<string, string>) {
       v-model="filtersOpen"
       title="Colunas visíveis"
       :options="COLUMN_OPTIONS"
+      :pinned="['name']"
       v-model:active="activeColumns"
     />
   </div>
