@@ -8,6 +8,14 @@ export const ProcessStatus = {
 
 export type ProcessStatus = (typeof ProcessStatus)[keyof typeof ProcessStatus]
 
+export const PROCESS_STATUS_OPTIONS: { value: ProcessStatus; label: string }[] = [
+  { value: ProcessStatus.Rascunho, label: 'Rascunho' },
+  { value: ProcessStatus.EmColeta, label: 'Em coleta' },
+  { value: ProcessStatus.EmProcesso, label: 'Em processo' },
+  { value: ProcessStatus.Pausado, label: 'Pausado' },
+  { value: ProcessStatus.Encerrado, label: 'Encerrado' },
+]
+
 export interface SelectiveProcess {
   id: string | number
   jobTitle: string
