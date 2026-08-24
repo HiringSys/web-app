@@ -42,6 +42,17 @@ function authHeaders(): HeadersInit {
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};
 }
 
+/** The API's error payloads use `message` (e.g. business-rule 409s) or `mensagem` (import endpoint) depending on the route. */
+function extractErrorMessage(body: string): string | undefined {
+  if (!body) return undefined;
+  try {
+    const parsed = JSON.parse(body);
+    return parsed?.message ?? parsed?.mensagem ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function request(path: string, init?: RequestInit): Promise<Response> {
   if (!BASE_URL) {
     throw new Error("VITE_API_BASE_URL is not configured");
@@ -59,7 +70,9 @@ async function request(path: string, init?: RequestInit): Promise<Response> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request to ${path} failed with status ${response.status}`);
+    const body = await response.text().catch(() => "");
+    const message = extractErrorMessage(body) ?? `Request to ${path} failed with status ${response.status}`;
+    throw new Error(message);
   }
 
   return response;
