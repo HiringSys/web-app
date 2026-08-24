@@ -41,19 +41,21 @@ function toggle(key: string) {
 
 <template>
   <Popup :model-value="modelValue" :title="title" width="22rem" @update:model-value="emit('update:modelValue', $event)">
-    <ul class="flex flex-col gap-2">
-      <li v-for="option in options" :key="option.key">
-        <Button
-          :text="option.label"
-          :icon="isPinned(option.key) ? 'Lock' : undefined"
-          :color="isPinned(option.key) ? 'purple' : 'blue'"
-          :variant="isPinned(option.key) || active.includes(option.key) ? 'primary' : 'neutral'"
-          :toggled="isPinned(option.key) || active.includes(option.key)"
-          :disabled="!isPinned(option.key) && active.length === 1 && active.includes(option.key)"
-          :class="isPinned(option.key) ? 'w-full justify-start cursor-default select-none' : 'w-full justify-start'"
-          @click="toggle(option.key)"
-        />
-      </li>
-    </ul>
+    <div class="flex w-full items-center-safe justify-center-safe">
+      <ul class="flex flex-col gap-4 w-[95%]">
+        <li v-for="option in options" :key="option.key">
+          <Button
+            :text="option.label"
+            :icon="isPinned(option.key) ? 'Lock' : undefined"
+            :color="isPinned(option.key) ? 'purple' : 'blue'"
+            :variant="isPinned(option.key) || active.includes(option.key) ? 'primary' : 'neutral'"
+            :toggled="isPinned(option.key) || active.includes(option.key)"
+            :disabled="!isPinned(option.key) && active.length === 1 && active.includes(option.key)"
+            :class="isPinned(option.key) ? 'w-full justify-start cursor-default select-none' : 'w-full justify-start'"
+            @click="toggle(option.key)"
+          />
+        </li>
+      </ul>
+    </div>
   </Popup>
 </template>
