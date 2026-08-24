@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { ref, computed, watch, onMounted } from "vue";
 
 import Table from "@@/ui/table/Table.vue";
@@ -14,17 +15,26 @@ import ProcessStatusField from "@@/ui/table/fields/ProcessStatusField.vue";
 import ValueField from "@@/ui/table/fields/ValueField.vue";
 
 import type { TableColumn } from "@@/ui/table/types";
-import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
+import {
+  ProcessStatus,
+  PROCESS_STATUS_COLORS,
+  type SelectiveProcess,
+} from "@/types/peneira";
+
 import {
   listProcesses,
   createProcess,
   updateProcess,
   deleteProcess,
 } from "@/service/Peneiras";
+
 import { notify } from "@@/feedback/notify";
+import { useNavbar } from "@/components/layout/navbar/useNavbar";
 
 const processes = ref<SelectiveProcess[]>([]);
 const loading = ref(true);
+
+const { isNavOpen } = useNavbar();
 
 onMounted(async () => {
   try {
@@ -85,11 +95,11 @@ const columns: TableColumn<SelectiveProcess>[] = [
 ];
 
 const STATUS_OPTIONS = [
-  { key: ProcessStatus.Encerrado,  label: "Encerrados"  },
-  { key: ProcessStatus.EmProcesso, label: "Em processo" },
-  { key: ProcessStatus.Pausado,    label: "Pausados"    },
-  { key: ProcessStatus.EmColeta,   label: "Em coleta"   },
-  { key: ProcessStatus.Rascunho,   label: "Rascunhos"   },
+  { key: ProcessStatus.Encerrado,  label: "Encerrados",  color: PROCESS_STATUS_COLORS[ProcessStatus.Encerrado]  },
+  { key: ProcessStatus.EmProcesso, label: "Em processo", color: PROCESS_STATUS_COLORS[ProcessStatus.EmProcesso] },
+  { key: ProcessStatus.Pausado,    label: "Pausados",    color: PROCESS_STATUS_COLORS[ProcessStatus.Pausado]    },
+  { key: ProcessStatus.EmColeta,   label: "Em coleta",   color: PROCESS_STATUS_COLORS[ProcessStatus.EmColeta]   },
+  { key: ProcessStatus.Rascunho,   label: "Rascunhos",   color: PROCESS_STATUS_COLORS[ProcessStatus.Rascunho]   },
 ];
 
 const activeStatuses = ref<string[]>(
@@ -260,15 +270,21 @@ async function submitEditProcess(values: Record<string, string>) {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
 }
+
 </script>
 
 <template>
   <main class="flex flex-col gap-6 p-8">
     <div class="flex items-center gap-3">
-      <h1>Processos seletivos</h1>
-      <Button icon="LayoutGrid" variant="primary" />
+      <div
+        class="flex flex-row gap-4"
+        :class="!isNavOpen ? 'translate-x-16' : ''"
+      >
+        <h1>Processos seletivos</h1>
+        <Button class="h-fit" icon="LayoutGrid" variant="primary" />
+      </div>
       <Button
-        icon="Plus"
+        icon="ListFilterPlus"
         variant="primary"
         class="ml-auto"
         @click="newProcessOpen = true"
