@@ -1,39 +1,68 @@
 <script setup lang="ts">
-
 import { computed, onMounted, ref } from "vue";
-import { useRoute }                 from "vue-router";
+import { useRoute } from "vue-router";
 
-import SelectionTable          from "@/components/ui/table/SelectionTable.vue";
-import OrderableFilterChips    from "@/components/layout/OrderableFilterChips.vue";
-import Button                  from "@/components/ui/Button.vue";
-import Sidebar                 from "@/components/layout/sidebar/Sidebar.vue";
-import CandidateResumeSidebar  from "@/components/layout/sidebar/content/CandidateResumeSidebar.vue";
-import ApprovedListSidebar     from "@/components/layout/sidebar/content/ApprovedListSidebar.vue";
-import ConfirmPopup            from "@/components/popup/ConfirmPopup.vue";
-import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
-import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
-import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
-import AddCandidateChoicePopup from "@/components/popup/AddCandidateChoicePopup.vue";
-import Skeleton                from "@/components/ui/Skeleton.vue";
+import SelectionTable from "@@/ui/table/SelectionTable.vue";
+import Button from "@@/ui/Button.vue";
 
-import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
-import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
-import { ProcessStatus, PROCESS_STATUS_OPTIONS, type SelectiveProcess } from "@/types/peneira";
-import { MAX_VISIBLE_COLUMNS } from "@/components/ui/table/style/grid";
+import OrderableFilterChips from "@@/layout/OrderableFilterChips.vue";
+import Sidebar from "@@/layout/sidebar/Sidebar.vue";
+import CandidateResumeSidebar from "@@/layout/sidebar/content/CandidateResumeSidebar.vue";
+import ApprovedListSidebar from "@@/layout/sidebar/content/ApprovedListSidebar.vue";
+
+import ConfirmPopup from "@@/popup/ConfirmPopup.vue";
+import FormPopup, { type FormField } from "@@/popup/FormPopup.vue";
+import FiltersPopup from "@@/popup/FiltersPopup.vue";
+
+import ImportCandidatesPopup from "@@/popup/variants/ImportCandidatesPopup.vue";
+import AddCandidateChoicePopup from "@@/popup/variants/AddCandidateChoicePopup.vue";
+import WayToDownloadPopUp from "@@/popup/variants/WayToDownloadPopUp.vue";
+
+import Skeleton from "@@/feedback/Skeleton.vue";
+import { candidateColumns } from "@@/ui/table/columns/candidateColumns";
+
 import {
-  getProcess, getCandidatesForProcess, updateProcess,
-  createCandidate, updateCandidate, removeCandidateFromProcess,
-  resolveCandidateResumeUrl, submitStageSelection,
+  CandidateStatus,
+  Seniority,
+  type Candidate,
+  type TableColumn,
+} from "@@/ui/table/types";
+
+import {
+  ProcessStatus,
+  PROCESS_STATUS_OPTIONS,
+  type SelectiveProcess,
+} from "@/types/peneira";
+
+import { MAX_VISIBLE_COLUMNS } from "@@/ui/table/style/grid";
+import {
+  getProcess,
+  getCandidatesForProcess,
+  updateProcess,
+  createCandidate,
+  updateCandidate,
+  removeCandidateFromProcess,
+  resolveCandidateResumeUrl,
+  submitStageSelection,
 } from "@/service/Peneiras";
+  
 import { notify } from "@/components/feedback/notify";
 import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
 
-const route     = useRoute();
+import { notify } from "@@/feedback/notify";
+
+import {
+  downloadCandidatesAsTxt,
+  downloadCandidatesAsCsv,
+  downloadCandidatesAsXlsx,
+} from "@/lib/exportCandidates";
+
+const route = useRoute();
 const processId = route.params.id as string;
 
-const process    = ref<SelectiveProcess>();
+const process = ref<SelectiveProcess>();
 const candidates = ref<Candidate[]>([]);
-const loading    = ref(true);
+const loading = ref(true);
 
 onMounted(async () => {
   try {
@@ -41,22 +70,22 @@ onMounted(async () => {
       getProcess(processId),
       getCandidatesForProcess(processId),
     ]);
-    // The API doesn't expose a headcount on Grupo; derive it from the roster we already fetched.
+
     if (process.value) process.value.participants = candidates.value.length;
   } finally {
     loading.value = false;
   }
 });
 
-const isEncerrado = computed(() => process.value?.status === ProcessStatus.Encerrado);
+const isEncerrado = computed(
+  () => process.value?.status === ProcessStatus.Encerrado,
+);
 
 const allColumns = candidateColumns();
 
-// Pseudo-columns for the actions panel — not real data columns (kept out of
-// `allColumns`/`visibleColumns`), only used to toggle Row's action groups.
 const ACTION_OPTIONS = [
   { key: "editGroup", label: "Ações" },
-  { key: "document",  label: "Currículo" },
+  { key: "document", label: "Currículo" },
 ];
 
 const COLUMN_OPTIONS = [
@@ -64,10 +93,19 @@ const COLUMN_OPTIONS = [
   ...ACTION_OPTIONS,
 ];
 
-const activeColumns = ref<string[]>(["name", "status", "phone", "network", "editGroup", "document"]);
+const activeColumns = ref<string[]>([
+  "name",
+  "status",
+  "phone",
+  "network",
+  "editGroup",
+  "document",
+]);
 
-const showManageActions = computed(() => activeColumns.value.includes("editGroup"));
-const showDocument      = computed(() => activeColumns.value.includes("document"));
+const showManageActions = computed(() =>
+  activeColumns.value.includes("editGroup"),
+);
+const showDocument = computed(() => activeColumns.value.includes("document"));
 
 const visibleColumns = computed(() =>
   activeColumns.value
@@ -77,14 +115,14 @@ const visibleColumns = computed(() =>
 
 const tableRef = ref<InstanceType<typeof SelectionTable> | null>(null);
 
-const sidebarOpen        = ref(false);
-const sidebarMode        = ref<"resume" | "approved" | null>(null);
-const activeCandidateId  = ref<string | number>();
+const sidebarOpen = ref(false);
+const sidebarMode = ref<"resume" | "approved" | null>(null);
+const activeCandidateId = ref<string | number>();
 
 async function openResume(candidate: Candidate) {
   activeCandidateId.value = candidate.id;
-  sidebarMode.value       = "resume";
-  sidebarOpen.value       = true;
+  sidebarMode.value = "resume";
+  sidebarOpen.value = true;
 
   if (!candidate.curriculumUrl) {
     try {
@@ -144,7 +182,9 @@ const CANDIDATE_FIELDS: FormField[] = [
 const deleteTarget = ref<Candidate | null>(null);
 const deleteConfirmOpen = computed({
   get: () => !!deleteTarget.value,
-  set: (value: boolean) => { if (!value) deleteTarget.value = null; },
+  set: (value: boolean) => {
+    if (!value) deleteTarget.value = null;
+  },
 });
 
 async function confirmDeleteCandidate() {
@@ -154,7 +194,9 @@ async function confirmDeleteCandidate() {
 
   try {
     await removeCandidateFromProcess(processId, target.id);
-    candidates.value = candidates.value.filter((candidate) => candidate.id !== target.id);
+    candidates.value = candidates.value.filter(
+      (candidate) => candidate.id !== target.id,
+    );
     if (process.value) process.value.participants = candidates.value.length;
   } catch {
     notify("Não foi possível excluir o candidato.", "error");
@@ -164,7 +206,9 @@ async function confirmDeleteCandidate() {
 const editTarget = ref<Candidate | null>(null);
 const editOpen = computed({
   get: () => !!editTarget.value,
-  set: (value: boolean) => { if (!value) editTarget.value = null; },
+  set: (value: boolean) => {
+    if (!value) editTarget.value = null;
+  },
 });
 
 const editValues = computed<Record<string, string>>(() => {
@@ -196,16 +240,52 @@ async function submitEditCandidate(values: Record<string, string>) {
   };
 
   try {
-    const saved = Object.assign(target, await updateCandidate(processId, updated));
-    candidates.value = candidates.value.map((candidate) => (candidate.id === saved.id ? saved : candidate));
+    const saved = Object.assign(
+      target,
+      await updateCandidate(processId, updated),
+    );
+    candidates.value = candidates.value.map((candidate) =>
+      candidate.id === saved.id ? saved : candidate,
+    );
   } catch {
     notify("Não foi possível salvar as alterações do candidato.", "error");
   }
 }
 
 const addCandidateChoiceOpen = ref(false);
+const chooseWayToDownload = ref(false);
 const newCandidateOpen = ref(false);
 const importOpen = ref(false);
+
+const exportFilename = computed(() => {
+  const slug = (process.value?.jobTitle ?? "candidatos")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "candidatos";
+});
+
+function downloadTxt() {
+  downloadCandidatesAsTxt(candidates.value, exportFilename.value);
+  chooseWayToDownload.value = false;
+}
+
+function downloadCsv() {
+  downloadCandidatesAsCsv(candidates.value, exportFilename.value);
+  chooseWayToDownload.value = false;
+}
+
+async function downloadXlsx() {
+  try {
+    await downloadCandidatesAsXlsx(candidates.value, exportFilename.value);
+  } catch {
+    notify("Não foi possível gerar o arquivo XLSX.", "error");
+  } finally {
+    chooseWayToDownload.value = false;
+  }
+}
 
 async function refreshCandidates() {
   candidates.value = await getCandidatesForProcess(processId);
@@ -227,14 +307,24 @@ async function submitNewCandidate(values: Record<string, string>) {
   } catch (err) {
     console.error(err);
     const reason = err instanceof Error ? err.message : undefined;
-    notify(reason ? `Não foi possível adicionar o candidato: ${reason}` : "Não foi possível adicionar o candidato.", "error");
+    notify(
+      reason
+        ? `Não foi possível adicionar o candidato: ${reason}`
+        : "Não foi possível adicionar o candidato.",
+      "error",
+    );
   }
 }
 
 const PROCESS_FIELDS: FormField[] = [
   { key: "jobTitle", label: "Finalidade da vaga" },
   { key: "department", label: "Departamento" },
-  { key: "status", label: "Estado", type: "select", options: PROCESS_STATUS_OPTIONS },
+  {
+    key: "status",
+    label: "Estado",
+    type: "select",
+    options: PROCESS_STATUS_OPTIONS,
+  },
   { key: "availableSlots", label: "Vagas disponíveis", type: "number" },
   { key: "approvalLimit", label: "Quantidade de aprovados", type: "number" },
   { key: "teamEmail", label: "E-mail da equipe responsável", type: "email" },
@@ -256,11 +346,12 @@ const editProcessValues = computed<Record<string, string>>(() => {
 
 const shareConfirmOpen = ref(false);
 
-/** Persists the final aprovado/reprovado decision and closes the process — irreversible, triggers approval e-mails. */
 async function confirmShare() {
   if (!process.value || !tableRef.value) return;
 
-  const approvedIds = tableRef.value.groups[CandidateStatus.Aprovado].map((candidate) => candidate.id);
+  const approvedIds = tableRef.value.groups[CandidateStatus.Aprovado].map(
+    (candidate) => candidate.id,
+  );
 
   try {
     await submitStageSelection(processId, approvedIds);
@@ -286,13 +377,13 @@ async function submitEditProcess(values: Record<string, string>) {
 
   try {
     const saved = await updateProcess(processId, updated);
-    // The API doesn't expose a headcount on Grupo, so `saved.participants` is always 0 — keep the count derived from the roster.
-    Object.assign(process.value, saved, { participants: process.value.participants });
+    Object.assign(process.value, saved, {
+      participants: process.value.participants,
+    });
   } catch {
     notify("Não foi possível salvar as alterações do processo.", "error");
   }
 }
-
 </script>
 
 <template>
@@ -305,24 +396,44 @@ async function submitEditProcess(values: Record<string, string>) {
         </div>
         <Skeleton width="2.5rem" height="2.5rem" rounded="rounded-medium" />
         <div class="ml-auto flex items-center gap-3">
-          <Skeleton v-for="n in 4" :key="n" width="2.5rem" height="2.5rem" rounded="rounded-medium" />
+          <Skeleton
+            v-for="n in 4"
+            :key="n"
+            width="2.5rem"
+            height="2.5rem"
+            rounded="rounded-medium"
+          />
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <Skeleton v-for="n in 6" :key="n" :width="n % 2 ? '6rem' : '4.5rem'" height="2rem" rounded="rounded-full" />
+        <Skeleton
+          v-for="n in 6"
+          :key="n"
+          :width="n % 2 ? '6rem' : '4.5rem'"
+          height="2rem"
+          rounded="rounded-full"
+        />
       </div>
     </div>
 
-    <div v-for="section in 2" :key="section" class="rounded-medium bg-black/5 p-3">
-      <Skeleton width="6rem" height="1rem" class="mb-2 ml-1" />
+    <div
+      v-for="section in 2"
+      :key="section"
+      class="rounded-medium bg-black/5 p-3"
+    >
+      <Skeleton width="6arem" height="1rem" class="mb-2 ml-1" />
 
       <div class="flex flex-col gap-2">
-        <div v-for="row in 3" :key="row" class="flex items-center gap-4 rounded-medium bg-white px-4 py-3">
-          <Skeleton width="9rem" height="1rem" />
-          <Skeleton width="5rem" height="1rem" />
-          <Skeleton width="7rem" height="1rem" />
-          <Skeleton width="5rem" height="1rem" />
+        <div
+          v-for="row in 3"
+          :key="row"
+          class="flex items-center gap-4 rounded-medium bg-white px-4 py-3"
+        >
+          <Skeleton width="9rem" height="2rem" />
+          <Skeleton width="5rem" height="2rem" />
+          <Skeleton width="7rem" height="2rem" />
+          <Skeleton width="5rem" height="2rem" />
         </div>
       </div>
     </div>
@@ -339,17 +450,47 @@ async function submitEditProcess(values: Record<string, string>) {
             <h1 class="leading-none pb-px">{{ process.jobTitle }}</h1>
             <h3>{{ process.department }}</h3>
           </div>
-          <Button icon="EllipsisVertical" variant="neutral" :disabled="isEncerrado" @click="editProcessOpen = true" />
+          <Button
+            icon="EllipsisVertical"
+            variant="neutral"
+            :disabled="isEncerrado"
+            @click="editProcessOpen = true"
+          />
           <div class="ml-auto flex items-center gap-3">
-            <Button icon="UserPlus" variant="primary" :disabled="isEncerrado" @click="addCandidateChoiceOpen = true" />
-            <Button icon="Download" variant="primary" :disabled="!candidates.length" @click="exportCandidates" />
-            <Button icon="Share2"   variant="primary" :disabled="isEncerrado" @click="shareConfirmOpen = true" />
-            <Button icon="ListTodo" variant="primary" :disabled="isEncerrado" @click="openApproved" />
+            <Button
+              icon="UserPlus"
+              variant="primary"
+              :disabled="isEncerrado"
+              @click="addCandidateChoiceOpen = true"
+            />
+            <Button
+              icon="Download"
+              color="purple"
+              variant="primary"
+              @click="chooseWayToDownload = true"
+            />
+            <Button
+              icon="CheckCheck"
+              variant="primary"
+              color="green"
+              :disabled="isEncerrado"
+              @click="shareConfirmOpen = true"
+            />
+            <Button
+              icon="ListTodo"
+              variant="primary"
+              :disabled="isEncerrado"
+              @click="openApproved"
+            />
           </div>
         </div>
-  
+
         <OrderableFilterChips
-          :options="COLUMN_OPTIONS" v-model="activeColumns" :pinned="['name']" :locked-toggleable="['editGroup', 'document']" :max="MAX_VISIBLE_COLUMNS"
+          :options="COLUMN_OPTIONS"
+          v-model="activeColumns"
+          :pinned="['name']"
+          :locked-toggleable="['editGroup', 'document']"
+          :max="MAX_VISIBLE_COLUMNS"
           @open-filters="filtersOpen = true"
         />
       </div>
@@ -404,6 +545,13 @@ async function submitEditProcess(values: Record<string, string>) {
       @confirm="confirmShare"
     />
 
+    <WayToDownloadPopUp
+      v-model="chooseWayToDownload"
+      @txt="downloadTxt"
+      @csv="downloadCsv"
+      @xlsx="downloadXlsx"
+    />
+
     <FormPopup
       v-model="editOpen"
       title="Editar candidato"
@@ -441,7 +589,12 @@ async function submitEditProcess(values: Record<string, string>) {
       @imported="refreshCandidates"
     />
 
-    <FiltersPopup v-model="filtersOpen" title="Colunas visíveis" :options="COLUMN_OPTIONS" v-model:active="activeColumns" />
+    <FiltersPopup
+      v-model="filtersOpen"
+      title="Colunas visíveis"
+      :options="COLUMN_OPTIONS"
+      v-model:active="activeColumns"
+    />
   </div>
   <main v-else class="flex flex-col gap-6 p-8">
     <p>Peneira não encontrada.</p>

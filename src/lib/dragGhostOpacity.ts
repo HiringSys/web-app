@@ -76,10 +76,6 @@ function handleMutations(mutations: MutationRecord[]) {
 
   if (!landedEl) return
 
-  // vuedraggable temporarily puts the real item back at its old DOM position
-  // and lets Vue's reactive re-render move it to the new spot on the next
-  // tick. Hide it now so it doesn't flash at the wrong (old) position, and
-  // wait for that re-render before measuring where the flight should land.
   landedEl.style.setProperty('opacity', '0', 'important')
 
   nextTick(() => {

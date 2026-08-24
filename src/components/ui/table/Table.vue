@@ -19,7 +19,6 @@ const props = withDefaults(
     columns:        TableColumn<T>[]
     items:          T[]
     draggable?:     boolean
-    /** Per-row lock predicate — locked rows keep delete but disable edit. */
     disabledItems?: (item: T) => boolean
   }>(),
   { draggable: true, disabledItems: () => false },

@@ -17,7 +17,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       label: 'Nome',
       size: 'lg',
       measure: (item) => item.name,
-      measureOffset: 48, // avatar (2.5rem) + gap (0.5rem)
+      measureOffset: 48,
       component: CandidateField,
       props: (item) => ({ name: item.name, email: item.email, avatarUrl: item.avatarUrl }),
     },

@@ -11,7 +11,6 @@ export async function handleLogin(email: string, password: string): Promise<Logi
     setAccountEmail(email);
     return response;
   } catch {
-    // No backend configured: accept any credentials so the app is usable against the local mocks.
     if (isMockMode()) {
       const response: LoginResponse = { accessToken: "mock-token" };
       setAuthToken(response.accessToken);
@@ -27,10 +26,6 @@ export function handleLogout() {
   setAccountEmail(null);
 }
 
-/**
- * The API has no "set your own password" endpoint — it generates a new
- * password server-side and e-mails it to the account (see .sdd/swagger/api.md).
- */
 export async function handleRecoverPassword(email: string): Promise<boolean> {
   try {
     await apiFetch<RecuperacaoSenhaResponse>("/auth/password-recovery", {

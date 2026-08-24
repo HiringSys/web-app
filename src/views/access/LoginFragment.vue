@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import Input from "@/components/ui/Input.vue";
-import Button from "@/components/ui/Button.vue";
-import HintPopup from "@/components/ui/HintPopup.vue";
+import Input from "@@/ui/Input.vue";
+import Button from "@@/ui/Button.vue";
+import HintPopup from "@@/feedback/HintPopup.vue";
 
 import { handleLogin } from "@/service/Access";
 
@@ -62,7 +62,9 @@ async function submit() {
             placeholder="Senha"
           />
         </Transition>
-        <p v-if="error" class="text-small font-medium text-red">E-mail ou senha inválidos.</p>
+        <p v-if="error" class="text-small font-medium text-red">
+          E-mail ou senha inválidos.
+        </p>
         <Button :text="buttonText" @click="submit" />
       </form>
     </div>

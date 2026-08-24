@@ -7,6 +7,7 @@ export const Color = {
   Purple: 'purple',
   Pink:   'pink',
   Cyan:   'cyan',
+  White:  'white',
 } as const
 
 export type Color = (typeof Color)[keyof typeof Color]
@@ -20,4 +21,5 @@ export const colorClasses: Record<Color, { bg: string; shadow: string }> = {
   purple: { bg: 'bg-purple', shadow: 'var(--color-purple-co)' },
   pink:   { bg: 'bg-pink',   shadow: 'var(--color-pink-co)'   },
   cyan:   { bg: 'bg-cyan',   shadow: 'var(--color-cyan-co)'   },
+  white:  { bg: 'bg-white',  shadow: 'var(--color-white-co)'   },
 }

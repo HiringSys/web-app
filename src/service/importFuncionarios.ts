@@ -1,7 +1,5 @@
 import type { FuncionarioImportacaoRequest, FuncionarioStatus, FuncionarioExperiencia } from "./api/models";
 
-// Column layout matches the exemplo.xlsx template shipped with the project:
-// nome, email, telefone, salario, cidade, status, experiencia, cargos (";"-separated).
 const COLUMNS = ["nome", "email", "telefone", "salario", "cidade", "status", "experiencia", "cargos"] as const;
 type ColumnKey = (typeof COLUMNS)[number];
 const REQUIRED_COLUMNS: ColumnKey[] = ["nome", "email", "salario", "status", "experiencia", "cargos"];
@@ -10,11 +8,10 @@ const STATUS_VALUES: FuncionarioStatus[] = ["EM_ANALISE", "APROVADO", "REPROVADO
 const EXPERIENCIA_VALUES: FuncionarioExperiencia[] = ["SEM_EXPERIENCIA", "ESTAGIARIO", "JUNIOR", "PLENO", "SENIOR"];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Matches ImportacaoFuncionariosRequest.funcionarios' maxItems. */
 const MAX_FUNCIONARIOS = 1000;
 
 export interface ImportIssue {
-  row:     number; // 1-based Excel row (0 = sheet-level issue, not tied to a row)
+  row:     number;
   message: string;
 }
 
@@ -33,18 +30,11 @@ function isBlankRow(row: unknown[]): boolean {
   return row.every((cell) => cellToString(cell) === "");
 }
 
-/** Maps each expected column to its index in the header row; missing columns come back as -1. */
 function indexColumns(header: unknown[]): Record<ColumnKey, number> {
   const normalized = header.map((cell) => cellToString(cell).toLowerCase());
   return Object.fromEntries(COLUMNS.map((key) => [key, normalized.indexOf(key)])) as Record<ColumnKey, number>;
 }
 
-/**
- * Rows missing a required field (nome/email/salario/status/experiencia/cargos) are dropped
- * entirely and reported — sending them would get the whole batch rejected by the API, since
- * it validates FuncionarioImportacaoRequest per-item with no partial-failure response.
- * Invalid *optional* fields (telefone/cidade) are cleared instead, and the row still imports.
- */
 export function parseFuncionariosSheet(rows: unknown[][]): ParsedFuncionariosImport {
   const issues: ImportIssue[] = [];
   const funcionarios: FuncionarioImportacaoRequest[] = [];
@@ -65,7 +55,7 @@ export function parseFuncionariosSheet(rows: unknown[][]): ParsedFuncionariosImp
   }
 
   dataRows.forEach((row, index) => {
-    const excelRow = index + 2; // header occupies row 1
+    const excelRow = index + 2;
     if (isBlankRow(row)) return;
 
     const get = (key: ColumnKey) => row[columns[key]];

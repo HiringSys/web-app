@@ -1,9 +1,3 @@
-// Types generated from the HiringSys API OpenAPI spec (v1.0).
-// Source: https://ms-hiring-api-r3jt.onrender.com/v3/api-docs
-// Documented in detail at .sdd/swagger/. Kept close to the backend's own
-// (Portuguese) naming — the `service/` layer maps these to the app's
-// domain types (Candidate, SelectiveProcess, ...).
-
 export type RedeTipo = "LINKEDIN" | "GITHUB" | "PORTFOLIO" | "OUTRO";
 
 export interface RedeRequest {
@@ -145,24 +139,11 @@ export interface ArquivoFuncionarioResponse {
   criadoEm:      string;
 }
 
-/**
- * `GET /stages/{stageId}/candidates` — the newer, purpose-built "Peneiras" API.
- * Only `id`/`status` are consumed for now: it's the source of truth for a
- * candidate's status *within this specific stage* (unlike `Funcionario.status`,
- * which is the employee's global status and isn't stage-scoped). See
- * .sdd/swagger/api.md.
- */
 export interface StageCandidateResponse {
   id:     number;
   status: string;
 }
 
-/**
- * `PUT /stages/{stageId}/candidates/selection` — persists the final
- * approved/reproved decision (and the approval order) for every candidate in
- * the stage in one shot. Candidates omitted from the list are marked
- * reprovado. Approving here is what triggers the backend's approval e-mail.
- */
 export interface StageSelectionRequest {
   approvedCandidateIds: number[];
 }
