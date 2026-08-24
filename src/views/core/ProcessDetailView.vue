@@ -13,8 +13,8 @@ import ConfirmPopup from "@@/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@@/popup/FormPopup.vue";
 
 import FiltersPopup from "@@/popup/FiltersPopup.vue";
-import ImportCandidatesPopup from "@@/popup/ImportCandidatesPopup.vue";
-import AddCandidateChoicePopup from "@@/popup/AddCandidateChoicePopup.vue";
+import ImportCandidatesPopup from "@@/popup/variants/ImportCandidatesPopup.vue";
+import AddCandidateChoicePopup from "@@/popup/variants/AddCandidateChoicePopup.vue";
 import Skeleton from "@@/feedback/Skeleton.vue";
 
 import { candidateColumns } from "@@/ui/table/columns/candidateColumns";
