@@ -13,6 +13,7 @@ import ConfirmPopup            from "@/components/popup/ConfirmPopup.vue";
 import FormPopup, { type FormField } from "@/components/popup/FormPopup.vue";
 import FiltersPopup            from "@/components/popup/FiltersPopup.vue";
 import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vue";
+import AddCandidateChoicePopup from "@/components/popup/AddCandidateChoicePopup.vue";
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
@@ -183,6 +184,7 @@ async function submitEditCandidate(values: Record<string, string>) {
   }
 }
 
+const addCandidateChoiceOpen = ref(false);
 const newCandidateOpen = ref(false);
 const importOpen = ref(false);
 
@@ -266,8 +268,7 @@ async function submitEditProcess(values: Record<string, string>) {
           </div>
           <Button icon="EllipsisVertical" variant="neutral" @click="editProcessOpen = true" />
           <div class="ml-auto flex items-center gap-3">
-            <Button icon="UserPlus" variant="primary" @click="newCandidateOpen = true" />
-            <Button icon="FileSpreadsheet" variant="primary" @click="importOpen = true" />
+            <Button icon="UserPlus" variant="primary" @click="addCandidateChoiceOpen = true" />
             <Button icon="Download" variant="primary" />
             <Button icon="Share2"   variant="primary" />
             <Button icon="ListTodo" variant="primary" @click="openApproved" />
@@ -342,6 +343,12 @@ async function submitEditProcess(values: Record<string, string>) {
       :fields="PROCESS_FIELDS"
       :initial-values="editProcessValues"
       @submit="submitEditProcess"
+    />
+
+    <AddCandidateChoicePopup
+      v-model="addCandidateChoiceOpen"
+      @manual="newCandidateOpen = true"
+      @excel="importOpen = true"
     />
 
     <ImportCandidatesPopup
