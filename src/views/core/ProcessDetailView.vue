@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import SelectionTable from "@@/ui/table/SelectionTable.vue";
 import Button from "@@/ui/Button.vue";
@@ -25,7 +25,9 @@ import { useNavbar } from "@/components/layout/navbar/useNavbar";
 import {
   CandidateStatus,
   Seniority,
+  SocialNetwork,
   type Candidate,
+  type SocialLink,
   type TableColumn,
 } from "@@/ui/table/types";
 
@@ -47,8 +49,8 @@ import {
   submitStageSelection,
 } from "@/service/Peneiras";
   
-import { notify } from "@/components/feedback/notify";
 import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
+import { notify } from "@@/feedback/notify";
 
 import {
   downloadCandidatesAsTxt,
@@ -57,6 +59,7 @@ import {
 } from "@/lib/exportCandidates";
 
 const route = useRoute();
+const router = useRouter();
 const processId = route.params.id as string;
 
 const process = ref<SelectiveProcess>();
@@ -81,6 +84,10 @@ onMounted(async () => {
 const isEncerrado = computed(
   () => process.value?.status === ProcessStatus.Encerrado,
 );
+
+function returnToProcessesList() {
+  router.push({ name: "peneiras" });
+}
 
 const allColumns = candidateColumns();
 
@@ -139,16 +146,6 @@ function openApproved() {
   sidebarOpen.value = true;
 }
 
-async function exportCandidates() {
-  if (!process.value) return;
-
-  try {
-    await exportCandidatesToExcel(process.value, candidates.value);
-  } catch {
-    notify("Não foi possível gerar a planilha de exportação.", "error");
-  }
-}
-
 function reorderApproved(items: Candidate[]) {
   if (!tableRef.value) return;
   tableRef.value.groups[CandidateStatus.Aprovado] = items;
@@ -178,7 +175,20 @@ const CANDIDATE_FIELDS: FormField[] = [
     ],
   },
   { key: "salaryExpectation", label: "Expectativa salarial", type: "number" },
+  { key: "linkedinUrl", label: "LinkedIn", placeholder: "URL do perfil" },
+  { key: "githubUrl", label: "GitHub", placeholder: "URL do perfil" },
 ];
+
+function networksFromFormValues(values: Record<string, string>): SocialLink[] {
+  const networks: SocialLink[] = [];
+  if (values.linkedinUrl?.trim()) {
+    networks.push({ network: SocialNetwork.LinkedIn, url: values.linkedinUrl.trim() });
+  }
+  if (values.githubUrl?.trim()) {
+    networks.push({ network: SocialNetwork.GitHub, url: values.githubUrl.trim() });
+  }
+  return networks;
+}
 
 const deleteTarget = ref<Candidate | null>(null);
 const deleteConfirmOpen = computed({
@@ -222,6 +232,12 @@ const editValues = computed<Record<string, string>>(() => {
     role: candidate.role,
     seniority: candidate.seniority,
     salaryExpectation: String(candidate.salaryExpectation),
+    linkedinUrl:
+      candidate.networks?.find((link) => link.network === SocialNetwork.LinkedIn)
+        ?.url ?? "",
+    githubUrl:
+      candidate.networks?.find((link) => link.network === SocialNetwork.GitHub)
+        ?.url ?? "",
   };
 });
 
@@ -238,6 +254,7 @@ async function submitEditCandidate(values: Record<string, string>) {
     role: values.role,
     seniority: values.seniority as Seniority,
     salaryExpectation: Number(values.salaryExpectation),
+    networks: networksFromFormValues(values),
   };
 
   try {
@@ -302,6 +319,7 @@ async function submitNewCandidate(values: Record<string, string>) {
       role: values.role,
       seniority: values.seniority as Seniority,
       salaryExpectation: Number(values.salaryExpectation),
+      networks: networksFromFormValues(values),
     });
     candidates.value.push(created);
     if (process.value) process.value.participants = candidates.value.length;
@@ -552,7 +570,12 @@ async function submitEditProcess(values: Record<string, string>) {
       @confirm="confirmShare"
     />
 
-    <WayToDownloadPopUp v-model="chooseWayToDownload" />
+    <WayToDownloadPopUp
+      v-model="chooseWayToDownload"
+      @txt="downloadTxt"
+      @csv="downloadCsv"
+      @xlsx="downloadXlsx"
+    />
 
     <FormPopup
       v-model="editOpen"
@@ -599,7 +622,11 @@ async function submitEditProcess(values: Record<string, string>) {
       v-model:active="activeColumns"
     />
   </div>
-  <main v-else class="flex flex-col gap-6 p-8">
-    <p>Peneira não encontrada.</p>
+  <main v-else class="w-full h-full items-center-safe justify-center mx-auto flex max-w-md flex-col gap-6 text-center">
+    <div class="flex flex-col gap-2">
+      <h1 class="leading-none pb-px">Peneira não encontrada</h1>
+      <h3 class="leading-none pb-px">Oppss.... Esse processo seletivo não existe ou foi removido...</h3>
+    </div>
+    <Button icon="TrafficCone" color="orange" small class="px-24" @click="returnToProcessesList()" />
   </main>
 </template>
