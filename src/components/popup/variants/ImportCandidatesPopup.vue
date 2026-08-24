@@ -9,6 +9,7 @@ import {
 } from "@/service/importFuncionarios";
 import { importFuncionariosFromExcel } from "@/service/Peneiras";
 import { notify } from "@@/feedback/notify";
+import modeloPlanilhaUrl from "@/service/mocks/insert/modelo.xlsx?url";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -117,8 +118,14 @@ async function confirmImport() {
     <div class="flex flex-col gap-4 pb-2">
       <p class="text-black/60">
         A planilha deve ter as colunas: nome, email, telefone, salario, cidade,
-        status, experiencia, cargos. Baixe aqui um modelo de planilha que o
-        sistema aceita!
+        status, experiencia, cargos. Baixe
+        <a
+          :href="modeloPlanilhaUrl"
+          download="modelo-importacao-candidatos.xlsx"
+          class="text-blue cursor-pointer"
+          >aqui</a
+        >
+        um modelo de planilha que o sistema aceita!
       </p>
 
       <input
