@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import SelectionTable from "@@/ui/table/SelectionTable.vue";
 import Button from "@@/ui/Button.vue";
@@ -47,9 +47,7 @@ import {
   submitStageSelection,
 } from "@/service/Peneiras";
   
-import { notify } from "@/components/feedback/notify";
 import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
-
 import { notify } from "@@/feedback/notify";
 
 import {
@@ -59,6 +57,7 @@ import {
 } from "@/lib/exportCandidates";
 
 const route = useRoute();
+const router = useRouter();
 const processId = route.params.id as string;
 
 const process = ref<SelectiveProcess>();
@@ -83,6 +82,10 @@ onMounted(async () => {
 const isEncerrado = computed(
   () => process.value?.status === ProcessStatus.Encerrado,
 );
+
+function returnToProcessesList() {
+  router.push({ name: "peneiras" });
+}
 
 const allColumns = candidateColumns();
 
@@ -600,7 +603,11 @@ async function submitEditProcess(values: Record<string, string>) {
       v-model:active="activeColumns"
     />
   </div>
-  <main v-else class="flex flex-col gap-6 p-8">
-    <p>Peneira não encontrada.</p>
+  <main v-else class="w-full h-full items-center-safe justify-center mx-auto flex max-w-md flex-col gap-6 text-center">
+    <div class="flex flex-col gap-2">
+      <h1 class="leading-none pb-px">Peneira não encontrada</h1>
+      <h3 class="leading-none pb-px">Oppss.... Esse processo seletivo não existe ou foi removido...</h3>
+    </div>
+    <Button icon="TrafficCone" color="orange" small class="px-24" @click="returnToProcessesList()" />
   </main>
 </template>
