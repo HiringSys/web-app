@@ -207,8 +207,10 @@ async function submitNewCandidate(values: Record<string, string>) {
     });
     candidates.value.push(created);
     if (process.value) process.value.participants = candidates.value.length;
-  } catch {
-    notify("Não foi possível adicionar o candidato.", "error");
+  } catch (err) {
+    console.error(err);
+    const reason = err instanceof Error ? err.message : undefined;
+    notify(reason ? `Não foi possível adicionar o candidato: ${reason}` : "Não foi possível adicionar o candidato.", "error");
   }
 }
 
@@ -285,7 +287,7 @@ async function submitEditProcess(values: Record<string, string>) {
       <div class="flex flex-col gap-2">
         <div class="flex items-start gap-3">
           <div>
-            <h1 class="leading-none">{{ process.jobTitle }}</h1>
+            <h1 class="leading-none pb-px">{{ process.jobTitle }}</h1>
             <h3>{{ process.department }}</h3>
           </div>
           <Button icon="EllipsisVertical" variant="neutral" :disabled="isEncerrado" @click="editProcessOpen = true" />

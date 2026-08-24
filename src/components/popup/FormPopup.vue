@@ -38,6 +38,15 @@ watch(() => props.modelValue, (open) => {
   if (!open) return
   Object.keys(values).forEach((key) => delete values[key])
   Object.assign(values, props.initialValues)
+  // A native <select> visually shows its first option by default even when
+  // v-model's underlying value is still unset — without this, submitting
+  // without touching the dropdown sends `undefined` for that field.
+  for (const field of props.fields) {
+    const firstOption = field.options?.[0]
+    if (field.type === 'select' && values[field.key] === undefined && firstOption) {
+      values[field.key] = firstOption.value
+    }
+  }
 }, { immediate: true })
 
 function submit() {

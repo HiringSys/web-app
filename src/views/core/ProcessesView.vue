@@ -241,9 +241,9 @@ async function submitEditProcess(values: Record<string, string>) {
     >
     </Table>
 
-    <div class="flex items-center justify-center gap-3">
+    <div class="flex w-fit bg-white items-center justify-end-safe gap-4 px-3 pb-4 pt-2 rounded-medium">
+      <!-- <span class="text-black/40">Página {{ page }} de {{ pageCount }}</span> -->
       <Button icon="ArrowLeft" variant="primary" :disabled="!hasPrevPage" @click="prevPage" />
-      <span class="text-black/40">Página {{ page }} de {{ pageCount }}</span>
       <Button icon="ArrowRight" variant="primary" :disabled="!hasNextPage" @click="nextPage" />
     </div>
 

@@ -21,7 +21,7 @@ const config = computed(() => CONFIG[props.seniority])
 
 <template>
   <span
-    class="inline-flex w-fit items-center px-3 py-1 rounded-low text-small text-white font-semibold cursor-default select-none press-shadow"
+    class="inline-flex w-fit items-center px-3 py-1 rounded-low text-small text-white font-semibold cursor-default select-none press-shadow text-nowrap"
     :class="config.bg"
     :style="{ '--press-shadow-color': config.shadowColor }"
   >

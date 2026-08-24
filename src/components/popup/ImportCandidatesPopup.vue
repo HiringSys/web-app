@@ -70,8 +70,10 @@ async function confirmImport() {
     notify(result.mensagem ?? `${result.totalRecebidos ?? parsed.value.funcionarios.length} candidato(s) importado(s).`, 'success')
     emit('imported')
     close()
-  } catch {
-    notify('Não foi possível importar a planilha.', 'error')
+  } catch (err) {
+    console.error(err)
+    const reason = err instanceof Error ? err.message : undefined
+    notify(reason ? `Não foi possível importar a planilha: ${reason}` : 'Não foi possível importar a planilha.', 'error')
   } finally {
     submitting.value = false
   }

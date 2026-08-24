@@ -46,10 +46,6 @@ const buttonClasses = computed(() => twMerge(
   props.class,
 ))
 
-// Pins the press-shadow utility at its :hover look (reduced shadow, shifted
-// down) so the button reads as permanently "engaged" — an inline style wins
-// over the utility's :hover/:active rules regardless of real mouse state.
-// Disabled buttons get the same pinned look so they read as inert, not just greyed.
 const buttonStyle = computed(() => ({
   '--press-shadow-color': pressShadowColor.value,
   ...(props.toggled || props.disabled

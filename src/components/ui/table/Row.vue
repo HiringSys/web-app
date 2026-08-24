@@ -41,7 +41,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 select-none overflow-hidden">
+  <div class="relative flex flex-row justify-between rounded-medium bg-white px-4 py-3 min-h-16 select-none overflow-hidden">
     <div class="grid max-h-18 items-center gap-4" :style="{ gridTemplateColumns }" draggable="false">
       <span v-if="draggable && !locked" class="drag-handle inline-flex cursor-grab items-center justify-center p-1 [-webkit-user-drag:none]" draggable="false">
         <Grip :size="16" class="pointer-events-none text-black/30" draggable="false" />
