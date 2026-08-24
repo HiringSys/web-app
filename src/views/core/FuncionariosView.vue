@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+import { ChevronDown } from "@lucide/vue";
 
 import Button from "@@/ui/Button.vue";
 import Input from "@@/ui/Input.vue";
@@ -344,10 +345,22 @@ function experienceLabel(experience?: FuncionarioExperiencia) {
         </label>
         <label class="flex flex-col gap-1.5">
           <span class="text-small font-semibold text-black/55">Status</span>
-          <select v-model="filters.status" class="h-[2.75rem] rounded-medium bg-gray px-4 font-medium text-black focus:outline-2 focus:outline-blue">
-            <option value="">Todos</option>
-            <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
-          </select>
+          <div class="group relative">
+            <select
+              v-model="filters.status"
+              class="h-[2.75rem] w-full cursor-pointer appearance-none rounded-medium bg-gray pl-4 pr-12 font-medium text-black transition-colors hover:bg-gray-co/45 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/70"
+              aria-label="Filtrar por status"
+            >
+              <option value="">Todos</option>
+              <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">{{ option.label }}</option>
+            </select>
+            <span
+              class="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-medium border-l border-black/[0.06] text-black/45 transition-colors group-hover:text-black/70"
+              aria-hidden="true"
+            >
+              <ChevronDown :size="18" :stroke-width="2.4" />
+            </span>
+          </div>
         </label>
         <div class="flex items-end gap-2">
           <Button text="Buscar" icon="Search" type="submit" :disabled="searching" />
