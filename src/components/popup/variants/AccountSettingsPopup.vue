@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import Input from "@@/ui/Input.vue";
 
 import Popup from "@@/popup/Popup.vue";
 import Button from "@@/ui/Button.vue";
@@ -48,12 +47,11 @@ async function recoverPassword() {
     <div class="flex flex-col gap-6 pb-6">
       <div class="flex flex-col gap-1.5">
         <h4 class="font-semibold leading-none pb-px text-black/60">E-mail</h4>
-        <Input
-          class="w-full text-black!"
-          :value="email"
-          placeholder=""
-          disabled
-        />
+        <div
+          class="w-full truncate rounded-medium bg-white px-4 py-2.5 font-medium text-black!"
+        >
+          {{ email }}
+        </div>
       </div>
 
       <div class="flex flex-col gap-1.5">
