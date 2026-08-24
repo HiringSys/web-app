@@ -50,6 +50,7 @@ export interface Candidate {
   networks?: SocialLink[];
   seniority: Seniority;
   role: string;
+  department?: string;
   salaryExpectation: number;
   curriculumUrl?: string;
   curriculumFileName?: string;

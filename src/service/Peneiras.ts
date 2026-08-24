@@ -7,6 +7,7 @@ import type {
   FuncionarioResponse,
   FuncionarioCreateRequest,
   FuncionarioUpdateRequest,
+  FuncionarioPatchRequest,
   FuncionarioStatus,
   FuncionarioExperiencia,
   CargoResponse,
@@ -202,6 +203,7 @@ function mapFuncionarioToCandidate(
       funcionario.experiencia ?? "SEM_EXPERIENCIA"
     ).toLowerCase() as Seniority,
     role: funcionario.cargos?.[0]?.nome ?? "",
+    department: funcionario.departamento ?? "",
     salaryExpectation: funcionario.salario ?? 0,
     jobAffinity: grupoMembership?.scoreProximidade ?? 0,
   };
@@ -250,6 +252,7 @@ export interface NewCandidateInput {
   email: string;
   phone: string;
   role: string;
+  department?: string;
   seniority: Seniority;
   salaryExpectation: number;
   networks?: SocialLink[];
@@ -266,6 +269,7 @@ export async function createCandidate(
     email: values.email,
     telefone: values.phone || undefined,
     salario: values.salaryExpectation,
+    departamento: values.department || undefined,
     experiencia: values.seniority.toUpperCase() as FuncionarioExperiencia,
     cargoIds: cargoId !== undefined ? [cargoId] : undefined,
     redes: toRedeRequests(values.networks),
@@ -312,6 +316,7 @@ export async function updateCandidate(
     email: candidate.email,
     telefone: candidate.phone || undefined,
     salario: candidate.salaryExpectation,
+    departamento: candidate.department || undefined,
     status: toFuncionarioStatus(candidate),
     experiencia: candidate.seniority.toUpperCase() as FuncionarioExperiencia,
     cargoIds: cargoId !== undefined ? [cargoId] : [],
@@ -352,6 +357,33 @@ export async function removeCandidateFromProcess(
 
 export async function deleteCandidate(id: string | number): Promise<void> {
   await apiFetch(`/funcionarios/${id}`, { method: "DELETE" });
+}
+
+export async function getCandidateDepartment(
+  grupoId: string | number,
+  candidateId: string | number,
+): Promise<string> {
+  const funcionario = await apiFetch<FuncionarioResponse>(
+    `/funcionarios/${candidateId}`,
+  );
+  return mapFuncionarioToCandidate(funcionario, grupoId).department ?? "";
+}
+
+export async function patchCandidateDepartment(
+  grupoId: string | number,
+  candidateId: string | number,
+  department: string,
+): Promise<Candidate> {
+  const funcionario = await apiFetch<FuncionarioResponse>(
+    `/funcionarios/${candidateId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        departamento: department || undefined,
+      } satisfies FuncionarioPatchRequest),
+    },
+  );
+  return mapFuncionarioToCandidate(funcionario, grupoId);
 }
 
 export async function listCandidateFiles(

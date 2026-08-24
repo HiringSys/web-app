@@ -53,6 +53,14 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       props: (item) => ({ value: item.role }),
     },
     {
+      key: 'department',
+      label: 'Departamento',
+      size: 'md',
+      measure: (item) => item.department ?? '',
+      component: ValueField,
+      props: (item) => ({ value: item.department ?? '—' }),
+    },
+    {
       key: 'salaryExpectation',
       label: 'Expectativa salarial',
       size: 'sm',

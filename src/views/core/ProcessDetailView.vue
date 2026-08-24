@@ -47,6 +47,8 @@ import {
   removeCandidateFromProcess,
   resolveCandidateResumeUrl,
   submitStageSelection,
+  getCandidateDepartment,
+  patchCandidateDepartment,
 } from "@/service/Peneiras";
   
 import { notify } from "@@/feedback/notify";
@@ -163,6 +165,7 @@ const CANDIDATE_FIELDS: FormField[] = [
   { key: "email", label: "E-mail", type: "email" },
   { key: "phone", label: "Telefone", type: "tel" },
   { key: "role", label: "Cargo" },
+  { key: "department", label: "Departamento" },
   {
     key: "seniority",
     label: "Senioridade",
@@ -231,6 +234,7 @@ const editValues = computed<Record<string, string>>(() => {
     email: candidate.email,
     phone: candidate.phone,
     role: candidate.role,
+    department: candidate.department ?? "",
     seniority: candidate.seniority,
     salaryExpectation: String(candidate.salaryExpectation),
     linkedinUrl:
@@ -253,6 +257,7 @@ async function submitEditCandidate(values: Record<string, string>) {
     email: values.email,
     phone: values.phone,
     role: values.role,
+    department: values.department,
     seniority: values.seniority as Seniority,
     salaryExpectation: Number(values.salaryExpectation),
     networks: networksFromFormValues(values),
@@ -268,6 +273,50 @@ async function submitEditCandidate(values: Record<string, string>) {
     );
   } catch {
     notify("Não foi possível salvar as alterações do candidato.", "error");
+  }
+}
+
+const DEPARTMENT_FIELDS: FormField[] = [
+  { key: "department", label: "Departamento" },
+];
+
+const departmentTarget = ref<Candidate | null>(null);
+const departmentOpen = computed({
+  get: () => !!departmentTarget.value,
+  set: (value: boolean) => {
+    if (!value) departmentTarget.value = null;
+  },
+});
+const departmentValues = ref<Record<string, string>>({});
+
+async function openDepartmentEditor(candidate: Candidate) {
+  let department = candidate.department ?? "";
+
+  try {
+    department = await getCandidateDepartment(processId, candidate.id);
+  } catch {
+    notify("Não foi possível carregar o departamento atual.", "error");
+  }
+
+  departmentValues.value = { department };
+  departmentTarget.value = candidate;
+}
+
+async function submitDepartment(values: Record<string, string>) {
+  if (!departmentTarget.value) return;
+  const target = departmentTarget.value;
+  departmentTarget.value = null;
+
+  try {
+    const saved = Object.assign(
+      target,
+      await patchCandidateDepartment(processId, target.id, values.department),
+    );
+    candidates.value = candidates.value.map((candidate) =>
+      candidate.id === saved.id ? saved : candidate,
+    );
+  } catch {
+    notify("Não foi possível salvar o departamento.", "error");
   }
 }
 
@@ -318,6 +367,7 @@ async function submitNewCandidate(values: Record<string, string>) {
       email: values.email,
       phone: values.phone,
       role: values.role,
+      department: values.department,
       seniority: values.seniority as Seniority,
       salaryExpectation: Number(values.salaryExpectation),
       networks: networksFromFormValues(values),
@@ -533,6 +583,7 @@ async function submitEditProcess(values: Record<string, string>) {
         @view-resume="openResume"
         @delete-item="deleteTarget = $event"
         @edit-item="editTarget = $event"
+        @edit-department="openDepartmentEditor"
       />
     </main>
 
@@ -601,6 +652,15 @@ async function submitEditProcess(values: Record<string, string>) {
       :fields="PROCESS_FIELDS"
       :initial-values="editProcessValues"
       @submit="submitEditProcess"
+    />
+
+    <FormPopup
+      v-model="departmentOpen"
+      title="Departamento do candidato"
+      submit-text="Atualizar"
+      :fields="DEPARTMENT_FIELDS"
+      :initial-values="departmentValues"
+      @submit="submitDepartment"
     />
 
     <AddCandidateChoicePopup
