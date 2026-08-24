@@ -33,9 +33,6 @@ async function submit() {
   <div class="flex flex-col w-full gap-6">
     <div class="flex flex-col gap-2">
       <h2>Recuperar senha</h2>
-      <p class="font-medium text-black/60">
-        Informe o e-mail da sua conta. Enviaremos uma nova senha para ele.
-      </p>
       <form
         class="w-full max-w-120 flex flex-col gap-4"
         @submit.prevent="submit"

@@ -1,16 +1,8 @@
 <script setup lang="ts">
 
 import { computed }             from 'vue'
-import Icon                     from '@/components/ui/Icon.vue'
 import { notificationState }    from './notify'
 import type { NotificationType } from './notify'
-
-const iconByType: Record<NotificationType, 'CheckCircle2' | 'XCircle' | 'Info' | 'AlertTriangle'> = {
-  success: 'CheckCircle2',
-  error:   'XCircle',
-  info:    'Info',
-  warning: 'AlertTriangle',
-}
 
 const colorByType: Record<NotificationType, string> = {
   success: 'green-co',
@@ -19,7 +11,6 @@ const colorByType: Record<NotificationType, string> = {
   warning: 'yellow-co',
 }
 
-const icon  = computed(() => iconByType[notificationState.type])
 const color = computed(() => colorByType[notificationState.type])
 
 </script>
@@ -29,10 +20,14 @@ const color = computed(() => colorByType[notificationState.type])
     <Transition name="notification">
       <div
         v-if="notificationState.visible"
-        class="fixed bottom-6 left-1/2 z-50 flex items-center gap-2 rounded-medium bg-white px-4 py-3 shadow-lg"
+        class="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex items-center justify-center px-4"
       >
-        <Icon :name="icon" :color="color" :size="20" />
-        <span class="text-small font-medium text-black">{{ notificationState.message }}</span>
+        <div
+          class="pointer-events-auto max-w-md rounded-medium border-l-4 bg-white px-4 py-3 text-black shadow-soft"
+          :class="'border-' + color"
+        >
+          {{ notificationState.message }}
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -47,6 +42,6 @@ const color = computed(() => colorByType[notificationState.type])
 .notification-enter-from,
 .notification-leave-to {
   opacity: 0;
-  transform: translate(-50%, 0.5rem);
+  transform: translateY(0.5rem);
 }
 </style>

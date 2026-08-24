@@ -26,7 +26,7 @@ export function candidateColumns(): TableColumn<Candidate>[] {
       size: 'sm',
       fixed: true,
       component: StatusField,
-      props: (item) => ({ status: item.blocked ? CandidateStatus.Suprimido : item.status }),
+      props: (item) => ({ status: item.blocked ? CandidateStatus.Suprimido : (item.subStatus ?? item.status) }),
     },
     {
       key: 'phone',

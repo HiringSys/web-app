@@ -227,6 +227,7 @@ async function submitEditProcess(values: Record<string, string>) {
 
     <Table
       :columns="columns" :items="paginatedProcesses" :draggable="false"
+      :disabled-items="(process) => process.status === ProcessStatus.Encerrado"
       @delete-item="deleteTarget = $event"
       @edit-item="editTarget = $event"
     >

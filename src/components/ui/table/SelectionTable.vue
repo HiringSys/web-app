@@ -8,8 +8,6 @@ import      { CandidateStatus }          from './types'
 import      { gridTemplate, capColumns } from './style/grid'
 import      { useDragGhostOpacityFix }   from '@/lib/dragGhostOpacity'
 import      { useFontsReady }            from '@/lib/fontsReady'
-import      { updateCandidateStatus }    from '@/service/Peneiras'
-import      { notify }                   from '@/components/feedback/notify'
 
 import Row from './Row.vue'
 
@@ -23,8 +21,10 @@ const props = withDefaults(
     approvalLimit:      number
     showManageActions?: boolean
     showDocument?:      boolean
+    /** Owning peneira is encerrada — freezes the board: no drag, no row actions. */
+    locked?:            boolean
   }>(),
-  { showManageActions: true, showDocument: true },
+  { showManageActions: true, showDocument: true, locked: false },
 )
 
 const emit = defineEmits<{
@@ -34,21 +34,25 @@ const emit = defineEmits<{
   'edit-item':    [item: Candidate]
 }>()
 
-// Suprimido is a display-only override (see `blocked`) — candidates never actually hold it as their real status.
-type BoardStatus = Exclude<CandidateStatus, typeof CandidateStatus.Suprimido>
+// Only Aprovado/Reprovado are real board sections — Contratado/EmAnalise live
+// as the client-only `subStatus` toggle, and Suprimido as `blocked` (see types.ts).
+type BoardStatus = typeof CandidateStatus.Aprovado | typeof CandidateStatus.Reprovado
+
+// Coerce anything that isn't Aprovado into Reprovado — the board only recognizes
+// these two sections, so a stray EmAnalise/Contratado (e.g. from the global
+// Funcionario-status fallback in getCandidatesForProcess) would otherwise vanish.
+props.items.forEach((item) => {
+  if (item.status !== CandidateStatus.Aprovado) item.status = CandidateStatus.Reprovado
+})
 
 const groups = reactive<Record<BoardStatus, Candidate[]>>({
-  [CandidateStatus.EmAnalise]:  props.items.filter((item) => item.status === CandidateStatus.EmAnalise),
-  [CandidateStatus.Aprovado]:   props.items.filter((item) => item.status === CandidateStatus.Aprovado),
-  [CandidateStatus.Reprovado]:  props.items.filter((item) => item.status === CandidateStatus.Reprovado),
-  [CandidateStatus.Contratado]: props.items.filter((item) => item.status === CandidateStatus.Contratado),
+  [CandidateStatus.Aprovado]:  props.items.filter((item) => item.status === CandidateStatus.Aprovado),
+  [CandidateStatus.Reprovado]: props.items.filter((item) => item.status === CandidateStatus.Reprovado),
 })
 
 const SECTIONS: { status: BoardStatus; label: string; tint: string }[] = [
-  { status: CandidateStatus.EmAnalise,  label: 'Em análise', tint: 'bg-yellow/10' },
-  { status: CandidateStatus.Aprovado,   label: 'Aprovado',   tint: 'bg-blue/10'   },
-  { status: CandidateStatus.Reprovado,  label: 'Reprovado',  tint: 'bg-red/10'    },
-  { status: CandidateStatus.Contratado, label: 'Contratado', tint: 'bg-green/10'  },
+  { status: CandidateStatus.Aprovado,  label: 'Aprovado',  tint: 'bg-blue/10' },
+  { status: CandidateStatus.Reprovado, label: 'Reprovado', tint: 'bg-red/10'  },
 ]
 
 /** Blocked candidates keep their section but stop counting towards that section's headcount/capacity. */
@@ -71,38 +75,38 @@ function toggleBlock(candidate: Candidate) {
   emitAll()
 }
 
+/** Client-only cosmetic toggle (see Candidate.subStatus) — never persisted, no backend field exists for it. */
+function toggleSubStatus(candidate: Candidate) {
+  const onValue = candidate.status === CandidateStatus.Aprovado ? CandidateStatus.Contratado : CandidateStatus.EmAnalise
+  candidate.subStatus = candidate.subStatus === onValue ? undefined : onValue
+  emitAll()
+}
+
 function emitAll() {
   emit('update:items', [
-    ...groups[CandidateStatus.EmAnalise],
     ...groups[CandidateStatus.Aprovado],
     ...groups[CandidateStatus.Reprovado],
-    ...groups[CandidateStatus.Contratado],
   ])
 }
 
-/** Persists whichever candidate now sits in `status`'s bucket but still carries a different status. Reverts the move if the API rejects the transition. */
-async function handleChange(status: BoardStatus) {
+/**
+ * Applies whichever candidate now sits in `status`'s bucket but still carries
+ * a different status. Purely local — nothing is sent to the API until the
+ * recruiter shares/closes the process (see `submitStageSelection`).
+ */
+function handleChange(status: BoardStatus) {
   const list = groups[status]
   const moved = list.find((item) => item.status !== status)
 
   if (moved) {
-    const previousStatus = moved.status as BoardStatus
     moved.status = status
-    try {
-      await updateCandidateStatus(moved.id, status)
-    } catch {
-      moved.status = previousStatus
-      const idx = list.indexOf(moved)
-      if (idx !== -1) list.splice(idx, 1)
-      groups[previousStatus].push(moved)
-      notify('Não foi possível mover o candidato.', 'error')
-    }
+    moved.subStatus = undefined
   }
 
   emitAll()
 }
 
-async function moveToStatus(candidate: Candidate, status: BoardStatus) {
+function moveToStatus(candidate: Candidate, status: BoardStatus) {
   const previousStatus = candidate.status as BoardStatus
   if (previousStatus === status) return
 
@@ -110,17 +114,8 @@ async function moveToStatus(candidate: Candidate, status: BoardStatus) {
   const idx = sourceList.indexOf(candidate)
   if (idx !== -1) sourceList.splice(idx, 1)
   candidate.status = status
+  candidate.subStatus = undefined
   groups[status].push(candidate)
-
-  try {
-    await updateCandidateStatus(candidate.id, status)
-  } catch {
-    const newIdx = groups[status].indexOf(candidate)
-    if (newIdx !== -1) groups[status].splice(newIdx, 1)
-    candidate.status = previousStatus
-    groups[previousStatus].push(candidate)
-    notify('Não foi possível mover o candidato.', 'error')
-  }
 
   emitAll()
 }
@@ -153,6 +148,7 @@ defineExpose({ groups, moveToStatus })
           :group="groupOf(section.status)"
           :animation="150"
           :force-fallback="true"
+          :disabled="locked"
           @change="handleChange(section.status)"
         >
           <template #item="{ element }">
@@ -162,10 +158,14 @@ defineExpose({ groups, moveToStatus })
               :show-manage-actions="showManageActions"
               :show-document="showDocument"
               :blocked="element.blocked"
+              :board-status="section.status"
+              :locked="locked"
               @view-resume="emit('view-resume', $event)"
               @delete-item="emit('delete-item', $event)"
               @edit-item="emit('edit-item', $event)"
               @toggle-block="toggleBlock"
+              @toggle-substatus="toggleSubStatus"
+              @reject-item="moveToStatus($event, CandidateStatus.Reprovado)"
             />
           </template>
         </VueDraggable>

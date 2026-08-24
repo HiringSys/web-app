@@ -16,11 +16,13 @@ const fontsReady = useFontsReady()
 
 const props = withDefaults(
   defineProps<{
-    columns:    TableColumn<T>[]
-    items:      T[]
-    draggable?: boolean
+    columns:        TableColumn<T>[]
+    items:          T[]
+    draggable?:     boolean
+    /** Per-row lock predicate — locked rows keep delete but disable edit. */
+    disabledItems?: (item: T) => boolean
   }>(),
-  { draggable: true },
+  { draggable: true, disabledItems: () => false },
 )
 
 const emit = defineEmits<{
@@ -60,6 +62,7 @@ const rows = computed({
         <template #item="{ element }">
           <Row
             :item="element" :columns="visibleColumns" :grid-template-columns="gridTemplateColumns"
+            :locked="disabledItems(element)"
             @delete-item="emit('delete-item', $event)"
             @edit-item="emit('edit-item', $event)"
           >
@@ -78,6 +81,7 @@ const rows = computed({
           :columns="visibleColumns"
           :grid-template-columns="gridTemplateColumns"
           :draggable="false"
+          :locked="disabledItems(item)"
           @delete-item="emit('delete-item', $event)"
           @edit-item="emit('edit-item', $event)"
         >

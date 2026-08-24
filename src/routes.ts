@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getAuthToken } from '@/service/api'
+import { getProcess   } from '@/service/Peneiras'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,6 +37,12 @@ const router = createRouter({
       path: '/peneiras/:id',
       name: 'peneira-filtragem',
       component: () => import('@/views/core/ProcessDetailView.vue'),
+      
+      async beforeEnter(to) {
+        const peneira = await getProcess(to.params.id as string)
+        to.meta.title = peneira?.jobTitle
+        return true
+      }
     },
     {
       path: '/:pathMatch(.*)*',
@@ -46,7 +53,6 @@ const router = createRouter({
   ],
 })
 
-// Routes reachable without a session — everything else requires auth.
 const PUBLIC_ROUTES = new Set(['login', 'recuperar-senha'])
 
 router.beforeEach((to) => {
