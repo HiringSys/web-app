@@ -16,11 +16,11 @@ defineProps<{
     <RouterLink
       v-if="to"
       :to="to"
-      class="block truncate leading-4 text-[1.05rem] font-semibold text-black hover:text-blue transition-colors duration-150"
+      class="block truncate leading-none text-[1.05rem] font-semibold text-black hover:text-blue transition-colors duration-150"
     >
       {{ title }}
     </RouterLink>
-    <p v-else class="truncate leading-4 text-[1.05rem] font-semibold text-black">{{ title }}</p>
-    <p class="truncate leading-4 text-small text-black/40">{{ subtitle }}</p>
+    <p v-else class="truncate leading-none text-[1.05rem] font-semibold text-black">{{ title }}</p>
+    <p class="truncate leading-none text-small text-black/40">{{ subtitle }}</p>
   </div>
 </template>

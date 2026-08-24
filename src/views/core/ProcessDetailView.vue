@@ -16,12 +16,12 @@ import ImportCandidatesPopup   from "@/components/popup/ImportCandidatesPopup.vu
 
 import { candidateColumns } from "@/components/ui/table/columns/candidateColumns";
 import { CandidateStatus, Seniority, type Candidate, type TableColumn } from "@/components/ui/table/types";
-import type { SelectiveProcess } from "@/types/peneira";
+import { ProcessStatus, type SelectiveProcess } from "@/types/peneira";
 import { MAX_VISIBLE_COLUMNS } from "@/components/ui/table/style/grid";
 import {
   getProcess, getCandidatesForProcess, updateProcess,
   createCandidate, updateCandidate, removeCandidateFromProcess,
-  resolveCandidateResumeUrl,
+  resolveCandidateResumeUrl, submitStageSelection,
 } from "@/service/Peneiras";
 import { notify } from "@/components/feedback/notify";
 
@@ -39,6 +39,8 @@ onMounted(async () => {
   // The API doesn't expose a headcount on Grupo; derive it from the roster we already fetched.
   if (process.value) process.value.participants = candidates.value.length;
 });
+
+const isEncerrado = computed(() => process.value?.status === ProcessStatus.Encerrado);
 
 const allColumns = candidateColumns();
 
@@ -229,6 +231,23 @@ const editProcessValues = computed<Record<string, string>>(() => {
   };
 });
 
+const shareConfirmOpen = ref(false);
+
+/** Persists the final aprovado/reprovado decision and closes the process — irreversible, triggers approval e-mails. */
+async function confirmShare() {
+  if (!process.value || !tableRef.value) return;
+
+  const approvedIds = tableRef.value.groups[CandidateStatus.Aprovado].map((candidate) => candidate.id);
+
+  try {
+    await submitStageSelection(processId, approvedIds);
+    process.value.status = ProcessStatus.Encerrado;
+    await updateProcess(processId, process.value);
+  } catch {
+    notify("Não foi possível encerrar o processo seletivo.", "error");
+  }
+}
+
 async function submitEditProcess(values: Record<string, string>) {
   if (!process.value) return;
 
@@ -264,13 +283,13 @@ async function submitEditProcess(values: Record<string, string>) {
             <h1 class="leading-none">{{ process.jobTitle }}</h1>
             <h3>{{ process.department }}</h3>
           </div>
-          <Button icon="EllipsisVertical" variant="neutral" @click="editProcessOpen = true" />
+          <Button icon="EllipsisVertical" variant="neutral" :disabled="isEncerrado" @click="editProcessOpen = true" />
           <div class="ml-auto flex items-center gap-3">
-            <Button icon="UserPlus" variant="primary" @click="newCandidateOpen = true" />
-            <Button icon="FileSpreadsheet" variant="primary" @click="importOpen = true" />
+            <Button icon="UserPlus" variant="primary" :disabled="isEncerrado" @click="newCandidateOpen = true" />
+            <Button icon="FileSpreadsheet" variant="primary" :disabled="isEncerrado" @click="importOpen = true" />
             <Button icon="Download" variant="primary" />
-            <Button icon="Share2"   variant="primary" />
-            <Button icon="ListTodo" variant="primary" @click="openApproved" />
+            <Button icon="Share2"   variant="primary" :disabled="isEncerrado" @click="shareConfirmOpen = true" />
+            <Button icon="ListTodo" variant="primary" :disabled="isEncerrado" @click="openApproved" />
           </div>
         </div>
   
@@ -287,6 +306,7 @@ async function submitEditProcess(values: Record<string, string>) {
         :approval-limit="process.approvalLimit"
         :show-manage-actions="showManageActions"
         :show-document="showDocument"
+        :locked="isEncerrado"
         @update:items="candidates = $event"
         @view-resume="openResume"
         @delete-item="deleteTarget = $event"
@@ -305,6 +325,7 @@ async function submitEditProcess(values: Record<string, string>) {
         v-else-if="sidebarMode === 'approved' && tableRef"
         :items="tableRef.groups[CandidateStatus.Aprovado]"
         :approval-limit="process.approvalLimit"
+        :read-only="isEncerrado"
         @reorder="reorderApproved"
         @remove="removeFromApproved"
       />
@@ -317,6 +338,15 @@ async function submitEditProcess(values: Record<string, string>) {
       confirm-text="Excluir"
       danger
       @confirm="confirmDeleteCandidate"
+    />
+
+    <ConfirmPopup
+      v-model="shareConfirmOpen"
+      title="Encerrar processo seletivo"
+      message="Tem certeza que deseja compartilhar o resultado e encerrar este processo seletivo? Os candidatos aprovados serão notificados por e-mail e essa ação não pode ser desfeita."
+      confirm-text="Encerrar"
+      danger
+      @confirm="confirmShare"
     />
 
     <FormPopup

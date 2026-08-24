@@ -31,9 +31,10 @@ const props = withDefaults(
 
 const iconComponent = computed(() => (props.icon ? icons[props.icon] : null))
 
-const pressShadowColor = computed(() =>
-  props.variant === 'neutral' ? 'var(--color-gray-co)' : colorClasses[props.color].shadow,
-)
+const pressShadowColor = computed(() => {
+  if (props.disabled) return 'var(--color-gray-co)'
+  return props.variant === 'neutral' ? 'var(--color-gray-co)' : colorClasses[props.color].shadow
+})
 
 const buttonClasses = computed(() => twMerge(
   'relative inline-flex press-shadow items-center justify-center text-center font-semibold cursor-pointer',
@@ -41,15 +42,17 @@ const buttonClasses = computed(() => twMerge(
   props.small   ? 'gap-1 px-4 py-2 h-fit text-small' : 'gap-2',
   !props.small  && (props.icon && !props.text ? 'py-2.75 px-5' : 'px-4 py-2'),
   props.variant === 'neutral' ? 'bg-white text-black/60' : [colorClasses[props.color].bg, 'text-white'],
+  props.disabled ? 'bg-gray text-black/60 cursor-not-allowed pointer-events-none' : '',
   props.class,
 ))
 
 // Pins the press-shadow utility at its :hover look (reduced shadow, shifted
 // down) so the button reads as permanently "engaged" — an inline style wins
 // over the utility's :hover/:active rules regardless of real mouse state.
+// Disabled buttons get the same pinned look so they read as inert, not just greyed.
 const buttonStyle = computed(() => ({
   '--press-shadow-color': pressShadowColor.value,
-  ...(props.toggled
+  ...(props.toggled || props.disabled
     ? { boxShadow: '0 4px 0 0 var(--press-shadow-color)', transform: 'translateY(0.25rem)' }
     : {}),
 }))

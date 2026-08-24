@@ -49,7 +49,7 @@ function submit() {
 
 <template>
   <Popup :model-value="modelValue" :title="title" width="28rem" @update:model-value="emit('update:modelValue', $event)">
-    <div class="flex flex-col gap-4" @keydown.enter.prevent="submit">
+    <div class="flex flex-col gap-4 scrollbar-hide" @keydown.enter.prevent="submit">
       <label v-for="field in fields" :key="field.key" class="flex flex-col gap-1.5">
         <span class="text-small font-semibold text-black/60">{{ field.label }}</span>
 

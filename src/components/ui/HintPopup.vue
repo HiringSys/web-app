@@ -30,7 +30,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 
     <Transition name="hint-pop">
       <div v-if="visible"
-        class="absolute left-0 top-full z-20 mt-2 w-64 rounded-medium bg-white p-3 text-small font-medium text-black shadow-lg"
+        class="absolute left-0 top-full z-20 mt-2 w-64 rounded-medium bg-white p-3 text-small font-medium text-black shadow-soft"
       >
         {{ message }}
       </div>
