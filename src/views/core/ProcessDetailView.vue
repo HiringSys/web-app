@@ -47,9 +47,7 @@ import {
   submitStageSelection,
 } from "@/service/Peneiras";
   
-import { notify } from "@/components/feedback/notify";
 import exportCandidatesToExcel from "@/utils/exportCandidatesToExcel";
-
 import { notify } from "@@/feedback/notify";
 
 import {
